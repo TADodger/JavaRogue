@@ -1,0 +1,83 @@
+I got some source for the old computer game of Rogue.  It was source for
+a UNIX system, so I first ported it to MS-DOS, and then to MS Windows.
+Neither was much of a job--there were only two source files (out of 23)
+that had to be changed.  One controlled reading characters from the
+console.  The other controlled writing them to the screen (a subset of
+the curses package).
+
+The MS-DOS version was direct.  I used BIOS calls to read the keyboard,
+and a simple PC screen package (graphics.h of the Microsoft C compiler)
+to write to the screen.
+
+Windows was a little more challenging.  Windows programs generally run
+with an event loop reading the keyboard, painting the screen, and generally
+watching what is going on in the outer world--the active part of the program
+is supposed to run only when some external event happens (like you pressing
+a key or moving the mouse).
+
+Rogue is an old-style console program.  It runs, and when it feels it needs
+some advice, it reads the keyboard.  There is no provision for painting the
+screen just because some other program messed it up.  This is a different
+focus--the program is in control.  Under Windows, the user is in control.
+
+I did not want to turn the whole Rogue program inside out just to make it
+act like a Windows program.  So I just changed the way the Windows part
+of the program was organized.  I did not construct an event loop that runs
+forever, dispensing orders to the rest of the program, I put the entire
+event loop inside the routine that the rest of Rogue called to get the
+next character from the keyboard.  The loop was modified so that when a
+character event was encountered, the loop exited and returned the character.
+Rogue asks for characters often enough that the loop seemed to run all the
+time, like any normal Windows program.
+
+The only other oddity was dealing with ending the program.  Rogue has several
+places where the program just quits.  A windows program must exit through
+only one place--the end of its main routine (called WinMain).  I solved this
+brutally, using Catch and Throw (the Windows equivalent of setjump and
+longjump).
+
+I then decided to try porting Rogue to Java.  This is a much larger job--
+all the code would have to be modified.  The code must be put into various
+classes, and small changes made to change the syntax from C to Java.
+
+The syntax changes have already become tedious.  Java does not believe, as
+C does, that 0 means false and 1 (or any non-zero number) means true.
+Rogue is riddled with statements like
+	if(017&x){
+that must be changed to
+	if( 0 != (017&x) ){
+an explicitly 'logical' (true or false) statement.
+Pointers variables must also be removed.
+
+The largest job, though, is creating classes for all the routines in
+the original program.  Java has no free-standing routines--all routines
+must belong to some class or other. Java also does not support 'include'
+files where you can dump the stuff it seems like any routine might want
+to know.  The include file contents must also be parcelled out among the
+classes.
+
+Starting a large job is daunting.  I decided to begin by writing an extremely
+crude version of Rogue from scratch (actually, from a little Tetris-like game
+I had written earlier).  This first program was quite simple--there was a
+large  black rectangle with a single at-sign (@) on it.  The at-sign moved
+in response to the arrow keys.
+
+This simple program already included yet another version of the curses package,
+which minimizes writes to the screen by keeping a two copies of the screen--
+one the actual contents of the screen, the other what should be on the screen.
+When the program asks to 'refresh' the screen. only the characters different in
+the two copies are actually written to the screen.  This was very important
+when the screen was a terminal running a measly few thousand baud.  It is still
+helpful.
+
+The next job was to go into the actual Rogue C code, and create a real Rogue
+maze.
+
+
+on the 
+
+complete code conversion by 21nov
+no work from 21nov to 27nov (away in california)
+28nov-4dec -- removing the room dependancies to make it work from
+	an arbitrary ascii map
+
