@@ -18,7 +18,7 @@ public class Door extends Item implements Serializable {
     Door(Level level, int r, int c, int or, int oc) {
         super(level, r, c);
         ichar = '+';
-        place_at(r, c, DOOR);
+        placeAt(r, c, DOOR);
         oth = new Rowcol(or, oc);
     }
 
@@ -30,10 +30,12 @@ public class Door extends Item implements Serializable {
         return level.foyer(row, col);
     }
 
-    Room other_room() {
-        if (0 == (level.map[row][col] & Level.DOOR))
+    Room otherRoom() {
+        if (0 == (level.map[row][col] & Level.DOOR)) {
             return null;
-        return level.room_at(row, col);
+        }
+        
+        return level.roomAt(row, col);
     }
 
     void connect(Door dto) {

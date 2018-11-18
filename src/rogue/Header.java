@@ -9,7 +9,7 @@ public interface Header {
     /** */
     public static final int AMULET_LEVEL = 26;
     /** */
-    public static final int LAST_map = 99;
+    public static final int LAST_MAP = 99;
 
     // Values for the level map:
     /** */
@@ -46,20 +46,20 @@ public interface Header {
     public static final int SOMETHING = 0777;
 
     /** */
-    public static final int uNormal = 0x000; // Light gray
+    public static final int U_NORMAL = 0x000; // Light gray
     /** */
-    public static final int uWeak = 0x100; // Dark gray
+    public static final int U_WEAK = 0x100; // Dark gray
     /** */
-    public static final int uBlack = 0x200; // Black is invisible
+    public static final int U_BLACK = 0x200; // Black is invisible
     /** */
-    public static final int uBrite = 0x300; // White
+    public static final int U_BRITE = 0x300; // White
     /** */
-    public static final int uRed = 0x400;
+    public static final int U_RED = 0x400;
     /** */
     /** */
-    public static final int uRogue = 0x500;
+    public static final int U_ROGUE = 0x500;
     /** */
-    public static final int uDarkRed = 0x600;
+    public static final int U_DARK_RED = 0x600;
     /** */
-    public static final int uGreen = 0x700;
+    public static final int U_GREEN = 0x700;
 }

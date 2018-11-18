@@ -23,7 +23,7 @@ public class ItemList extends ArrayList<Item> implements Serializable {
         }
     }
 
-    Item item_at(int row, int col) {
+    Item itemAt(int row, int col) {
         int i = size();
         while (--i >= 0) {
             Item p = get(i);
@@ -35,7 +35,7 @@ public class ItemList extends ArrayList<Item> implements Serializable {
         return null;
     }
 
-    Item get_letter_toy(int ch) { // Call on the rogue's pack
+    Item getLetterToy(int ch) { // Call on the rogue's pack
         int i = size();
         while (--i >= 0) {
             Item p = get(i);
@@ -69,7 +69,7 @@ public class ItemList extends ArrayList<Item> implements Serializable {
                 Toy obj = (Toy) item;
                 if (0 != (obj.kind & mask)) {
                     int k = obj.ichar >= 'a' && obj.ichar <= 'z' ? obj.ichar : n;
-                    descs[n++] = single_inv(k);
+                    descs[n++] = singleInv(k);
                 }
             }
         }
@@ -77,10 +77,11 @@ public class ItemList extends ArrayList<Item> implements Serializable {
             descs = new String[1];
             descs[0] = "--nothing appropriate--";
         }
+
         return msg.rightlist(descs, ask);
     }
 
-    String single_inv(int ch) {
+    String singleInv(int ch) {
         if (ch < 'a')
             ch += 'a';
         Toy obj = null;
@@ -94,14 +95,14 @@ public class ItemList extends ArrayList<Item> implements Serializable {
             return "";
         }
         String sep = ") ";
-        if (0 != (obj.kind & Id.ARMOR) && obj.is_protected) {
+        if (0 != (obj.kind & Id.ARMOR) && obj.isProtected) {
             sep = "} ";
         }
         
-        return " " + (char) obj.ichar + sep + obj.get_desc();
+        return " " + (char) obj.ichar + sep + obj.getDesc();
     }
 
-    boolean mask_pack(int mask) {
+    boolean maskPack(int mask) {
         int i = size();
         while (--i >= 0) {
             Toy t = (Toy) get(i);
@@ -112,7 +113,7 @@ public class ItemList extends ArrayList<Item> implements Serializable {
         return false;
     }
 
-    char next_avail_ichar() {
+    char nextAvailIchar() {
         int i;
         boolean ichars[] = new boolean[26];
 
@@ -135,9 +136,9 @@ public class ItemList extends ArrayList<Item> implements Serializable {
         return '?';
     }
 
-    void uncurse_all() {
+    void uncurseAll() {
         for (Item item : this) { 
-            ((Toy) item).is_cursed = false;
+            ((Toy) item).isCursed = false;
         }
     }
 }

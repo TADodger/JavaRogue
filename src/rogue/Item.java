@@ -27,23 +27,23 @@ public class Item extends Rowcol implements Header, Serializable {
         this(level, 0, 0);
     }
 
-    void place_at(int r, int c, int what) {
+    void placeAt(int r, int c, int what) {
         List<Item> list = null;
         switch (what) {
             case TOY:
-                list = level.level_toys;
+                list = level.levelToys;
                 break;
             case MONSTER:
-                list = level.level_monsters;
+                list = level.levelMonsters;
                 break;
             case MAN:
-                list = level.level_men;
+                list = level.levelMen;
                 break;
             case TRAP:
-                list = level.level_traps;
+                list = level.levelTraps;
                 break;
             case DOOR:
-                list = level.level_doors;
+                list = level.levelDoors;
                 break;
         }
         if (list != null) {

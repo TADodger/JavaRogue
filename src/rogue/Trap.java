@@ -24,10 +24,10 @@ public class Trap extends Item implements Serializable {
     Trap(Level level, int r, int c, int kind) {
         super(level, r, c);
         this.kind = kind;
-        place_at(r, c, TRAP);
+        placeAt(r, c, TRAP);
     }
 
-    String trap_message(Persona p) {
+    String trapMessage(Persona p) {
         String src = msg[kind];
         String dst = "";
         int i = 0;
@@ -50,7 +50,7 @@ public class Trap extends Item implements Serializable {
                     dst += "@<" + p.name() + ">";
             }
         } catch (Exception e) {
-            System.out.println("trap_message(" + p.name() + ")\n\t" + src + '\n' + dst);
+            System.out.println("trapMessage(" + p.name() + ")\n\t" + src + '\n' + dst);
         }
         dst += src.substring(i);
         return dst;

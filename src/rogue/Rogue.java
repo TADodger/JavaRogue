@@ -39,20 +39,20 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
     transient Thread gamer;
     Level level;
     Room endroom;
-    int cur_level;
-    int max_level;
-    List<View> view_list = new ArrayList<>();
+    int currentLevel;
+    int maxLevel;
+    List<View> viewList = new ArrayList<>();
     List<int[]> flashers = new ArrayList<>();
     Randomx rand;
     String keybuf = "";
     long starttime;
 
-    Id[] id_potions = null;
-    Id[] id_scrolls = null;
-    Id[] id_weapons = null;
-    Id[] id_armors = null;
-    Id[] id_wands = null;
-    Id[] id_rings = null;
+    Id[] idPotions = null;
+    Id[] idScrolls = null;
+    Id[] idWeapons = null;
+    Id[] idArmors = null;
+    Id[] idWands = null;
+    Id[] idRings = null;
 
     String scorepagename;
     boolean interrupted;
@@ -81,7 +81,7 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
         r.parentFrame.invalidate();
         r.parentFrame.validate();
         r.parentFrame.repaint();
-//        r.parentFrame.pack();
+        r.parentFrame.pack();
         r.parentFrame.setVisible(true);
         r.parentFrame.validate();
 
@@ -141,11 +141,14 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
     }
     
     void outputScores() {
-        View view = (View) view_list.get(0);
+        View view = (View) viewList.get(0);
         view.empty();
         view.addch(4, 32, "__--HIGH SCORES---__");
 
         File scoreFile = new File(System.getProperty("user.home") + "/.rogue/jrogue.scr");
+        if (!scoreFile.exists()) {
+            scoreFile.getParentFile().mkdirs();
+        }
         String[] topTen = new String[10];
         try {
             Scanner inStream = new Scanner(scoreFile);
@@ -166,8 +169,8 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
             boolean currentScoreOutputted = false;
             for (int i = 0; i < topTen.length; i++) {
                 if (!currentScoreOutputted && topTen[i] == null) {
-                    outStream.println(i + 1 + " " + man.gold + " " + man.name() + " " + Man.game_over_String);
-                    view.addch(5 + i, 30, i + 1 + " " + man.gold + " " + man.name() + " " + Man.game_over_String);
+                    outStream.println(i + 1 + " " + man.gold + " " + man.name() + " " + Man.gameOverMessage);
+                    view.addch(5 + i, 30, i + 1 + " " + man.gold + " " + man.name() + " " + Man.gameOverMessage);
                     currentScoreOutputted = true;
                 } else if (!currentScoreOutputted && topTen[i] != null) {
                     System.out.println(topTen[i]);
@@ -177,8 +180,8 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
                         score[3] += " " + score[j];
                     }
                     if (!currentScoreOutputted && man.gold > Integer.parseInt(score[1])) {
-                        outStream.println(i + 1 + " " + man.gold + " " + man.name() + " " + Man.game_over_String);
-                        view.addch(5 + i, 30, i + 1 + " " + man.gold + " " + man.name() + " " + Man.game_over_String);
+                        outStream.println(i + 1 + " " + man.gold + " " + man.name() + " " + Man.gameOverMessage);
+                        view.addch(5 + i, 30, i + 1 + " " + man.gold + " " + man.name() + " " + Man.gameOverMessage);
                         outStream.println(i + 2 + " " + score[1] + " " + score[2] + " " + score[3]);
                         view.addch(6 + i, 30, i + 2 + " " + score[1] + " " + score[2] + " " + score[3]);
                         currentScoreOutputted = true;
@@ -203,43 +206,42 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
         view.addch(19, 33, "~---------~");
         view.addch(23, 8, "Press SPACE to exit");
         view.refresh();
-        wait_for_ack();
+        waitForAck();
     }
 
-    void end_game() {
-        if (!Man.saved_game) {
+    void endGame() {
+        if (!Man.savedGame) {
             outputScores();
         }
-        System.exit(0);
+        exit();
     }
 
-    void begin_game() {
+    void beginGame() {
         System.out.println("Beginning new game");
         View view = null;
         // Id.list_items();
-        if (view_list.size() == 0) {
+        if (viewList.size() == 0) {
             view = new View(this, pointsize, 25, 80);
             view.addKeyListener(this);
             add(view, BorderLayout.CENTER);
-            view_list.add(view);
+            viewList.add(view);
             Man man = new Man(this, view);
             view.man = man;
         } else {
-            view = view_list.get(0);
+            view = viewList.get(0);
             Man man = view.man;
             Option oldop = man != null ? man.option : null;
             view.empty();
             view.man = man = new Man(this, view);
             man.option = oldop;
         }
-        System.gc();
         view.requestFocus();
         Id.mixColors(rand);
         Id.makeScrollTitles(rand);
         // Level.cur_level= 0;
-        cur_level = 0;
+        currentLevel = 0;
         // Level.max_level= 0;
-        max_level = 0;
+        maxLevel = 0;
         Date d = new Date();
         starttime = d.getTime();
     }
@@ -255,45 +257,45 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
             System.out.println("in main game loop");
             if (newlevel) {
                 System.out.println("creating new level");
-                if (view_list.size() == 0) {
-                    begin_game();
+                if (viewList.size() == 0) {
+                    beginGame();
                 }
                 interrupted = false;
                 level = new NineRoom(25, 80, this);
-                level.put_monsters();
-                for (View v : view_list) {
+                level.putMonsters();
+                for (View v : viewList) {
                     man = v.man;
                     man.level = level;
                     if (man.pack == null) {
-                        man.player_init();
+                        man.playerInit();
                     }
-                    if (!man.has_amulet() && (level.cur_level >= Level.AMULET_LEVEL)) {
-                        Rowcol pt = level.gr_row_col(Level.FLOOR | Level.TUNNEL, null);
+                    if (!man.hasAmulet() && (level.currentLevel >= Level.AMULET_LEVEL)) {
+                        Rowcol pt = level.grRowCol(Level.FLOOR | Level.TUNNEL, null);
                         if (pt != null) {
                             Toy amulet = new Toy(level, Id.AMULET);
-                            amulet.place_at(pt.row, pt.col, TOY);
+                            amulet.placeAt(pt.row, pt.col, TOY);
                         }
                     }
                     v.level = level;
                     v.empty();
                     v.man.pack.relevel(level);
-                    level.put_player(v.man);
+                    level.putPlayer(v.man);
                 }
                 newlevel = false;
                 parentFrame.revalidate();
             }
-            for (View v : view_list) {
-                v.man.init_seen();
-                v.man.print_stat();
+            for (View v : viewList) {
+                v.man.initSeen();
+                v.man.printStat();
                 v.refresh();
             }
             repaint();
             //// view.refresh();
-            man = (Man) ((View) view_list.get(0)).man;
+            man = (Man) ((View) viewList.get(0)).man;
             man.play_level();
-            if (Man.game_over) {
-                md_slurp();
-                end_game();
+            if (Man.gameOver) {
+                mdSlurp();
+                endGame();
             }
             newlevel = true;
         }
@@ -351,18 +353,18 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
     @Override
     public void keyTyped(KeyEvent e) {}
     
-    synchronized void md_sleep(int mseconds) {
+    synchronized void mdSleep(int mseconds) {
         if (mseconds > 0) {
             try { Thread.sleep(mseconds); } catch (InterruptedException e) {}
         }
         keybuf = "";
     }
 
-    synchronized void md_slurp() {
+    synchronized void mdSlurp() {
         keybuf = "";
     }
 
-    synchronized int md_getchar() {
+    synchronized int mdGetchar() {
         while (keybuf == null || keybuf.length() == 0) {
             try {
                 wait();
@@ -379,10 +381,10 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
     }
 
     int rgetchar() {
-        return md_getchar();
+        return mdGetchar();
     }
 
-    void wait_for_ack() {
+    void waitForAck() {
         int c;
         do {
             c = rgetchar();
@@ -402,10 +404,10 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
             boolean bseen = false;
             List<Character> chsave = new ArrayList<>(flashers.size());
 
-            for (View v : view_list) {
+            for (View v : viewList) {
                 boolean vseen = false;
                 for (int[] ia : flashers) {
-                    if (v.in_sight(ia[0], ia[1])) {
+                    if (v.inSight(ia[0], ia[1])) {
                         int ch = v.terminal[ia[0]][ia[1]];
                         chsave.add(new Character((char) ch));
                         ch &= 255;
@@ -420,14 +422,14 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
                 if (vseen) {
                     v.refresh();
                     bseen = true;
-                    md_sleep(120);
+                    mdSleep(120);
                 }
             }
             if (bseen)
-                for (View v : view_list) {
+                for (View v : viewList) {
                     for (int i=0;i<flashers.size();i++) {
                         int ia[] = flashers.get(i);
-                        if (v.in_sight(ia[0], ia[1])) {
+                        if (v.inSight(ia[0], ia[1])) {
                             v.addch(ia[0], ia[1], chsave.get(i).charValue());
                         }
                         v.mark(ia[0], ia[1]);
@@ -440,24 +442,24 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
     void vflash(int r, int c, char ch) {
         boolean bseen = false;
 
-        for (View v : view_list) {
-            if (v.in_sight(r, c)) {
+        for (View v : viewList) {
+            if (v.inSight(r, c)) {
                 bseen = true;
                 v.addch(r, c, ch);
             }
         }
         if (bseen) {
             refresh();
-            md_sleep(50);
-            ch = level.get_char(r, c);
-            for (View v : view_list) {
+            mdSleep(50);
+            ch = level.getChar(r, c);
+            for (View v : viewList) {
                 v.addch(r, c, ch);
             }
         }
     }
 
     void tell(Persona p, String s, boolean bintr) {
-        for (View v : view_list) {
+        for (View v : viewList) {
             if (v.man == p) {
                 String ss = whoify(p, s);
                 v.msg.message(ss, bintr);
@@ -467,8 +469,8 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
     }
 
     boolean describe(Rowcol rc, String s, boolean bintr) {
-        for (View v : view_list) {
-            if (v.in_sight(rc.row, rc.col)) {
+        for (View v : viewList) {
+            if (v.inSight(rc.row, rc.col)) {
                 String ss = whoify(v.man, s);
                 v.msg.message(ss, bintr);
                 return true;
@@ -478,34 +480,34 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
         return false;
     }
 
-    void check_message(Persona p) {
-        for (View v : view_list) {
+    void checkMessage(Persona p) {
+        for (View v : viewList) {
             if (v.man == p)
                 v.msg.checkMessage();
         }
     }
 
     void refresh() {
-        for (View v : view_list) {
+        for (View v : viewList) {
             v.refresh();
         }
     }
 
     void vset(int r, int c) {
-        for (View v : view_list) {
+        for (View v : viewList) {
             char ch = v.charat(r, c);
             v.addch(r, c, ch);
         }
     }
 
     void mark(int r, int c) {
-        for (View v : view_list) {
+        for (View v : viewList) {
             v.mark(r, c);
         }
     }
 
     void markall() {
-        for (View v : view_list) {
+        for (View v : viewList) {
             v.markall();
         }
     }
@@ -554,21 +556,21 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
     }
 
     void pullIds() {
-        id_potions = Id.idPotions;
-        id_scrolls = Id.idScrolls;
-        id_weapons = Id.idWeapons;
-        id_armors = Id.idArmors;
-        id_wands = Id.idWands;
-        id_rings = Id.idRings;
+        idPotions = Id.idPotions;
+        idScrolls = Id.idScrolls;
+        idWeapons = Id.idWeapons;
+        idArmors = Id.idArmors;
+        idWands = Id.idWands;
+        idRings = Id.idRings;
     }
 
     void pushIds() {
-        Id.idPotions = id_potions;
-        Id.idScrolls = id_scrolls;
-        Id.idWeapons = id_weapons;
-        Id.idArmors = id_armors;
-        Id.idWands = id_wands;
-        Id.idRings = id_rings;
+        Id.idPotions = idPotions;
+        Id.idScrolls = idScrolls;
+        Id.idWeapons = idWeapons;
+        Id.idArmors = idArmors;
+        Id.idWands = idWands;
+        Id.idRings = idRings;
     }
 
     static Rogue loadGame() {
@@ -576,7 +578,7 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
         try {
 
             // Reading the object from a file
-            File file = new File("rogue.ser");
+            File file = new File(System.getProperty("user.home") + "/.rogue/rogue.ser");
             FileInputStream fileStream = new FileInputStream(file);
             ObjectInputStream in = new ObjectInputStream(fileStream);
 

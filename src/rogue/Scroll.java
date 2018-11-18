@@ -15,30 +15,30 @@ class Scroll extends Toy implements Serializable {
                 owner.tell("you hear a maniacal laughter in the distance");
                 break;
             case Id.HOLD_MONSTER:
-                hold_monster();
+                holdMonster();
                 break;
             case Id.ENCH_WEAPON:
                 if (owner.weapon != null) {
                     if (0 != (owner.weapon.kind & Id.WEAPON)) {
                         String plural = owner.weapon.quantity <= 1 ? "s " : " ";
-                        owner.tell("your " + owner.weapon.name() + "glow" + plural + owner.get_ench_color());
+                        owner.tell("your " + owner.weapon.name() + "glow" + plural + owner.getEnchColor());
                         if (level.self.rand.coin()) {
-                            owner.weapon.hit_enchant++;
+                            owner.weapon.hitEnchant++;
                         } else {
-                            owner.weapon.d_enchant++;
+                            owner.weapon.dEnchant++;
                         }
                     }
-                    owner.weapon.is_cursed = false;
+                    owner.weapon.isCursed = false;
                 } else {
                     owner.tell("your hands tingle");
                 }
                 break;
             case Id.ENCH_ARMOR:
                 if (owner.armor != null) {
-                    owner.tell("your armor glows " + owner.get_ench_color() + "for a moment");
-                    owner.armor.d_enchant++;
-                    owner.armor.is_cursed = false;
-                    owner.print_stat();
+                    owner.tell("your armor glows " + owner.getEnchColor() + "for a moment");
+                    owner.armor.dEnchant++;
+                    owner.armor.isCursed = false;
+                    owner.printStat();
                 } else {
                     owner.tell("your skin crawls");
                 }
@@ -52,7 +52,7 @@ class Scroll extends Toy implements Serializable {
                     if (t != null) {
                         t.identified = true;
                         Id.identify(t.kind);
-                        owner.tell(t.get_desc());
+                        owner.tell(t.getDesc());
                     }
                 }
                 break;
@@ -61,13 +61,13 @@ class Scroll extends Toy implements Serializable {
                 break;
             case Id.SLEEP:
                 owner.describe(owner.who("fall") + "asleep", false);
-                owner.take_a_nap();
+                owner.takeANap();
                 break;
             case Id.PROTECT_ARMOR:
                 if (owner.armor != null) {
                     owner.tell("your armor is covered by a shimmering gold shield");
-                    owner.armor.is_protected = true;
-                    owner.armor.is_cursed = false;
+                    owner.armor.isProtected = true;
+                    owner.armor.isCursed = false;
                 } else {
                     owner.tell("your acne seems to have disappeared");
                 }
@@ -75,11 +75,11 @@ class Scroll extends Toy implements Serializable {
             case Id.REMOVE_CURSE:
                 if (owner instanceof Man) {
                     owner.tell(owner.halluc == 0 ? "you feel as though someone is watching over you" : "you feel in touch with the universal oneness");
-                    ((Man) owner).pack.uncurse_all();
+                    ((Man) owner).pack.uncurseAll();
                 }
                 break;
             case Id.CREATE_MONSTER:
-                if (!create_monster(owner)) {
+                if (!createMonster(owner)) {
                     owner.tell("you hear a faint cry of anguish in the distance");
                 }
                 break;
@@ -90,19 +90,19 @@ class Scroll extends Toy implements Serializable {
             case Id.MAGIC_MAPPING:
                 owner.tell("this scroll seems to have a map on it");
                 if (owner instanceof Man) {
-                    level.draw_magic_map((Man) owner);
+                    level.drawMagicMap((Man) owner);
                 }
                 break;
             case Id.CON_MON:
-                owner.con_mon = true;
-                owner.tell("your hands glow " + owner.get_ench_color() + "for a moment");
+                owner.conMon = true;
+                owner.tell("your hands glow " + owner.getEnchColor() + "for a moment");
                 break;
         }
         Id.identifyUncalled(kind);
         vanish();
     }
 
-    boolean create_monster(Persona man) {
+    boolean createMonster(Persona man) {
         int perm[] = level.self.rand.permute(9);
         for (int i = 0; i < 9; i++) {
             int c = Id.xtab[perm[i]] + man.col;
@@ -111,11 +111,11 @@ class Scroll extends Toy implements Serializable {
                 continue;
             }
             if (0 == (level.map[r][c] & MONSTER) && 0 != (level.map[r][c] & (FLOOR | TUNNEL | STAIRS | DOOR))) {
-                Monster monster = level.gr_monster();
-                monster.put_m_at(r, c);
+                Monster monster = level.grMonster();
+                monster.putMonsterAt(r, c);
                 level.self.vset(r, c);
-                if (0 != (monster.m_flags & (Monster.WANDERS | Monster.WAKENS))) {
-                    monster.wake_up();
+                if (0 != (monster.mFlags & (Monster.WANDERS | Monster.WAKENS))) {
+                    monster.wakeUp();
                 }
                 return true;
             }
@@ -125,15 +125,15 @@ class Scroll extends Toy implements Serializable {
     }
 
     void aggravate(Persona man) {
-        for (Item item : level.level_monsters) {
+        for (Item item : level.levelMonsters) {
             Monster monster = (Monster) item;
-            monster.wake_up();
-            monster.m_flags &= ~Monster.IMITATES;
+            monster.wakeUp();
+            monster.mFlags &= ~Monster.IMITATES;
             level.self.vset(monster.row, monster.col);
         }
     }
 
-    void hold_monster() {
+    void holdMonster() {
         int mcount = 0;
         for (int i = -2; i <= 2; i++) {
             for (int j = -2; j <= 2; j++) {
@@ -143,10 +143,10 @@ class Scroll extends Toy implements Serializable {
                     continue;
                 }
                 if (0 != (level.map[r][c] & MONSTER)) {
-                    Monster monster = (Monster) level.level_monsters.item_at(r, c);
+                    Monster monster = (Monster) level.levelMonsters.itemAt(r, c);
                     if (monster != null && monster != owner) {
-                        monster.m_flags |= Monster.ASLEEP;
-                        monster.m_flags &= ~Monster.WAKENS;
+                        monster.mFlags |= Monster.ASLEEP;
+                        monster.mFlags &= ~Monster.WAKENS;
                         mcount++;
                     }
                 }

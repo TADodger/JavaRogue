@@ -9,38 +9,38 @@ class Persona extends Item implements Serializable {
     Montype mt;
 
     // These all count moves until the condition stops
-    int ring_exp = 0;
+    int ringExp = 0;
     boolean wizard = false;
 
     Toy armor;
     Toy weapon;
-    Toy left_ring;
-    Toy right_ring;
+    Toy leftRing;
+    Toy rightRing;
 
     int blind = 0;
     int confused = 0;
     int halluc = 0;
     int levitate = 0;
-    int bear_trap = 0;
-    int haste_self = 0;
-    int hp_current;
-    int hp_max;
+    int bearTrap = 0;
+    int hasteSelf = 0;
+    int hpCurrent;
+    int hpMax;
     int extra_hp = 0;
-    String hit_message = "";
+    String hitMessage = "";
 
     Persona ihate;
     int stealthy = 0;
-    boolean con_mon = false; // confuse monsters
-    int r_rings = 0;
-    int e_rings = 0;
-    int str_current; // Current strength
-    int str_max; // Max strength
-    int add_strength = 0;
+    boolean conMon = false; // confuse monsters
+    int rRings = 0;
+    int eRings = 0;
+    int strCurrent; // Current strength
+    int strMax; // Max strength
+    int addStrength = 0;
     int gold = 0;
     int exp; // Experience level
-    boolean being_held = false;
+    boolean beingHeld = false;
 
-    int m_flags; /* monster flags */
+    int mFlags; /* monster flags */
 
     Persona(Rogue self) {
         super();
@@ -71,11 +71,11 @@ class Persona extends Item implements Serializable {
     }
 
     String name() {
-        return mt.m_name;
+        return mt.mName;
     }
 
-    boolean reg_move() {
-        if (haste_self > 0 && 0 == (--haste_self)) {
+    boolean regMove() {
+        if (hasteSelf > 0 && 0 == (--hasteSelf)) {
             tell(who("feel") + " yourself slowing down");
         }
 
@@ -87,8 +87,8 @@ class Persona extends Item implements Serializable {
             unhallucinate();
         }
 
-        if (bear_trap > 0) {
-            bear_trap--;
+        if (bearTrap > 0) {
+            bearTrap--;
         }
 
         if (levitate > 0 && 0 >= (--levitate)) {
@@ -101,7 +101,7 @@ class Persona extends Item implements Serializable {
         return false; /* not fainted */
     }
 
-    void heal_potional(boolean extra) {
+    void healPotional(boolean extra) {
         if (confused > 0 && extra) {
             unconfuse();
         } else if (confused > 0) {
@@ -119,7 +119,7 @@ class Persona extends Item implements Serializable {
         }
     }
 
-    void go_blind() {
+    void goBlind() {
         if (blind == 0) {
             tell("a cloak of darkness falls around " + who());
         }
@@ -137,7 +137,7 @@ class Persona extends Item implements Serializable {
         }
     }
 
-    int mov_confused() {
+    int movConfused() {
         String s = "jklhyubn";
         
         return s.charAt(self.rand.get(7));
@@ -164,7 +164,7 @@ class Persona extends Item implements Serializable {
             tell(who("feel") + " less " + (halluc > 0 ? "trippy" : "confused") + " now");
         }
         confused = 0;
-        m_flags &= ~Monster.CONFUSED;
+        mFlags &= ~Monster.CONFUSED;
     }
 
     void unhallucinate() {
@@ -175,20 +175,20 @@ class Persona extends Item implements Serializable {
         }
     }
 
-    void take_a_nap() {
-        m_flags |= Monster.ASLEEP;
+    void takeANap() {
+        mFlags |= Monster.ASLEEP;
     }
 
-    Trap trap_player() {
+    Trap trapPlayer() {
         /* Traps a monster (man traps overrides this) */
-        Trap t = (Trap) level.level_traps.item_at(row, col);
+        Trap t = (Trap) level.levelTraps.itemAt(row, col);
         if (t != null) {
             switch (t.kind) {
                 case Trap.BEAR_TRAP:
-                    if (describe(t.trap_message(this), true)) {
+                    if (describe(t.trapMessage(this), true)) {
                         level.map[row][col] &= ~HIDDEN;
                     }
-                    bear_trap = self.rand.get(4, 7);
+                    bearTrap = self.rand.get(4, 7);
                     t = null;
                     break;
                 case Trap.TRAP_DOOR:
@@ -204,13 +204,13 @@ class Persona extends Item implements Serializable {
                     tele();
                     break;
                 case Trap.SLEEPING_GAS_TRAP:
-                    if (describe(t.trap_message(this), true)) {
+                    if (describe(t.trapMessage(this), true)) {
                         level.map[row][col] &= ~HIDDEN;
                     }
-                    take_a_nap();
+                    takeANap();
                     break;
                 case Trap.DART_TRAP:
-                    String s = t.trap_message(this);
+                    String s = t.trapMessage(this);
                     if (damage(null, Id.getDamage("1d6", self.rand), 0)) {
                         s += ", and killed it.";
                     }
@@ -224,18 +224,18 @@ class Persona extends Item implements Serializable {
         return t;
     }
 
-    boolean m_confuse(Persona monster) {
-        if (!can_see(monster.row, monster.col)) {
+    boolean mConfuse(Persona monster) {
+        if (!canSee(monster.row, monster.col)) {
             return false;
         }
         if (self.rand.percent(45)) {
-            monster.m_flags &= ~Monster.CONFUSES; /*
+            monster.mFlags &= ~Monster.CONFUSES; /*
                                                    * will not confuse the rogue
                                                    */
             return false;
         }
         if (self.rand.percent(55)) {
-            monster.m_flags &= ~Monster.CONFUSES;
+            monster.mFlags &= ~Monster.CONFUSES;
             tell("the gaze of the " + monster.name() + " has confused " + who());
             cnfs(self.rand.get(12, 22));
             
@@ -245,7 +245,7 @@ class Persona extends Item implements Serializable {
         return false;
     }
 
-    void do_wear(Toy obj) {
+    void doWear(Toy obj) {
         armor = obj;
         obj.inUseFlags |= Id.BEING_WORN;
         obj.identified = true;
@@ -258,7 +258,7 @@ class Persona extends Item implements Serializable {
         armor = null;
     }
 
-    void do_wield(Toy obj) {
+    void doWield(Toy obj) {
         weapon = obj;
         obj.inUseFlags |= Id.BEING_WIELDED;
     }
@@ -270,33 +270,33 @@ class Persona extends Item implements Serializable {
         weapon = null;
     }
 
-    void print_stat() {
+    void printStat() {
         /* override for real man */
     }
 
-    void ring_stats(boolean huh) {
+    void ringStats(boolean huh) {
         /* monsters immune to rings */
     }
 
-    int get_hit_chance(Toy t) {
-        int hit_chance = 40;
-        hit_chance += 3 * (t == null ? 1 : t.to_hit());
-        hit_chance += 2 * (exp + ring_exp) - r_rings;
+    int getHitChance(Toy t) {
+        int hitChance = 40;
+        hitChance += 3 * (t == null ? 1 : t.toHit());
+        hitChance += 2 * (exp + ringExp) - rRings;
         
-        return hit_chance;
+        return hitChance;
     }
 
-    int get_weapon_damage(Toy t) {
-        int damage = t == null ? -1 : t.get_w_damage();
+    int getWeaponDamage(Toy t) {
+        int damage = t == null ? -1 : t.getWeaponWDamage();
 
-        damage += damage_for_strength();
-        damage += (exp + ring_exp - r_rings + 1) / 2;
+        damage += damageForStrength();
+        damage += (exp + ringExp - rRings + 1) / 2;
         
         return damage;
     }
 
-    int damage_for_strength() {
-        int strength = str_current + add_strength;
+    int damageForStrength() {
+        int strength = strCurrent + addStrength;
 
         if (strength <= 6) {
             return strength - 5;
@@ -319,18 +319,19 @@ class Persona extends Item implements Serializable {
         if (strength <= 30) {
             return 7;
         }
+
         return 8;
     }
 
-    boolean can_see(int r, int c) {
+    boolean canSee(int r, int c) {
         return true;
     }
 
-    String get_ench_color() {
+    String getEnchColor() {
         if (halluc > 0) {
             return Id.idPotions[self.rand.get(Id.idPotions.length - 1)].title;
         }
-        if (con_mon) {
+        if (conMon) {
             return "red ";
         }
         
@@ -348,15 +349,15 @@ class Persona extends Item implements Serializable {
 
     void die() {
         if (ihate != null) {
-            if (0 != (m_flags & Monster.HOLDS)) {
-                ihate.being_held = false;
+            if (0 != (mFlags & Monster.HOLDS)) {
+                ihate.beingHeld = false;
             }
             if (ihate.ihate == this) {
                 ihate.ihate = null;
             }
         }
         level.map[row][col] &= ~(MONSTER | MAN);
-        level.level_monsters.remove(this);
+        level.levelMonsters.remove(this);
         self.mark(row, col);
     }
 

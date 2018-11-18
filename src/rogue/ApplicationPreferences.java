@@ -49,7 +49,7 @@ public class ApplicationPreferences {
         if (prefs.getBoolean(WINDOW_MAXIMIZED, false)) {
             rogue.parentFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         }
-        while (rogue.view_list.size() < 1) {
+        while (rogue.viewList.size() < 1) {
             try { Thread.sleep(50); } catch (InterruptedException e) {}
         }
         rogue.pointsize = prefs.getInt(POINT_SIZE, 24);
@@ -67,7 +67,7 @@ public class ApplicationPreferences {
         prefs.putInt(WINDOW_X, point.x);
         prefs.putInt(WINDOW_Y, point.y);
         prefs.putBoolean(WINDOW_MAXIMIZED, rogue.parentFrame.getExtendedState() == JFrame.MAXIMIZED_BOTH);
-        prefs.putInt(POINT_SIZE, rogue.view_list.get(0).pointsize);
+        prefs.putInt(POINT_SIZE, rogue.viewList.get(0).pointsize);
     }
     
     private ApplicationPreferences(){}

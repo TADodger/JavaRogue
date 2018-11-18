@@ -15,39 +15,39 @@ public class Man extends Persona implements Serializable {
     View view;
     Option option;
     ItemList pack = null;
-    int exp_points = 0; // Experience points
-    int moves_left = 1250; // Food counter
-    int less_hp = 0;
-    int m_moves = 0; // General move counter
+    int expPoints = 0; // Experience points
+    int movesLeft = 1250; // Food counter
+    int lessHp = 0;
+    int mMoves = 0; // General move counter
 
-    boolean sustain_strength = false;
-    boolean detect_monster = false;
+    boolean sustainStrength = false;
+    boolean detectMonster = false;
     boolean passgo = false;
-    boolean r_teleport = false;
+    boolean rTeleport = false;
     boolean jump = false;
-    boolean see_invisible;
-    static boolean game_over = false;
-    static boolean saved_game = false;
-    static String game_over_String = "";
+    boolean seeInvisible;
+    static boolean gameOver = false;
+    static boolean savedGame = false;
+    static String gameOverMessage = "";
     boolean wizzed = false;
     static int justLoaded = 0;
 
     int regeneration = 0;
-    boolean r_see_invisible = false;
-    boolean maintain_armor = false;
+    boolean rSeeInvisible = false;
+    boolean maintainArmor = false;
 
     static final int R_TELE_PERCENT = 8;
 
-    int auto_search = 0; // Number of times to auto-search each turn
+    int autoSearch = 0; // Number of times to auto-search each turn
 
-    String new_level_message;
-    String hunger_str = "";
-    boolean trap_door;
+    String newLevelMessage;
+    String hungerStr = "";
+    boolean trapDoor;
 
     char[][] seen; // Set seen to 1(stairs-floor) 2(walls) 0(other)
                    // Also 4=just seen 8=last seen
                    // Bits 4-6 are the wally code below
-    static final char Wallys[] = { ' ', '|', '-', '+', '#', '%', '^' };
+    static final char WALLYS[] = { ' ', '|', '-', '+', '#', '%', '^' };
 
     static final int MOVED = 0;
     static final int MOVE_FAILED = -1;
@@ -69,13 +69,13 @@ public class Man extends Persona implements Serializable {
 
     Man(Rogue self, View view) {
         super(self);
-        mt = Monster.MON_TAB[Monster.MONSTERS - 1];
-        ichar = (char) (mt.ichar | uRogue);
+        mt = Monster.MONSTER_TABLE[Monster.MONSTERS - 1];
+        ichar = (char) (mt.ichar | U_ROGUE);
         this.self = self;
         this.option = new Option();
         this.view = view;
-        hp_max = hp_current = mt.hp_current;
-        str_max = str_current = 16;
+        hpMax = hpCurrent = mt.hpCurrent;
+        strMax = strCurrent = 16;
         exp = 1;
     }
 
@@ -85,32 +85,32 @@ public class Man extends Persona implements Serializable {
             if (self.interrupted) {
                 break;
             }
-            reg_move();
+            regMove();
         } while (--count > 0);
     }
 
-    private void turn_passage(int dir, boolean fast) {
+    private void turnPassage(int dir, boolean fast) {
         int crow = row, ccol = col, turns = 0;
         int ndir = 0;
 
-        if ((dir != 'h') && level.can_turn(crow, ccol + 1)) {
+        if ((dir != 'h') && level.canTurn(crow, ccol + 1)) {
             turns++;
             ndir = 'l';
         }
-        if ((dir != 'l') && level.can_turn(crow, ccol - 1)) {
+        if ((dir != 'l') && level.canTurn(crow, ccol - 1)) {
             turns++;
             ndir = 'h';
         }
-        if ((dir != 'k') && level.can_turn(crow + 1, ccol)) {
+        if ((dir != 'k') && level.canTurn(crow + 1, ccol)) {
             turns++;
             ndir = 'j';
         }
-        if ((dir != 'j') && level.can_turn(crow - 1, ccol)) {
+        if ((dir != 'j') && level.canTurn(crow - 1, ccol)) {
             turns++;
             ndir = 'k';
         }
         if (turns == 1) {
-            play_move(ndir - (fast ? 32 : 96), 1);
+            playMove(ndir - (fast ? 32 : 96), 1);
         }
     }
 
@@ -132,14 +132,14 @@ public class Man extends Persona implements Serializable {
                 if (r >= MIN_ROW && r < level.nrow - 1) {
                     for (int c = col - 1; c <= col + 1; c++) {
                         if (c >= 0 && c < level.ncol) {
-                            if (0 != (level.map[r][c] & HIDDEN) && self.rand.percent(17 + exp + ring_exp)) {
+                            if (0 != (level.map[r][c] & HIDDEN) && self.rand.percent(17 + exp + ringExp)) {
                                 level.map[r][c] &= ~HIDDEN;
                                 if (blind == 0 && (r != row || c != col)) {
                                     view.mark(r, c);
                                 }
                                 shown++;
                                 if (0 != (level.map[r][c] & TRAP)) {
-                                    Trap t = (Trap) level.level_traps.item_at(r, c);
+                                    Trap t = (Trap) level.levelTraps.itemAt(r, c);
                                     if (t != null && t.kind < Trap.name.length) {
                                         tell(Trap.name[t.kind], true);
                                     } else {
@@ -151,7 +151,7 @@ public class Man extends Persona implements Serializable {
                                 }
                                 /* A search is half a move */
                                 if (!is_auto && 0 == (n & 1)) {
-                                    reg_move();
+                                    regMove();
                                 }
                             }
                         }
@@ -163,7 +163,7 @@ public class Man extends Persona implements Serializable {
         return shown > 0;
     }
 
-    int play_move(int ch, int count) {
+    int playMove(int ch, int count) {
         System.out.println((char) ch + " " + ch + " " + count);
         switch (ch) {
             case '.':
@@ -173,7 +173,7 @@ public class Man extends Persona implements Serializable {
             case 's':
                 if (search(count, false)) {
                     vizset();
-                    move_seen();
+                    moveSeen();
                 }
                 break;
             case 'i':
@@ -226,7 +226,7 @@ public class Man extends Persona implements Serializable {
             case 'n':
             case 'b':
                 System.out.println("play_move - 1");
-                one_move_rogue(ch, true);
+                oneMoveRogue(ch, true);
                 System.out.println("play_move - 2");
                 break;
             case 'H':
@@ -237,9 +237,9 @@ public class Man extends Persona implements Serializable {
             case 'Y':
             case 'U':
             case 'N':
-                while (!self.interrupted && one_move_rogue((ch + 32), true) == MOVED) {
+                while (!self.interrupted && oneMoveRogue((ch + 32), true) == MOVED) {
                     if (!self.interrupted && passgo && 0 != (level.map[row][col] & TUNNEL)) {
-                        turn_passage(ch + 32, true);
+                        turnPassage(ch + 32, true);
                     }
                 }
                 break;
@@ -260,22 +260,22 @@ public class Man extends Persona implements Serializable {
                 quaff();
                 break;
             case 'r':
-                read_scroll();
+                readScroll();
                 break;
             case 'm':
                 move_onto();
                 break;
             case ',':
-                kick_into_pack();
+                kickIntoPack();
                 break;
             case 'd':
                 drop();
                 break;
             case 'P':
-                put_on_ring();
+                putOnRing();
                 break;
             case 'R':
-                remove_ring();
+                removeRing();
                 break;
             case 'P' - '@': /* Print old messages */
                 do {
@@ -283,7 +283,7 @@ public class Man extends Persona implements Serializable {
                     ch = self.rgetchar();
                 } while (ch == 'P' - '@');
                 view.msg.checkMessage();
-                count = play_move(ch, 0);
+                count = playMove(ch, 0);
                 break;
             case 'W' - '@':
                 tell((wizard = !wizard) ? "Welcome, wizard!" : "not wizard anymore");
@@ -311,44 +311,44 @@ public class Man extends Persona implements Serializable {
                         tell("I see no way up");
                         return 0;
                     }
-                    if (!has_amulet()) {
+                    if (!hasAmulet()) {
                         tell("your way is magically blocked");
                         return 0;
                     }
                 }
-                new_level_message = "you feel a wrenching sensation in your gut";
-                if (level.cur_level == 1) {
+                newLevelMessage = "you feel a wrenching sensation in your gut";
+                if (level.currentLevel == 1) {
                     win();
                 } else {
-                    level.cur_level -= 2;
+                    level.currentLevel -= 2;
                 }
                 
                 return -1;
             case ')':
-                tell(weapon == null ? "not wielding anything" : pack.single_inv(weapon.ichar));
+                tell(weapon == null ? "not wielding anything" : pack.singleInv(weapon.ichar));
                 break;
             case ']':
-                tell(armor == null ? "not wearing anything" : pack.single_inv(armor.ichar));
+                tell(armor == null ? "not wearing anything" : pack.singleInv(armor.ichar));
                 break;
             case '=':
-                if (left_ring == null && right_ring == null) {
+                if (leftRing == null && rightRing == null) {
                     tell("not wearing any rings");
                 }
-                if (left_ring != null) {
-                    tell(pack.single_inv(left_ring.ichar));
+                if (leftRing != null) {
+                    tell(pack.singleInv(leftRing.ichar));
                 }
-                if (right_ring != null) {
-                    tell(pack.single_inv(right_ring.ichar));
+                if (rightRing != null) {
+                    tell(pack.singleInv(rightRing.ichar));
                 }
                 break;
             case '^':
-                id_trap();
+                idTrap();
                 break;
             case '/':
-                Id.id_type(this);
+                Id.idType(this);
                 break;
             case '?':
-                id_com();
+                idCom();
                 break;
             case '!':
                 // do_shell();
@@ -360,7 +360,7 @@ public class Man extends Persona implements Serializable {
                 // single_inv(0);
                 break;
             case 'T':
-                take_off();
+                takeOff();
                 break;
             case 'W':
                 wear();
@@ -369,23 +369,23 @@ public class Man extends Persona implements Serializable {
                 wield();
                 break;
             case 'c':
-                call_it();
+                callIt();
                 break;
             case 'z':
                 zapp();
                 break;
             case 't':
-                throw_missile();
+                throwMissile();
                 break;
             case 'v':
                 tell("java rogue clone", false);
                 break;
             case 'Q':
                 if (option.askQuit) {
-                    if (!view.msg.yes_or_no("Really quit?"))
+                    if (!view.msg.yesOrNo("Really quit?"))
                         break;
                 }
-                killed_by(null, Monster.QUIT);
+                killedBy(null, Monster.QUIT);
                 break;
             case '0':
             case '1':
@@ -404,7 +404,7 @@ public class Man extends Persona implements Serializable {
                     ch = self.rgetchar();
                 } while ('0' <= ch && ch <= '9');
                 if (ch != '\033') {
-                    count = play_move(ch, count);
+                    count = playMove(ch, count);
                 }
                 break;
             case ' ':
@@ -434,33 +434,33 @@ public class Man extends Persona implements Serializable {
                         tell("At row " + row + ", column " + col);
                         break;
                     case 'B' - '@':
-                        level.level_toys.inventory(Id.ALL_TOYS, view.msg, false);
+                        level.levelToys.inventory(Id.ALL_TOYS, view.msg, false);
                         break;
                     case 'D' - '@':
                         System.out.println("Monsters:");
-                        for (int i = 0; i < level.level_monsters.size(); i++)
-                            System.out.println(level.level_monsters.get(i));
+                        for (int i = 0; i < level.levelMonsters.size(); i++)
+                            System.out.println(level.levelMonsters.get(i));
                         break;
                     case 'F' - '@':
-                        level.cur_level += 19;
+                        level.currentLevel += 19;
                         return -1; // plummet
                     case 'S' - '@':
-                        level.draw_magic_map(this);
+                        level.drawMagicMap(this);
                         break;
                     case 'E' - '@':
-                        level.show_traps(this);
+                        level.showTraps(this);
                         break;
                     case 'O' - '@':
-                        level.show_toys(this);
+                        level.showToys(this);
                         break;
                     case 'C' - '@':
-                        c_toy_for_wizard();
+                        cToyForWizard();
                         break;
                     case 'X' - '@':
-                        monster_for_wizard();
+                        monsterForWizard();
                         break;
                     case 'Q' - '@':
-                        level.show_monsters(this);
+                        level.showMonsters(this);
                         break;
                     case 'T' - '@':
                         tele();
@@ -482,20 +482,20 @@ public class Man extends Persona implements Serializable {
     void play_level() {
         int ch;
         int count = 0;
-        init_seen();
+        initSeen();
         view.mark(row, col);
         do {
             System.out.println("processing command");
             try {
                 System.out.println("here - 1");
                 self.interrupted = false;
-                if (hit_message.length() > 1) {
-                    tell(hit_message);
-                    hit_message = "";
+                if (hitMessage.length() > 1) {
+                    tell(hitMessage);
+                    hitMessage = "";
                 }
                 System.out.println("here - 2");
-                if (trap_door) {
-                    trap_door = false;
+                if (trapDoor) {
+                    trapDoor = false;
                     break;
                 }
                 System.out.println("here - 3");
@@ -506,11 +506,11 @@ public class Man extends Persona implements Serializable {
 
                 ch = self.rgetchar();
                 System.out.println("here - 6");
-                if (!game_over) {
+                if (!gameOver) {
                     view.msg.checkMessage();
                 }
                 System.out.println("here - 7");
-                count = play_move(ch, 0);
+                count = playMove(ch, 0);
                 System.out.println("here - 8");
             } catch (Exception e) {
                 if (e.getMessage() != null) {
@@ -520,7 +520,7 @@ public class Man extends Persona implements Serializable {
             }
             System.gc();
             System.out.println(count);
-        } while (count >= 0 && !game_over);
+        } while (count >= 0 && !gameOver);
     }
 
     char showrc(int r, int c) { // What man sees at this position
@@ -530,7 +530,7 @@ public class Man extends Persona implements Serializable {
             return ichar;
         }
 
-        if (blind == 0 && can_see(r, c)) {
+        if (blind == 0 && canSee(r, c)) {
             int mask = level.map[r][c];
             if (0 != (mask & DARK)) {
                 if (r < row - 1 || r > row + 1 || c < col - 1 || c > col + 1) {
@@ -538,11 +538,11 @@ public class Man extends Persona implements Serializable {
                 }
             }
             if (0 != (mask & MONSTER)) {
-                Monster monster = (Monster) level.level_monsters.item_at(r, c);
+                Monster monster = (Monster) level.levelMonsters.itemAt(r, c);
                 ch = (char) (monster != null ? monster.gmc(this) : '$');
             } else if (0 != (mask & TOY)) {
                 if (halluc == 0) {
-                    Toy t = (Toy) level.level_toys.item_at(r, c);
+                    Toy t = (Toy) level.levelToys.itemAt(r, c);
                     if (t == null) {
                         System.out.println("See no toy at " + new Rowcol(r, c));
                     } else {
@@ -552,16 +552,16 @@ public class Man extends Persona implements Serializable {
                     ch = (char) Id.grObjectCharacter(self.rand);
                 }
             } else {
-                ch = level.get_char(r, c);
+                ch = level.getChar(r, c);
             }
-        } else if (detect_monster && 0 != (level.map[r][c] & MONSTER) && blind == 0) {
-            Monster monster = (Monster) level.level_monsters.item_at(r, c);
+        } else if (detectMonster && 0 != (level.map[r][c] & MONSTER) && blind == 0) {
+            Monster monster = (Monster) level.levelMonsters.itemAt(r, c);
             ch = (char) (monster != null ? monster.gmc(this) : '$');
             if (self.rand.percent(30)) {
-                detect_monster = false;
+                detectMonster = false;
             }
         } else {
-            ch = Wallys[seen[r][c] >> 4];
+            ch = WALLYS[seen[r][c] >> 4];
         }
         // Error if blind and toy in tunnel or on door--see blank instead of
         // tunnel floor/door
@@ -585,87 +585,87 @@ public class Man extends Persona implements Serializable {
         }
     }
 
-    boolean check_hunger(boolean msg_only) {
+    boolean checkHunger(boolean messageOnly) {
         int i, n;
         boolean fainted = false;
 
-        if (moves_left == HUNGRY) {
-            hunger_str = "hungry";
-            tell("you feel " + hunger_str);
-            print_stat();
+        if (movesLeft == HUNGRY) {
+            hungerStr = "hungry";
+            tell("you feel " + hungerStr);
+            printStat();
         }
-        if (moves_left == WEAK) {
-            hunger_str = "weak  ";
-            tell("you feel " + hunger_str, true);
-            print_stat();
+        if (movesLeft == WEAK) {
+            hungerStr = "weak  ";
+            tell("you feel " + hungerStr, true);
+            printStat();
         }
-        if (moves_left <= FAINT) {
-            if (moves_left == FAINT) {
-                hunger_str = "faint ";
-                tell("you " + hunger_str, true);
-                print_stat();
+        if (movesLeft <= FAINT) {
+            if (movesLeft == FAINT) {
+                hungerStr = "faint ";
+                tell("you " + hungerStr, true);
+                printStat();
             }
-            n = self.rand.get(FAINT - moves_left);
+            n = self.rand.get(FAINT - movesLeft);
             if (n > 0) {
                 fainted = true;
                 if (self.rand.percent(40)) {
-                    moves_left++;
+                    movesLeft++;
                 }
                 tell("you faint", true);
                 for (i = 0; i < n; i++) {
                     if (self.rand.coin()) {
-                        level.mv_mons(this);
+                        level.moveMonsters(this);
                     }
                 }
                 tell("you can move again", true);
             }
         }
-        if (msg_only) {
+        if (messageOnly) {
             return fainted;
         }
-        if (moves_left <= STARVE) {
-            killed_by(null, Monster.STARVATION);
+        if (movesLeft <= STARVE) {
+            killedBy(null, Monster.STARVATION);
             return false;
         }
-        switch (e_rings) {
+        switch (eRings) {
             case -1:
-                moves_left -= (moves_left % 2);
+                movesLeft -= (movesLeft % 2);
                 break;
             case 0:
-                moves_left--;
+                movesLeft--;
                 break;
             case 1:
-                moves_left--;
-                check_hunger(true);
-                moves_left -= (moves_left % 2);
+                movesLeft--;
+                checkHunger(true);
+                movesLeft -= (movesLeft % 2);
                 break;
             case 2:
-                moves_left--;
-                check_hunger(true);
-                moves_left--;
+                movesLeft--;
+                checkHunger(true);
+                movesLeft--;
                 break;
         }
         
         return fainted;
     }
 
-    boolean reg_move() {
+    boolean regMove() {
         boolean fainted = false;
 
-        if ((moves_left <= HUNGRY) || level.cur_level >= level.max_level) {
-            fainted = check_hunger(false);
+        if ((movesLeft <= HUNGRY) || level.currentLevel >= level.maxLevel) {
+            fainted = checkHunger(false);
         }
-        level.mv_mons(this);
+        level.moveMonsters(this);
 
-        if (++m_moves >= 120) {
-            m_moves = 0;
+        if (++mMoves >= 120) {
+            mMoves = 0;
             level.wanderer();
         }
-        super.reg_move();
+        super.regMove();
         heal();
 
-        if (auto_search > 0) {
-            search(auto_search, true);
+        if (autoSearch > 0) {
+            search(autoSearch, true);
         }
         
         return fainted;
@@ -679,38 +679,38 @@ public class Man extends Persona implements Serializable {
         }
         view.msg.checkMessage();
         if (ch != '\033') {
-            one_move_rogue(ch, false);
+            oneMoveRogue(ch, false);
         }
     }
 
-    int one_move_rogue(int dirch, boolean pickup) {
+    int oneMoveRogue(int dirch, boolean pickup) {
         System.out.println("one_move_rogue - 1");
         if (confused != 0) {
-            dirch = mov_confused();
+            dirch = movConfused();
         }
         System.out.println("one_move_rogue - 2");
         int d = Id.isDirection(dirch);
         System.out.println("one_move_rogue - 3");
-        Rowcol pto = level.get_dir_rc(d, row, col, true);
+        Rowcol pto = level.getDirRc(d, row, col, true);
         System.out.println("one_move_rogue - 4");
 
-        if (!level.can_move(row, col, pto.row, pto.col)) {
+        if (!level.canMove(row, col, pto.row, pto.col)) {
             return MOVE_FAILED;
         }
 
-        if (being_held || bear_trap > 0) {
+        if (beingHeld || bearTrap > 0) {
             if (0 == (level.map[pto.row][pto.col] & MONSTER)) {
-                if (being_held) {
+                if (beingHeld) {
                     tell("you are being held", true);
                 } else {
                     tell("you are still stuck in the bear trap");
-                    reg_move();
+                    regMove();
                 }
 
                 return MOVE_FAILED;
             }
         }
-        if (r_teleport) {
+        if (rTeleport) {
             if (self.rand.percent(R_TELE_PERCENT)) {
                 tele();
                 
@@ -718,18 +718,18 @@ public class Man extends Persona implements Serializable {
             }
         }
         if (0 != (level.map[pto.row][pto.col] & MONSTER)) {
-            Monster monster = (Monster) level.level_monsters.item_at(pto.row, pto.col);
+            Monster monster = (Monster) level.levelMonsters.itemAt(pto.row, pto.col);
             if (monster != null) {
-                rogue_hit(monster, false);
+                rogueHit(monster, false);
             }
-            reg_move();
+            regMove();
             
             return MOVE_FAILED;
         }
         if (0 != (level.map[pto.row][pto.col] & DOOR) && 0 != (level.map[row][col] & TUNNEL)) {
-            level.wake_room(this, true, pto.row, pto.col);
+            level.wakeRoom(this, true, pto.row, pto.col);
         } else if (0 != (level.map[pto.row][pto.col] & TUNNEL) && 0 != (level.map[row][col] & DOOR)) {
-            level.wake_room(this, false, row, col);
+            level.wakeRoom(this, false, row, col);
         }
         //////////////////////////////////////////////////
         if (blind == 0) { // Basic tunnel view
@@ -741,7 +741,7 @@ public class Man extends Persona implements Serializable {
                 }
             }
         }
-        place_at(pto.row, pto.col, MAN); // Note--sets row,col to pto
+        placeAt(pto.row, pto.col, MAN); // Note--sets row,col to pto
         if (blind == 0) { // Basic tunnel view
             for (int r = row - 1; r <= row + 1; r++) {
                 for (int c = col - 1; c <= col + 1; c++) {
@@ -752,7 +752,7 @@ public class Man extends Persona implements Serializable {
             }
         }
         vizset();
-        move_seen();
+        moveSeen();
         if (!jump) {
             showmap();
             view.refresh();
@@ -765,12 +765,12 @@ public class Man extends Persona implements Serializable {
                 return STOPPED_ON_SOMETHING;
             }
             if (pickup && 0 == levitate) {
-                obj = pick_up();
+                obj = pickUp();
             }
             if (obj == null) {
-                obj = (Toy) level.level_toys.item_at(row, col);
+                obj = (Toy) level.levelToys.itemAt(row, col);
                 if (obj != null) {
-                    tell("moved onto " + obj.get_desc());
+                    tell("moved onto " + obj.getDesc());
                 }
             } else if (obj.ichar == 1) { // Not a dusted scroll
                 return STOPPED_ON_SOMETHING;
@@ -779,11 +779,11 @@ public class Man extends Persona implements Serializable {
         }
         if (0 != (level.map[row][col] & (Level.DOOR | Level.STAIRS | Level.TRAP))) {
             if (levitate == 0 && 0 != (level.map[row][col] & Level.TRAP)) {
-                trap_player();
+                trapPlayer();
             }
             sos = true;
         }
-        return (reg_move() /* fainted from hunger */
+        return (regMove() /* fainted from hunger */
                 || sos /* already on something */
                 || confused != 0) ? STOPPED_ON_SOMETHING : MOVED;
     }
@@ -848,108 +848,100 @@ public class Man extends Persona implements Serializable {
 //        return false;
 //    }
 
-    Trap trap_player() { // Call with the trap list
+    Trap trapPlayer() { // Call with the trap list
         level.map[row][col] &= ~HIDDEN;
-        if (self.rand.percent(exp + ring_exp)) {
+        if (self.rand.percent(exp + ringExp)) {
             tell("the trap failed", true);
             return null;
         }
-        Trap t = (Trap) level.level_traps.item_at(row, col);
+        Trap t = (Trap) level.levelTraps.itemAt(row, col);
         if (t == null) {
             return null;
         }
         switch (t.kind) {
             case Trap.BEAR_TRAP:
-                tell(t.trap_message(this), true);
-                bear_trap = self.rand.get(4, 7);
+                tell(t.trapMessage(this), true);
+                bearTrap = self.rand.get(4, 7);
                 t = null;
                 break;
             case Trap.TRAP_DOOR:
-                trap_door = true;
-                new_level_message = t.trap_message(this);
+                trapDoor = true;
+                newLevelMessage = t.trapMessage(this);
                 break;
             case Trap.TELE_TRAP:
                 view.mark(row, col);
                 tele();
                 break;
             case Trap.DART_TRAP:
-                tell(t.trap_message(this), true);
-                hp_current -= Id.getDamage("1d6", self.rand);
-                if (hp_current <= 0) {
-                    hp_current = 0;
+                tell(t.trapMessage(this), true);
+                hpCurrent -= Id.getDamage("1d6", self.rand);
+                if (hpCurrent <= 0) {
+                    hpCurrent = 0;
                 }
-                if (!sustain_strength && self.rand.percent(40) && str_current >= 3) {
-                    str_current--;
+                if (!sustainStrength && self.rand.percent(40) && strCurrent >= 3) {
+                    strCurrent--;
                 }
-                print_stat();
-                if (hp_current <= 0) {
-                    killed_by(null, Monster.POISON_DART);
+                printStat();
+                if (hpCurrent <= 0) {
+                    killedBy(null, Monster.POISON_DART);
                 }
                 break;
             case Trap.SLEEPING_GAS_TRAP:
-                tell(t.trap_message(this), true);
-                take_a_nap();
+                tell(t.trapMessage(this), true);
+                takeANap();
                 break;
             case Trap.RUST_TRAP:
-                tell(t.trap_message(this), true);
+                tell(t.trapMessage(this), true);
                 rust(null);
                 break;
         }
         return t;
     }
 
-    void take_a_nap() {
+    void takeANap() {
         int i = self.rand.get(2, 5);
-        self.md_sleep(1000);
+        self.mdSleep(1000);
         while (--i >= 0) {
-            level.mv_mons(this);
+            level.moveMonsters(this);
         }
-        self.md_sleep(1000);
+        self.mdSleep(1000);
         tell("you can move again");
-    }
-
-    // Format an integer (print in minwidth spaces)
-    static String ifmt(int i, int minwidth) {
-        String s = new Integer(i).toString();
-        while (s.length() < minwidth) {
-            s = new String(" ").concat(s);
-        }
-        return s;
     }
 
     /*
      * Level: 99 Gold: 999999 Hp: 999(999) Str: 99(99) Arm: 99 Exp: 21/10000000
      * Hungry 0 5 1 5 2 5 3 5 4 5 5 5 6 5 7 5
      */
-    String stat_string() {
-        if (hp_max > MAX_HP) {
-            hp_current -= hp_max - MAX_HP;
-            hp_max = MAX_HP;
+    String statString() {
+        if (hpMax > MAX_HP) {
+            hpCurrent -= hpMax - MAX_HP;
+            hpMax = MAX_HP;
         }
-        if (str_max > MAX_STRENGTH) {
-            str_current -= str_max - MAX_STRENGTH;
-            str_max = MAX_STRENGTH;
+        if (strMax > MAX_STRENGTH) {
+            strCurrent -= strMax - MAX_STRENGTH;
+            strMax = MAX_STRENGTH;
         }
         int armorclass = 0;
         if (armor != null) {
-            if (armor.d_enchant > MAX_ARMOR) {
-                armor.d_enchant = MAX_ARMOR;
+            if (armor.dEnchant > MAX_ARMOR) {
+                armor.dEnchant = MAX_ARMOR;
             }
-            armorclass = armor.get_armor_class();
+            armorclass = armor.getArmorClass();
         }
-        if (exp_points > MAX_EXP) {
-            exp_points = MAX_EXP;
+        if (expPoints > MAX_EXP) {
+            expPoints = MAX_EXP;
         }
         if (exp > MAX_EXP_LEVEL) {
             exp = MAX_EXP_LEVEL;
         }
         
-        return "Level: " + ifmt(level.cur_level, 2) + " Gold: " + ifmt(gold, 6) + " Hp: " + ifmt(hp_current, 3) + '(' + ifmt(hp_max, 3) + ") Str: " + ifmt(str_current, 2) + '(' + ifmt(str_max, 2)
-                + ") Arm: " + ifmt(armorclass, 2) + " Exp: " + ifmt(exp, 2) + '/' + ifmt(exp_points, 8) + " " + hunger_str;
+        return "Level: " + String.format("%2d", level.currentLevel) + " Gold: " + String.format("%6d", gold) + " Hp: " + String.format("%3d", hpCurrent) 
+                + '(' + String.format("%3d", hpMax) + ") Str: " + String.format("%2d", strCurrent) + '(' + String.format("%2d", strMax, 2)
+                + ") Arm: " + String.format("%2d", armorclass, 2) + " Exp: " + String.format("%2d", exp, 2) + '/' + String.format("%8d", expPoints, 8) + " " + hungerStr;
     }
 
-    void print_stat() {
-        view.addch(level.nrow - 1, 0, stat_string());
+    void printStat() {
+        view.addch(level.nrow - 1, 0, statString());
         /// view.refresh();
     }
 
@@ -967,18 +959,18 @@ public class Man extends Persona implements Serializable {
             
             return;
         }
-        ch = pack_letter("drop what?", Id.ALL_TOYS);
+        ch = packLetter("drop what?", Id.ALL_TOYS);
         if (ch == '\033') {
             return;
         }
-        obj = (Toy) pack.get_letter_toy(ch);
+        obj = (Toy) pack.getLetterToy(ch);
         if (obj == null) {
             tell("no such item.");
             
             return;
         }
         if (obj.kind == Id.SCARE_MONSTER) {
-            obj.picked_up = true;
+            obj.pickedUp = true;
         }
         obj.drop();
     }
@@ -1007,11 +999,12 @@ public class Man extends Persona implements Serializable {
 //        return 0;
 //    }
 
-    int pack_letter(String prompt, int mask) {
+    int packLetter(String prompt, int mask) {
         int ch;
 
-        if (!pack.mask_pack(mask)) {
+        if (!pack.maskPack(mask)) {
             tell("nothing appropriate");
+
             return '\033';
         }
         tell(prompt);
@@ -1026,20 +1019,21 @@ public class Man extends Persona implements Serializable {
             // System.out.println("In pack_letter " + ch);
         }
         view.msg.checkMessage();
+
         return ch;
     }
 
-    void take_off() {
+    void takeOff() {
         if (armor != null) {
-            if (armor.is_cursed) {
-                tell(Toy.curse_message);
+            if (armor.isCursed) {
+                tell(Toy.curseMessage);
             } else {
-                level.mv_aquatars(this);
+                level.moveAquatars(this);
                 Toy obj = armor;
                 unwear();
-                tell("was wearing " + obj.get_desc());
-                print_stat();
-                reg_move();
+                tell("was wearing " + obj.getDesc());
+                printStat();
+                regMove();
             }
         } else {
             tell("not wearing any");
@@ -1052,11 +1046,11 @@ public class Man extends Persona implements Serializable {
             
             return;
         }
-        int ch = pack_letter("wear what?", Id.ARMOR);
+        int ch = packLetter("wear what?", Id.ARMOR);
         if (ch == '\033') {
             return;
         }
-        Toy obj = (Toy) pack.get_letter_toy(ch);
+        Toy obj = (Toy) pack.getLetterToy(ch);
         if (null == obj) {
             tell("no such item.");
             
@@ -1068,23 +1062,23 @@ public class Man extends Persona implements Serializable {
             return;
         }
         obj.identified = true;
-        tell("wearing " + obj.get_desc());
-        do_wear(obj);
-        print_stat();
-        reg_move();
+        tell("wearing " + obj.getDesc());
+        doWear(obj);
+        printStat();
+        regMove();
     }
 
     void wield() {
-        if (weapon != null && weapon.is_cursed) {
-            tell(Toy.curse_message);
+        if (weapon != null && weapon.isCursed) {
+            tell(Toy.curseMessage);
             
             return;
         }
-        int ch = pack_letter("wield what?", Id.WEAPON);
+        int ch = packLetter("wield what?", Id.WEAPON);
         if (ch == '\033') {
             return;
         }
-        Toy obj = (Toy) pack.get_letter_toy(ch);
+        Toy obj = (Toy) pack.getLetterToy(ch);
         if (obj == null) {
             if (ch == '-' && weapon != null) {
                 unwield();
@@ -1103,19 +1097,19 @@ public class Man extends Persona implements Serializable {
             tell("in use");
         } else {
             unwield();
-            tell("wielding " + obj.get_desc());
-            do_wield(obj);
-            reg_move();
+            tell("wielding " + obj.getDesc());
+            doWield(obj);
+            regMove();
         }
     }
 
     Toy find(int mask, String prompt, String fail) {
-        int ch = pack_letter(prompt, mask);
+        int ch = packLetter(prompt, mask);
         if (ch == '\033') {
             return null;
         }
         view.msg.checkMessage();
-        Toy t = (Toy) pack.get_letter_toy(ch);
+        Toy t = (Toy) pack.getLetterToy(ch);
         if (t == null) {
             tell("no such item.");
             return null;
@@ -1127,30 +1121,31 @@ public class Man extends Persona implements Serializable {
         return t;
     }
 
-    void call_it() {
+    void callIt() {
         Toy obj = find(Id.SCROLL | Id.POTION | Id.WAND | Id.RING, "call what?", "surely you already know what that's called");
         if (obj == null) {
             return;
         }
-        Id id_table[] = Id.getIdTable(obj);
-        String buf = view.msg.get_input_line("call it:", "", id_table[obj.kind & 255].title, true, true);
+        Id[] idTable = Id.getIdTable(obj);
+        String buf = view.msg.getInputLine("call it:", "", idTable[obj.kind & 255].title, true, true);
         if (buf != null) {
-            id_table[obj.kind & 255].idStatus = Id.CALLED;
-            id_table[obj.kind & 255].title = buf;
+            idTable[obj.kind & 255].idStatus = Id.CALLED;
+            idTable[obj.kind & 255].title = buf;
         }
     }
 
-    void kick_into_pack() {
+    void kickIntoPack() {
         if (0 == (level.map[row][col] & TOY)) {
             tell("nothing here");
         } else {
-            Toy obj = pick_up();
-            if (obj != null && obj.ichar != 1) // Not a dusted scroll
-                reg_move();
+            Toy obj = pickUp();
+            if (obj != null && obj.ichar != 1) { // Not a dusted scroll
+                regMove();
+            }
         }
     }
 
-    void monster_for_wizard() {
+    void monsterForWizard() {
         tell("type of monster? ");
         int ch = self.rgetchar();
         view.msg.checkMessage();
@@ -1160,15 +1155,16 @@ public class Man extends Persona implements Serializable {
         Monster m = new Monster(level, ch - 'A');
         int r = row, c = col - 2;
         if (0 != (level.map[r][c] & (Level.FLOOR | Level.TUNNEL))) {
-            m.put_m_at(row, col - 2);
+            m.putMonsterAt(row, col - 2);
         } else {
             tell("cannot put monster there!");
         }
     }
 
-    void c_toy_for_wizard() {
+    void cToyForWizard() {
         if (pack.size() >= MAX_PACK_COUNT) {
             tell("pack full");
+            
             return;
         }
         tell("type of object? ");
@@ -1179,15 +1175,15 @@ public class Man extends Persona implements Serializable {
         }
         Toy obj = level.wiztoy(this, ch);
         if (obj != null) {
-            tell("Wizard got " + obj.get_desc());
-            obj.add_to_pack(this);
+            tell("Wizard got " + obj.getDesc());
+            obj.addToPack(this);
         } else {
             tell("Wizard failed");
         }
     }
 
-    Toy pick_up() {
-        Toy obj = (Toy) level.level_toys.item_at(row, col);
+    Toy pickUp() {
+        Toy obj = (Toy) level.levelToys.itemAt(row, col);
         if (obj == null) {
             tell("pick_up(): inconsistent", true);
             
@@ -1206,44 +1202,48 @@ public class Man extends Persona implements Serializable {
         level.map[row][col] &= ~TOY;
 
         // Pick up from a tunnel or door shows the substrate
-        if (0 != (level.map[row][col] & TUNNEL))
+        if (0 != (level.map[row][col] & TUNNEL)) {
             seen[row][col] |= wallcode('#');
-        if (0 != (level.map[row][col] & DOOR))
+        }
+        if (0 != (level.map[row][col] & DOOR)) {
             seen[row][col] |= wallcode('+');
-        level.level_toys.remove(obj);
+        }
+        level.levelToys.remove(obj);
 
-        if (obj.kind == Id.SCARE_MONSTER && obj.picked_up) {
+        if (obj.kind == Id.SCARE_MONSTER && obj.pickedUp) {
             tell("the scroll turns to dust as you pick it up");
-            if (Id.idScrolls[Id.SCARE_MONSTER & 255].idStatus == Id.UNIDENTIFIED)
+            if (Id.idScrolls[Id.SCARE_MONSTER & 255].idStatus == Id.UNIDENTIFIED) {
                 Id.idScrolls[Id.SCARE_MONSTER & 255].idStatus = Id.IDENTIFIED;
+            }
             obj.ichar = 1; // Flag the dusted scroll
+
             return obj;
         }
         if (obj.kind == Id.GOLD) {
             gold += obj.quantity;
-            tell(obj.get_desc(), true);
-            print_stat();
+            tell(obj.getDesc(), true);
+            printStat();
         } else {
-            obj = obj.add_to_pack(this);
+            obj = obj.addToPack(this);
             if (obj != null) {
-                obj.picked_up = true;
-                tell(obj.get_desc() + " (" + ((char) obj.ichar) + ")", true);
+                obj.pickedUp = true;
+                tell(obj.getDesc() + " (" + ((char) obj.ichar) + ")", true);
             }
         }
         return obj;
     }
 
-    static final int level_points[] = { 10, 20, 40, 80, 160, 320, 640, 1300, 2600, 5200, 10000, 20000, 40000, 80000, 160000, 320000, 1000000, 3333333, 6666666, MAX_EXP, 99900000 };
+    static final int[] LEVEL_POINTS = { 10, 20, 40, 80, 160, 320, 640, 1300, 2600, 5200, 10000, 20000, 40000, 80000, 160000, 320000, 1000000, 3333333, 6666666, MAX_EXP, 99900000 };
 
-    int hp_raise() {
+    int hpRaise() {
         return wizard ? 10 : self.rand.get(3, 10);
     }
 
-    static int get_exp_level(int e) {
+    static int getExpLevel(int e) {
         int i;
         
-        for (i = 0; i < level_points.length; i++) {
-            if (level_points[i] > e) {
+        for (i = 0; i < LEVEL_POINTS.length; i++) {
+            if (LEVEL_POINTS[i] > e) {
                 break;
             }
         }
@@ -1252,24 +1252,24 @@ public class Man extends Persona implements Serializable {
     }
 
     void add_exp(int e, boolean promotion) {
-        exp_points += e;
-        if (exp_points >= level_points[exp - 1]) {
-            int new_exp = get_exp_level(exp_points);
-            if (exp_points > MAX_EXP) {
-                exp_points = MAX_EXP + 1;
+        expPoints += e;
+        if (expPoints >= LEVEL_POINTS[exp - 1]) {
+            int new_exp = getExpLevel(expPoints);
+            if (expPoints > MAX_EXP) {
+                expPoints = MAX_EXP + 1;
             }
             for (int i = exp + 1; i <= new_exp; i++) {
                 tell("welcome to level " + i);
                 if (promotion) {
-                    int hp = hp_raise();
-                    hp_current += hp;
-                    hp_max += hp;
+                    int hp = hpRaise();
+                    hpCurrent += hp;
+                    hpMax += hp;
                 }
                 exp = i;
-                print_stat();
+                printStat();
             }
         } else {
-            print_stat();
+            printStat();
         }
     }
 
@@ -1277,7 +1277,7 @@ public class Man extends Persona implements Serializable {
         Toy obj = find(Id.FOOD, "eat what?", "you can't eat that");
         if (obj != null) {
             obj.eatenby();
-            reg_move();
+            regMove();
         }
     }
 
@@ -1285,35 +1285,38 @@ public class Man extends Persona implements Serializable {
         Potion obj = (Potion) find(Id.POTION, "quaff what?", "you can't drink that");
         if (obj != null) {
             obj.quaffby();
-            reg_move();
+            regMove();
         }
     }
 
-    void read_scroll() {
+    void readScroll() {
         Scroll obj = (Scroll) find(Id.SCROLL, "read what?", "you can't read that");
         if (obj != null) {
             obj.readby();
-            if (obj.kind != Id.SLEEP)
-                reg_move();
+            if (obj.kind != Id.SLEEP) {
+                regMove();
+            }
         }
     }
 
-    void put_on_ring() {
-        if (left_ring != null && right_ring != null) {
+    void putOnRing() {
+        if (leftRing != null && rightRing != null) {
             tell("wearing two rings already");
+            
             return;
         }
         Toy obj = (Toy) find(Id.RING, "put on what?", "that's not a ring");
-        if (obj == left_ring || obj == right_ring) {
+        if (obj == leftRing || obj == rightRing) {
             tell("that ring is already being worn");
+
             return;
         }
         if (obj != null) {
             int ch = 'r';
-            if (left_ring == null) {
+            if (leftRing == null) {
                 ch = 'l';
-                if (right_ring == null) {
-                    ch = view.msg.left_or_right();
+                if (rightRing == null) {
+                    ch = view.msg.leftOrRight();
                     if (ch == 0) {
                         view.msg.checkMessage();
                         return;
@@ -1322,145 +1325,145 @@ public class Man extends Persona implements Serializable {
             }
             if (ch == 'l') {
                 obj.inUseFlags |= Id.ON_LEFT_HAND;
-                left_ring = obj;
+                leftRing = obj;
             } else {
                 obj.inUseFlags |= Id.ON_RIGHT_HAND;
-                right_ring = obj;
+                rightRing = obj;
             }
-            ring_stats(true);
+            ringStats(true);
             view.msg.checkMessage();
-            tell(obj.get_desc());
-            reg_move();
+            tell(obj.getDesc());
+            regMove();
         }
     }
 
-    void remove_ring() {
-        Toy obj = right_ring;
-        if (left_ring != null && right_ring != null) {
-            int ch = view.msg.left_or_right();
+    void removeRing() {
+        Toy obj = rightRing;
+        if (leftRing != null && rightRing != null) {
+            int ch = view.msg.leftOrRight();
             if (ch == 0) {
                 view.msg.checkMessage();
                 return;
             }
             if (ch == 'l') {
-                obj = left_ring;
+                obj = leftRing;
             }
-        } else if (left_ring != null) {
-            obj = left_ring;
-        } else if (right_ring == null) {
+        } else if (leftRing != null) {
+            obj = leftRing;
+        } else if (rightRing == null) {
             tell("there's no ring on that hand");
             return;
         }
-        if (obj.is_cursed) {
-            tell(Toy.curse_message);
+        if (obj.isCursed) {
+            tell(Toy.curseMessage);
         } else {
-            obj.un_put_on();
-            tell("removed " + obj.get_desc());
+            obj.unPutOn();
+            tell("removed " + obj.getDesc());
         }
     }
 
-    void uncurse_all() {
+    void uncurseAll() {
         int i = pack.size();
         while (--i >= 0) {
             Toy obj = (Toy) pack.get(i);
-            obj.is_cursed = false;
+            obj.isCursed = false;
         }
     }
 
     void tele() {
-        level.put_player(this);
+        level.putPlayer(this);
         vizset();
-        move_seen();
-        being_held = false;
-        bear_trap = 0;
+        moveSeen();
+        beingHeld = false;
+        bearTrap = 0;
     }
 
-    void ring_stats(boolean pr) {
+    void ringStats(boolean pr) {
         stealthy = 0;
-        r_rings = 0;
-        e_rings = 0;
-        ring_exp = 0;
-        r_teleport = false;
-        sustain_strength = true;
-        add_strength = 0;
+        rRings = 0;
+        eRings = 0;
+        ringExp = 0;
+        rTeleport = false;
+        sustainStrength = true;
+        addStrength = 0;
         regeneration = 0;
-        r_see_invisible = false;
-        maintain_armor = false;
-        auto_search = 0;
+        rSeeInvisible = false;
+        maintainArmor = false;
+        autoSearch = 0;
 
         for (int i = 0; i < 2; i++) {
             Toy ring = null;
-            if (i == 0 && left_ring != null) {
-                ring = left_ring;
-            } else if (i == 1 && right_ring != null) {
-                ring = right_ring;
+            if (i == 0 && leftRing != null) {
+                ring = leftRing;
+            } else if (i == 1 && rightRing != null) {
+                ring = rightRing;
             } else {
                 continue;
             }
-            r_rings++;
-            e_rings++;
+            rRings++;
+            eRings++;
             switch (ring.kind) {
                 case Id.STEALTH:
                     stealthy++;
                     break;
                 case Id.R_TELEPORT:
-                    r_teleport = true;
+                    rTeleport = true;
                     break;
                 case Id.REGENERATION:
                     regeneration++;
                     break;
                 case Id.SLOW_DIGEST:
-                    e_rings -= 2;
+                    eRings -= 2;
                     break;
                 case Id.ADD_STRENGTH:
-                    add_strength += ring.klass;
+                    addStrength += ring.klass;
                     break;
                 case Id.SUSTAIN_STRENGTH:
-                    sustain_strength = true;
+                    sustainStrength = true;
                     break;
                 case Id.DEXTERITY:
-                    ring_exp += ring.klass;
+                    ringExp += ring.klass;
                     break;
                 case Id.ADORNMENT:
                     break;
                 case Id.R_SEE_INVISIBLE:
-                    r_see_invisible = true;
+                    rSeeInvisible = true;
                     break;
                 case Id.MAINTAIN_ARMOR:
-                    maintain_armor = true;
+                    maintainArmor = true;
                     break;
                 case Id.SEARCHING:
-                    auto_search += 2;
+                    autoSearch += 2;
                     break;
             }
         }
         if (pr) {
-            print_stat();
+            printStat();
             view.markall(); // relight
         }
     }
 
-    static final int healtab[] = { 2, 20, 18, 17, 14, 13, 10, 9, 8, 7, 4, 3, 2 };
-    int c_heal = 0;
-    boolean b_heal_alt = false;
+    static final int[] HEALTAB = { 2, 20, 18, 17, 14, 13, 10, 9, 8, 7, 4, 3, 2 };
+    int cHeal = 0;
+    boolean bHealAlt = false;
 
     void heal() {
-        if (hp_current == hp_max) {
-            c_heal = 0;
+        if (hpCurrent == hpMax) {
+            cHeal = 0;
             return;
         }
-        int n = exp < healtab.length ? healtab[exp] : 2;
-        if (++c_heal >= n) {
-            hp_current++;
-            if (b_heal_alt = !b_heal_alt) {
-                hp_current++;
+        int n = exp < HEALTAB.length ? HEALTAB[exp] : 2;
+        if (++cHeal >= n) {
+            hpCurrent++;
+            if (bHealAlt = !bHealAlt) {
+                hpCurrent++;
             }
-            c_heal = 0;
-            hp_current += regeneration;
-            if (hp_current > hp_max) {
-                hp_current = hp_max;
+            cHeal = 0;
+            hpCurrent += regeneration;
+            if (hpCurrent > hpMax) {
+                hpCurrent = hpMax;
             }
-            print_stat();
+            printStat();
         }
     }
 
@@ -1481,84 +1484,84 @@ public class Man extends Persona implements Serializable {
                 level.bounce(wand, d, row, col, 0);
                 view.markall(); // relight
             } else {
-                Monster monster = level.get_zapped_monster(d, row, col);
+                Monster monster = level.getZappedMonster(d, row, col);
                 if (monster != null) {
                     if (wand.kind == Id.DRAIN_LIFE) {
-                        level.wdrain_life(this, monster);
+                        level.wdrainLife(this, monster);
                     } else if (monster != null) {
-                        monster.wake_up();
-                        monster.s_con_mon(this);
+                        monster.wakeUp();
+                        monster.sConMon(this);
                         monster.zap_monster(this, wand.kind);
                         view.markall(); // relight
                     }
                 }
             }
         }
-        reg_move();
+        regMove();
     }
 
-    void id_com() {
+    void idCom() {
         view.msg.checkMessage();
         tell("Character you want help for(* for all):");
-        int ch = self.md_getchar();
+        int ch = self.mdGetchar();
         view.msg.checkMessage();
         Identifychar.cmdsList((char) ch, view.msg);
         view.markall(); // relight
     }
 
-    boolean has_amulet() {
-        return pack.mask_pack(Id.AMULET);
+    boolean hasAmulet() {
+        return pack.maskPack(Id.AMULET);
     }
 
-    void player_init() {
+    void playerInit() {
         pack = new ItemList(MAX_PACK_COUNT);
-        level.get_food(true).add_to_pack(this);
-        level.get_food(true).add_to_pack(this);
-        level.get_food(true).add_to_pack(this);
+        level.getFood(true).addToPack(this);
+        level.getFood(true).addToPack(this);
+        level.getFood(true).addToPack(this);
 
-        Toy obj = level.gr_armor();
+        Toy obj = level.grArmor();
         obj.kind = Id.RINGMAIL;
         obj.klass = (Id.RINGMAIL & 255) + 2;
-        obj.is_protected = false;
-        obj.d_enchant = 1;
+        obj.isProtected = false;
+        obj.dEnchant = 1;
         obj.identified = true;
-        obj.add_to_pack(this);
-        do_wear(obj);
+        obj.addToPack(this);
+        doWear(obj);
 
-        obj = level.gr_weapon(Id.MACE);
-        obj.hit_enchant = obj.d_enchant = 1;
+        obj = level.grWeapon(Id.MACE);
+        obj.hitEnchant = obj.dEnchant = 1;
         obj.identified = true;
-        obj.add_to_pack(this);
-        obj.is_cursed = false;
-        do_wield(obj);
+        obj.addToPack(this);
+        obj.isCursed = false;
+        doWield(obj);
 
-        obj = level.gr_weapon(Id.BOW);
+        obj = level.grWeapon(Id.BOW);
         obj.damage = "1d2";
-        obj.hit_enchant = 1;
-        obj.d_enchant = 0;
+        obj.hitEnchant = 1;
+        obj.dEnchant = 0;
         obj.identified = true;
-        obj.is_cursed = false;
-        obj.add_to_pack(this);
+        obj.isCursed = false;
+        obj.addToPack(this);
 
-        obj = level.gr_weapon(Id.ARROW);
+        obj = level.grWeapon(Id.ARROW);
         obj.quantity = self.rand.get(25, 35);
-        obj.hit_enchant = 0;
-        obj.d_enchant = 0;
+        obj.hitEnchant = 0;
+        obj.dEnchant = 0;
         obj.identified = true;
-        obj.is_cursed = false;
-        obj.add_to_pack(this);
+        obj.isCursed = false;
+        obj.addToPack(this);
 
         for (int i = 1; i < 10; i++) {
-            obj = level.gr_scroll();
-            obj.hit_enchant = 0;
-            obj.d_enchant = 0;
+            obj = level.grScroll();
+            obj.hitEnchant = 0;
+            obj.dEnchant = 0;
             obj.identified = false;
-            obj.is_cursed = false;
-            obj.add_to_pack(this);
+            obj.isCursed = false;
+            obj.addToPack(this);
         }
     }
 
-    void id_trap() {
+    void idTrap() {
         view.msg.checkMessage();
         tell("direction? ");
         int d = Id.isDirection(self.rgetchar());
@@ -1566,99 +1569,101 @@ public class Man extends Persona implements Serializable {
         if (d < 0) {
             return;
         }
-        Rowcol pt = level.get_dir_rc(d, row, col, false);
+        Rowcol pt = level.getDirRc(d, row, col, false);
         int r = pt.row;
         int c = pt.col;
         Trap t;
-        if (0 != (level.map[r][c] & TRAP) && 0 == (level.map[r][c] & HIDDEN) && (t = (Trap) level.level_traps.item_at(r, c)) != null) {
+        if (0 != (level.map[r][c] & TRAP) && 0 == (level.map[r][c] & HIDDEN) && (t = (Trap) level.levelTraps.itemAt(r, c)) != null) {
             tell(Trap.name[t.kind]);
         } else {
             tell("no trap there");
         }
     }
 
-    void throw_missile() {
+    void throwMissile() {
         int dir = view.msg.kbd_direction();
         if (dir < 0) {
             return;
         }
-        int wch = pack_letter("throw what?", Id.WEAPON);
+        int wch = packLetter("throw what?", Id.WEAPON);
         if (wch == '\033') {
             return;
         }
         view.msg.checkMessage();
-        Toy missile = (Toy) pack.get_letter_toy(wch);
+        Toy missile = (Toy) pack.getLetterToy(wch);
         if (missile == null) {
             tell("no such item.");
             
             return;
         }
-        if (0 != (missile.inUseFlags & Id.BEING_USED) && missile.is_cursed) {
-            tell(Toy.curse_message);
+        if (0 != (missile.inUseFlags & Id.BEING_USED) && missile.isCursed) {
+            tell(Toy.curseMessage);
             
             return;
         }
         missile.owner = this;
         missile.thrownby(dir);
-        reg_move();
+        regMove();
     }
 
-    boolean rogue_is_around(int r, int c) {
+    boolean rogueIsAround(int r, int c) {
         r -= row;
         c -= col;
+
         return r >= -1 && r <= 1 && c >= -1 && c <= 1;
     }
 
-    void rogue_hit(Monster monster, boolean force_hit) {
+    void rogueHit(Monster monster, boolean forceHit) {
         if (monster.check_imitator()) {
             if (blind == 0) {
                 view.msg.checkMessage();
                 tell("wait, that's a " + monster.name() + '!');
             }
+
             return;
         }
-        int hit_chance = 100;
-        if (!force_hit) {
-            hit_chance = get_hit_chance(weapon);
+        int hitChance = 100;
+        if (!forceHit) {
+            hitChance = getHitChance(weapon);
         }
         if (wizard) {
-            hit_chance *= 2;
+            hitChance *= 2;
         }
-        if (!self.rand.percent(hit_chance)) {
+        if (!self.rand.percent(hitChance)) {
             if (null == ihate) {
-                hit_message += who("miss", "misses") + " ";
+                hitMessage += who("miss", "misses") + " ";
             }
         } else {
-            int dmg = get_weapon_damage(weapon);
+            int dmg = getWeaponDamage(weapon);
             if (wizard) {
                 dmg *= 3;
             }
-            if (con_mon) {
-                monster.s_con_mon(this);
+            if (conMon) {
+                monster.sConMon(this);
             }
             if (monster.damage(this, dmg, 0)) { /* still alive? */
                 if (null == ihate) {
-                    hit_message += who("hit") + " ";
+                    hitMessage += who("hit") + " ";
                 }
             }
         }
-        monster.check_gold_seeker();
-        monster.wake_up();
+        monster.checkGoldSeeker();
+        monster.wakeUp();
     }
 
     boolean damage(Persona monster, int d, int other) {
-        if (d >= hp_current) {
-            hp_current = 0;
-            print_stat();
-            killed_by(monster, other);
+        if (d >= hpCurrent) {
+            hpCurrent = 0;
+            printStat();
+            killedBy(monster, other);
             
             return true;
         }
         if (d > 0) {
-            self.flashadd(row, col, uRed);
-            hp_current -= d;
-            print_stat();
-            if (hp_current <= hp_max / 8) {
+            self.flashadd(row, col, U_RED);
+            hpCurrent -= d;
+            printStat();
+            if (hpCurrent <= hpMax / 8) {
                 monster.gloat(this);
             }
         }
@@ -1666,7 +1671,7 @@ public class Man extends Persona implements Serializable {
         return false;
     }
 
-    void fight(boolean to_the_death) {
+    void fight(boolean toTheDeath) {
         int ch;
         if (-2 == Id.isDirection(ch = self.rgetchar())) {
             tell("direction? ");
@@ -1677,32 +1682,32 @@ public class Man extends Persona implements Serializable {
             return;
         }
         int d = Id.isDirection(ch);
-        Rowcol pt = level.get_dir_rc(d, row, col, false);
+        Rowcol pt = level.getDirRc(d, row, col, false);
 
         int c = view.charat(pt.row, pt.col);
-        if (c < 'A' || c > 'Z' || !level.can_move(row, col, pt.row, pt.col)) {
+        if (c < 'A' || c > 'Z' || !level.canMove(row, col, pt.row, pt.col)) {
             tell("I see no monster there");
             
             return;
         }
-        ihate = (Monster) level.level_monsters.item_at(pt.row, pt.col);
+        ihate = (Monster) level.levelMonsters.itemAt(pt.row, pt.col);
         if (null == ihate) {
             return;
         }
 
-        int possible_damage; // Fight should really be more symmetrical
-        if (0 == (ihate.m_flags & Monster.STATIONARY)) {
-            possible_damage = Id.getDamage(ihate.mt.m_damage, null) * 2 / 3;
+        int possibleDamage; // Fight should really be more symmetrical
+        if (0 == (ihate.mFlags & Monster.STATIONARY)) {
+            possibleDamage = Id.getDamage(ihate.mt.mDamage, null) * 2 / 3;
         } else {
-            possible_damage = ((Monster) ihate).stationary_damage - 1;
+            possibleDamage = ((Monster) ihate).stationaryDamage - 1;
         }
 
         while (null != ihate) {
-            one_move_rogue(ch, false);
-            if ((!to_the_death && hp_current <= possible_damage) || level.self.interrupted || 0 == (level.map[pt.row][pt.col] & MONSTER)) {
+            oneMoveRogue(ch, false);
+            if ((!toTheDeath && hpCurrent <= possibleDamage) || level.self.interrupted || 0 == (level.map[pt.row][pt.col] & MONSTER)) {
                 ihate = null;
             } else {
-                Monster monster = (Monster) level.level_monsters.item_at(pt.row, pt.col);
+                Monster monster = (Monster) level.levelMonsters.itemAt(pt.row, pt.col);
                 if (monster != ihate)
                     ihate = null;
             }
@@ -1710,115 +1715,115 @@ public class Man extends Persona implements Serializable {
     }
 
     void rust(Monster monster) {
-        if (null == armor || armor.get_armor_class() <= 1 || armor.kind == Id.LEATHER) {
+        if (null == armor || armor.getArmorClass() <= 1 || armor.kind == Id.LEATHER) {
             return;
         }
-        if (armor.is_protected || maintain_armor) {
-            if (monster != null && 0 == (monster.m_flags & Monster.RUST_VANISHED)) {
+        if (armor.isProtected || maintainArmor) {
+            if (monster != null && 0 == (monster.mFlags & Monster.RUST_VANISHED)) {
                 tell("the rust vanishes instantly");
-                monster.m_flags |= Monster.RUST_VANISHED;
+                monster.mFlags |= Monster.RUST_VANISHED;
             }
         } else {
-            armor.d_enchant--;
+            armor.dEnchant--;
             tell("your armor weakens");
-            print_stat();
+            printStat();
         }
     }
 
     void freeze(Monster monster) {
-        int freeze_percent = 99;
+        int freezePercent = 99;
         int i, n;
 
         if (self.rand.percent(12)) {
             return;
         }
-        freeze_percent -= str_current + str_current / 2;
-        freeze_percent -= (exp + ring_exp) * 4;
+        freezePercent -= strCurrent + strCurrent / 2;
+        freezePercent -= (exp + ringExp) * 4;
         if (armor != null) {
-            freeze_percent -= armor.get_armor_class() * 5;
+            freezePercent -= armor.getArmorClass() * 5;
         }
-        freeze_percent -= hp_max / 3;
+        freezePercent -= hpMax / 3;
 
-        if (freeze_percent > 10) {
-            monster.m_flags |= Monster.FREEZING_ROGUE;
+        if (freezePercent > 10) {
+            monster.mFlags |= Monster.FREEZING_ROGUE;
             tell("you are frozen", true);
 
             n = self.rand.get(4, 8);
             for (i = 0; i < n; i++) {
-                level.mv_mons(this);
+                level.moveMonsters(this);
             }
-            if (self.rand.percent(freeze_percent)) {
+            if (self.rand.percent(freezePercent)) {
                 for (i = 0; i < 50; i++) {
-                    level.mv_mons(this);
+                    level.moveMonsters(this);
                 }
-                killed_by(null, Monster.HYPOTHERMIA);
+                killedBy(null, Monster.HYPOTHERMIA);
             } else {
                 tell("you_can_move_again", true);
             }
-            monster.m_flags &= ~Monster.FREEZING_ROGUE;
+            monster.mFlags &= ~Monster.FREEZING_ROGUE;
         }
     }
 
     void sting(Monster monster) {
-        int sting_chance = 35 + 36;
-        if (str_current <= 3 || sustain_strength) {
+        int stingChance = 35 + 36;
+        if (strCurrent <= 3 || sustainStrength) {
             return;
         }
         if (armor != null) {
-            sting_chance = 35 + 6 * (6 - armor.get_armor_class());
+            stingChance = 35 + 6 * (6 - armor.getArmorClass());
         }
 
-        if (exp + ring_exp > 8) {
-            sting_chance -= 6 * (exp + ring_exp - 8);
+        if (exp + ringExp > 8) {
+            stingChance -= 6 * (exp + ringExp - 8);
         }
-        if (self.rand.percent(sting_chance)) {
+        if (self.rand.percent(stingChance)) {
             tell("the " + monster.name() + "'s bite has weakened you");
-            str_current--;
-            print_stat();
+            strCurrent--;
+            printStat();
         }
     }
 
-    void drop_level() {
+    void dropLevel() {
         if (self.rand.percent(80) || exp <= 5) {
             return;
         }
-        exp_points = level_points[exp - 2] - self.rand.get(9, 29);
+        expPoints = LEVEL_POINTS[exp - 2] - self.rand.get(9, 29);
         exp -= 2;
-        int hp = hp_raise();
-        hp_current -= hp;
-        if (hp_current <= 0) {
-            hp_current = 1;
+        int hp = hpRaise();
+        hpCurrent -= hp;
+        if (hpCurrent <= 0) {
+            hpCurrent = 1;
         }
-        hp_max -= hp;
-        if (hp_max <= 0) {
-            hp_max = 1;
+        hpMax -= hp;
+        if (hpMax <= 0) {
+            hpMax = 1;
         }
         add_exp(1, false);
     }
 
-    void drain_life() {
-        if (self.rand.percent(60) || hp_max <= 30 || hp_current < 10) {
+    void drainLife() {
+        if (self.rand.percent(60) || hpMax <= 30 || hpCurrent < 10) {
             return;
         }
         int n = self.rand.get(1, 3); /* 1 Hp, 2 Str, 3 both */
 
-        if (n != 2 || !sustain_strength) {
+        if (n != 2 || !sustainStrength) {
             tell("you feel weaker");
         }
         if (n != 2) {
-            hp_max--;
-            hp_current--;
-            less_hp++;
+            hpMax--;
+            hpCurrent--;
+            lessHp++;
         }
         if (n != 1) {
-            if (str_current > 3 && !sustain_strength) {
-                str_current--;
+            if (strCurrent > 3 && !sustainStrength) {
+                strCurrent--;
                 if (self.rand.coin()) {
-                    str_max--;
+                    strMax--;
                 }
             }
         }
-        print_stat();
+        printStat();
     }
 
     void win() {
@@ -1826,8 +1831,8 @@ public class Man extends Persona implements Serializable {
         self.starttime = d.getTime() - self.starttime;
         tell("YOU WON!");
         col = -1;
-        trap_door = true;
-        game_over = true;
+        trapDoor = true;
+        gameOver = true;
         view.empty();
         view.msg.banner(1, 6, option.nickName);
         view.addch(10, 11, "@   @  @@@   @   @      @  @  @   @@@   @   @   @");
@@ -1841,7 +1846,7 @@ public class Man extends Persona implements Serializable {
         view.addch(21, 16, "You have " + gold + " in gold");
         view.addch(23, 11, "Press SPACE to see the hall of fame");
         view.refresh();
-        self.wait_for_ack();
+        self.waitForAck();
     }
 
     String obituaryString(Persona monster, int other) {
@@ -1877,19 +1882,19 @@ public class Man extends Persona implements Serializable {
         return obit;
     }
 
-    void killed_by(Persona monster, int other) {
+    void killedBy(Persona monster, int other) {
         Date d = new Date();
         self.starttime = d.getTime() - self.starttime;
         if (other != Monster.QUIT) {
             gold = ((gold * 9) / 10);
         }
         String obit = obituaryString(monster, other);
-        game_over_String = obit;
+        gameOverMessage = obit;
 
         String s = obit + " with " + gold + " gold";
         col = -1;
-        game_over = true;
-        trap_door = true;
+        gameOver = true;
+        trapDoor = true;
         if (!option.noSkull) {
             view.empty();
             view.addch(4, 32, "__---------__");
@@ -1916,10 +1921,10 @@ public class Man extends Persona implements Serializable {
             tell("Press SPACE to see the graveyard");
         }
         view.refresh();
-        self.wait_for_ack();
+        self.waitForAck();
     }
 
-    void init_seen() {
+    void initSeen() {
         // terrible, terrible hack
         // I couldn't figure out another way to prevent the level
         // for being initialized as "unseen" when it's loaded from
@@ -1927,11 +1932,12 @@ public class Man extends Persona implements Serializable {
         // method is run after a game is loaded from a save - UGH!
         if (justLoaded > 0) {
             justLoaded--;
+
             return;
         }
-        seen = level.init_seen();
+        seen = level.initSeen();
         vizset();
-        move_seen();
+        moveSeen();
     }
 
     int wallcode(char ch) {
@@ -1957,7 +1963,7 @@ public class Man extends Persona implements Serializable {
         return 0;
     }
 
-    void move_seen() {
+    void moveSeen() {
         for (int r = 0; r < level.nrow; r++) {
             for (int c = 0; c < level.ncol; c++) {
                 int w = seen[r][c];
@@ -1966,7 +1972,7 @@ public class Man extends Persona implements Serializable {
                 if (v >= 4) {
                     if (v < 12) {
                         if (v < 8) {
-                            char ch = level.get_char(r, c);
+                            char ch = level.getChar(r, c);
                             w = wallcode(ch);
                         }
                         view.mark(r, c);
@@ -2010,10 +2016,11 @@ public class Man extends Persona implements Serializable {
         seen[row][col] |= 4;
     }
 
-    boolean can_see(int r, int c) {
+    boolean canSee(int r, int c) {
         if (blind > 0) {
             return false;
         }
+
         return 0 != (seen[r][c] & 8);
     }
 
@@ -2025,7 +2032,11 @@ public class Man extends Persona implements Serializable {
         System.out.println("Saving game.");
         self.pullIds();
         try {
-            FileOutputStream fileOut = new FileOutputStream("rogue.ser");
+            File saveFile = new File(System.getProperty("user.home") + "/.rogue/rogue.ser");
+            if (!saveFile.getParentFile().exists()) {
+                saveFile.getParentFile().mkdirs();
+            }
+            FileOutputStream fileOut = new FileOutputStream(saveFile);
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
             out.writeObject(self);
             out.close();
@@ -2034,7 +2045,7 @@ public class Man extends Persona implements Serializable {
         } catch (IOException i) {
             i.printStackTrace();
         }
-        game_over = true;
-        saved_game = true;
+        gameOver = true;
+        savedGame = true;
     }
 }

@@ -12,27 +12,27 @@ public class Level implements Header, Serializable {
     /* ItemVector level_men; */
     Rogue self;
     Item dummy;
-    ItemList level_men;
-    ItemList level_toys;
-    ItemList level_monsters;
-    ItemList level_traps;
-    ItemList level_doors;
+    ItemList levelMen;
+    ItemList levelToys;
+    ItemList levelMonsters;
+    ItemList levelTraps;
+    ItemList levelDoors;
     int map[][];
     int ncol; // Width
     int nrow; // Height
     // static int cur_level; // Level number
     // static int max_level;
-    int cur_level;
-    int max_level;
-    int my_level;
+    int currentLevel;
+    int maxLevel;
+    int myLevel;
     int foods = 0; // Higher levels get more food
 
     Level(int nrow, int ncol, Rogue self) {
         this.self = self;
         this.nrow = nrow;
         this.ncol = ncol;
-        this.cur_level = self.cur_level;
-        this.max_level = self.max_level;
+        this.currentLevel = self.currentLevel;
+        this.maxLevel = self.maxLevel;
         init();
     }
 
@@ -45,27 +45,28 @@ public class Level implements Header, Serializable {
             }
         }
 
-        level_monsters = new ItemList(6); // Start with a few monsters
-        level_doors = new ItemList(8); // and a few doors too
-        level_men = new ItemList();
-        level_toys = new ItemList(6);
-        level_traps = new ItemList(3);
+        levelMonsters = new ItemList(6); // Start with a few monsters
+        levelDoors = new ItemList(8); // and a few doors too
+        levelMen = new ItemList();
+        levelToys = new ItemList(6);
+        levelTraps = new ItemList(3);
     }
 
     void mark(int r, int c) {
-        int i = level_men.size();
+        int i = levelMen.size();
         while (--i >= 0) {
-            ((Man) level_men.get(i)).view.mark(r, c);
+            ((Man) levelMen.get(i)).view.mark(r, c);
         }
     }
 
-    char get_char(int row, int col) {
-        if (row < 0 || row >= nrow || col < 0 || col >= ncol)
+    char getChar(int row, int col) {
+        if (row < 0 || row >= nrow || col < 0 || col >= ncol) {
             return (char) 0;
+        }
         int mask = map[row][col];
 
         if (0 != (mask & TOY)) {
-            Toy toy = (Toy) level_toys.item_at(row, col);
+            Toy toy = (Toy) levelToys.itemAt(row, col);
             return toy == null ? ';' : (char) Id.getMaskCharacter(toy.kind);
         }
         /* Not allowing hidden stairs */
@@ -103,7 +104,7 @@ public class Level implements Header, Serializable {
         return ' ';
     }
 
-    boolean is_passable(int row, int col) {
+    boolean isPassable(int row, int col) {
         if (row < MIN_ROW || row > (nrow - 2) || col < 0 || col > (ncol - 1)) {
             return false;
         }
@@ -114,12 +115,12 @@ public class Level implements Header, Serializable {
         return 0 != (map[row][col] & (FLOOR | TUNNEL | DOOR | STAIRS | TRAP));
     }
 
-    boolean can_turn(int row, int col) {
-        return 0 != (TUNNEL & map[row][col]) && is_passable(row, col);
+    boolean canTurn(int row, int col) {
+        return 0 != (TUNNEL & map[row][col]) && isPassable(row, col);
     }
 
-    boolean can_move(int row1, int col1, int row2, int col2) {
-        if (!is_passable(row2, col2)) {
+    boolean canMove(int row1, int col1, int row2, int col2) {
+        if (!isPassable(row2, col2)) {
             return false;
         }
         if (row1 != row2 && col1 != col2) {
@@ -134,7 +135,7 @@ public class Level implements Header, Serializable {
     }
 
     // Get a point in a random room--avoid itm
-    Rowcol gr_row_col(int mask, Item itm) {
+    Rowcol grRowCol(int mask, Item itm) {
         int r = 0, c = 0;
         mask |= HOLDER | DARK;
         int ntry = 2400;
@@ -156,70 +157,76 @@ public class Level implements Header, Serializable {
         return new Rowcol(r, c);
     }
 
-    void plant_gold(int row, int col, int gold) {
+    void plantGold(int row, int col, int gold) {
         Toy obj = new Toy(this, Id.GOLD);
         obj.quantity = gold;
-        obj.place_at(row, col, TOY);
+        obj.placeAt(row, col, TOY);
     }
 
-    Scroll gr_scroll() {
+    Scroll grScroll() {
         Scroll t = new Scroll(this);
         t.kind = Id.grWhichScroll(self.rand);
+        
         return t;
     }
 
-    Potion gr_potion() {
+    Potion grPotion() {
         Potion t = new Potion(this);
         t.kind = Id.grWhichPotion(self.rand);
+        
         return t;
     }
 
-    Toy gr_weapon(int assign_wk) {
-        if (assign_wk < 0)
+    Toy grWeapon(int assign_wk) {
+        if (assign_wk < 0) {
             assign_wk = self.rand.get(Id.idWeapons.length - 1);
+        }
+        
         return new Toy(this, Id.WEAPON | assign_wk);
     }
 
-    Toy gr_armor() {
+    Toy grArmor() {
         return new Toy(this, Id.ARMOR + self.rand.get(Id.idArmors.length - 1));
     }
 
-    Toy gr_wand() {
+    Toy grWand() {
         return new Toy(this, Id.WAND + self.rand.get(Id.idWands.length - 1));
     }
 
-    Toy gr_ring(int assign_wk) {
-        if (assign_wk < 0)
+    Toy grWing(int assign_wk) {
+        if (assign_wk < 0) {
             assign_wk = self.rand.get(Id.idRings.length - 1);
+        }
+        
         return new Toy(this, Id.RING + assign_wk);
     }
 
-    Toy get_food(boolean force_ration) {
+    Toy getFood(boolean force_ration) {
         return new Toy(this, force_ration || self.rand.percent(80) ? Id.RATION : Id.FRUIT);
     }
 
-    Toy gr_toy() {
+    Toy grToy() {
         int k;
-        if (foods < cur_level / 3) {
+        if (foods < currentLevel / 3) {
             k = Id.FOOD;
             foods++;
         } else
             k = Id.grSpecies(self.rand);
         switch (k) {
             case Id.SCROLL:
-                return (Toy) gr_scroll();
+                return (Toy) grScroll();
             case Id.POTION:
-                return (Toy) gr_potion();
+                return (Toy) grPotion();
             case Id.WEAPON:
-                return (Toy) gr_weapon(-1);
+                return (Toy) grWeapon(-1);
             case Id.ARMOR:
-                return (Toy) gr_armor();
+                return (Toy) grArmor();
             case Id.WAND:
-                return (Toy) gr_wand();
+                return (Toy) grWand();
             case Id.FOOD:
-                return (Toy) get_food(false);
+                return (Toy) getFood(false);
             case Id.RING:
-                return (Toy) gr_ring(-1);
+                return (Toy) grWing(-1);
         }
         return null;
     }
@@ -229,28 +236,28 @@ public class Level implements Header, Serializable {
         int max = 0;
         switch (ch) {
             case '!':
-                t = (Toy) gr_potion();
+                t = (Toy) grPotion();
                 max = Id.idPotions.length;
                 break;
             case '?':
-                t = (Toy) gr_scroll();
+                t = (Toy) grScroll();
                 max = Id.idScrolls.length;
                 break;
             case ',':
                 t = new Toy(this, Id.AMULET);
                 break;
             case ':':
-                t = (Toy) get_food(false);
+                t = (Toy) getFood(false);
                 break;
             case ')':
                 max = Id.idWeapons.length;
                 break;
             case ']':
-                t = (Toy) gr_armor();
+                t = (Toy) grArmor();
                 max = Id.idArmors.length;
                 break;
             case '/':
-                t = (Toy) gr_wand();
+                t = (Toy) grWand();
                 max = Id.idWands.length;
                 break;
             case '=':
@@ -258,11 +265,13 @@ public class Level implements Header, Serializable {
                 break;
         }
         --max;
-        if (ch == ',' || ch == ':')
+        if (ch == ',' || ch == ':') {
             return t;
-        if (max < 0)
+        }
+        if (max < 0) {
             return null;
-        String buf = man.view.msg.get_input_line("which kind of " + ((char) ch) + " (0 to " + max + ")?", "", "", false, true);
+        }
+        String buf = man.view.msg.getInputLine("which kind of " + ((char) ch) + " (0 to " + max + ")?", "", "", false, true);
         man.view.msg.checkMessage();
         if (buf != null) {
             int wk = -1;
@@ -271,36 +280,42 @@ public class Level implements Header, Serializable {
             } catch (NumberFormatException e) {
             }
             if (wk >= 0 && wk <= max) {
-                if (ch == '=')
-                    t = gr_ring(wk);
-                else if (ch == ')')
-                    t = gr_weapon(wk);
-                else if (t != null)
+                if (ch == '=') {
+                    t = grWing(wk);
+                } else if (ch == ')') {
+                    t = grWeapon(wk);
+                } else if (t != null) {
                     t.kind = (t.kind & Id.ALL_TOYS) + wk;
+                }
+                
                 return t;
             }
         }
+        
         return null;
     }
 
-    void put_toys() {
-        if (cur_level < max_level)
+    void putToys() {
+        if (currentLevel < maxLevel) {
             return;
+        }
         int n = self.rand.get(2, 4);
-        if (self.rand.coin())
+        if (self.rand.coin()) {
             n++;
-        while (self.rand.percent(33))
+        }
+        while (self.rand.percent(33)) {
             n++;
+        }
         for (int i = 0; i < n; i++) {
-            Rowcol pt = gr_row_col(FLOOR | TUNNEL, null);
-            if (pt != null) {
-                Toy t = gr_toy();
-                t.place_at(pt.row, pt.col, TOY);
+            Rowcol point = grRowCol(FLOOR | TUNNEL, null);
+            if (point != null) {
+                Toy t = grToy();
+                t.placeAt(point.row, point.col, TOY);
             }
         }
     }
 
-    Rowcol get_dir_rc(int dir, int row, int col, boolean allow_off_screen) {
+    Rowcol getDirRc(int dir, int row, int col, boolean allow_off_screen) {
         switch (dir) {
             case Id.UPLEFT:
                 --row;
@@ -323,35 +338,38 @@ public class Level implements Header, Serializable {
                 ++col;
                 break;
         }
-        if (allow_off_screen || (row > MIN_ROW && row < nrow - 2 && col > 0 && col < ncol - 1))
+        if (allow_off_screen || (row > MIN_ROW && row < nrow - 2 && col > 0 && col < ncol - 1)) {
             return new Rowcol(row, col);
+        }
+        
         return null;
     }
 
-    void put_player(Man man) {
+    void putPlayer(Man man) {
         /* try not to put where he can see his current position */
         int misses = 2;
         Rowcol pt;
         do {
-            pt = gr_row_col(FLOOR | TUNNEL | TOY | STAIRS, man);
-            if (pt == null)
+            pt = grRowCol(FLOOR | TUNNEL | TOY | STAIRS, man);
+            if (pt == null) {
                 return;
+            }
         } while (--misses >= 0 && sees(pt.row, pt.col, man.row, man.col));
-        man.place_at(pt.row, pt.col, MAN);
-        wake_room(man, true, pt.row, pt.col);
-        if (man.new_level_message != null) {
-            self.tell(man, man.new_level_message, false);
-            man.new_level_message = null;
+        man.placeAt(pt.row, pt.col, MAN);
+        wakeRoom(man, true, pt.row, pt.col);
+        if (man.newLevelMessage != null) {
+            self.tell(man, man.newLevelMessage, false);
+            man.newLevelMessage = null;
         }
     }
 
-    void draw_magic_map(Man man) {
+    void drawMagicMap(Man man) {
         for (int i = 0; i < nrow; i++)
             for (int j = 0; j < ncol; j++) {
                 int s = map[i][j];
                 if (0 != (s & (HORWALL | VERTWALL | DOOR | TUNNEL | TRAP | STAIRS))) {
                     if (0 == (s & MONSTER)) {
-                        man.seen[i][j] = (char) ((man.seen[i][j] & 15) | man.wallcode(get_char(i, j)));
+                        man.seen[i][j] = (char) ((man.seen[i][j] & 15) | man.wallcode(getChar(i, j)));
                         man.view.mark(i, j);
                     }
                 }
@@ -367,41 +385,43 @@ public class Level implements Header, Serializable {
                 }
     }
 
-    Monster get_zapped_monster(int dir, int row, int col) {
+    Monster getZappedMonster(int dir, int row, int col) {
         for (;;) {
             int ocol = col;
             int orow = row;
-            Rowcol pt = get_dir_rc(dir, row, col, false);
+            Rowcol pt = getDirRc(dir, row, col, false);
             row = pt.row;
             col = pt.col;
-            if ((row == orow && col == ocol) || 0 != (map[row][col] & (HORWALL | VERTWALL)) || 0 == (map[row][col] & SOMETHING))
+            if ((row == orow && col == ocol) || 0 != (map[row][col] & (HORWALL | VERTWALL)) || 0 == (map[row][col] & SOMETHING)) {
                 break;
+            }
             if (0 != (map[row][col] & MONSTER)) {
-                Monster monster = (Monster) (level_monsters.item_at(row, col));
+                Monster monster = (Monster) (levelMonsters.itemAt(row, col));
                 if (!imitating(row, col))
                     return monster;
             }
         }
+        
         return null;
     }
 
-    void wdrain_life(Man man, Monster monster) {
-        int hp = man.hp_current / 3;
-        man.hp_current = (man.hp_current + 1) / 2;
+    void wdrainLife(Man man, Monster monster) {
+        int hp = man.hpCurrent / 3;
+        man.hpCurrent = (man.hpCurrent + 1) / 2;
 
-        for (Item item : level_monsters) {
+        for (Item item : levelMonsters) {
             Monster lmon = (Monster) item;
             if (sees(lmon.row, lmon.col, man.row, man.col)) {
-                lmon.wake_up();
+                lmon.wakeUp();
                 lmon.damage(man, hp, 0);
                 monster = null;
             }
         }
         if (monster != null) {
-            monster.wake_up();
+            monster.wakeUp();
             monster.damage(man, hp, 0);
         }
-        man.print_stat();
+        man.printStat();
         man.view.markall(); // relight
     }
 
@@ -412,7 +432,7 @@ public class Level implements Header, Serializable {
         int orow;
         int ocol;
         int i;
-        int new_dir = -1;
+        int newDirection = -1;
         int damage;
         boolean doend = true;
         Persona owner = obj.owner;
@@ -425,13 +445,13 @@ public class Level implements Header, Serializable {
         String s = fiery ? "fire" : "ice";
         // if(r > 1)
         // self.view.msg.message("the "+s+" bounces", true);
-        self.md_sleep(100);
+        self.mdSleep(100);
         orow = row;
         ocol = col;
         Rowcol pt;
         do {
-            self.flashadd(orow, ocol, uBrite);
-            pt = get_dir_rc(dir, orow, ocol, true);
+            self.flashadd(orow, ocol, U_BRITE);
+            pt = getDirRc(dir, orow, ocol, true);
             orow = pt.row;
             ocol = pt.col;
         } while (!(ocol <= 0 || ocol >= ncol - 1 || 0 == (map[orow][ocol] & SOMETHING) || 0 != (map[orow][ocol] & MONSTER) || 0 != (map[orow][ocol] & (HORWALL | VERTWALL))
@@ -441,22 +461,22 @@ public class Level implements Header, Serializable {
             orow = row;
             ocol = col;
             self.vset(row, col);
-            pt = get_dir_rc(dir, row, col, true);
+            pt = getDirRc(dir, row, col, true);
             row = pt.row;
             col = pt.col;
         } while (!(col <= 0 || col >= ncol - 1 || 0 == (map[row][col] & SOMETHING) || 0 != (map[row][col] & MONSTER) || 0 != (map[row][col] & (HORWALL | VERTWALL))
                 || (row == owner.row && col == owner.col)));
 
         if (0 != (map[row][col] & MONSTER)) {
-            Monster monster = (Monster) level_monsters.item_at(row, col);
+            Monster monster = (Monster) levelMonsters.itemAt(row, col);
             if (monster != null) {
                 doend = monster.zapt(obj);
             }
         } else {
-            for (View view : self.view_list) {
+            for (View view : self.viewList) {
                 Man man = view.man;
                 if (row == man.row && col == man.col) {
-                    int ac = man.armor == null ? 0 : man.armor.get_armor_class();
+                    int ac = man.armor == null ? 0 : man.armor.getArmorClass();
                     if (self.rand.percent(10 + (3 * ac))) {
                         self.describe(man, "the " + s + " misses", false);
                     } else {
@@ -465,7 +485,7 @@ public class Level implements Header, Serializable {
                         if (fiery) {
                             damage = (damage * 3) / 2;
                             if (man.armor != null)
-                                damage -= man.armor.get_armor_class();
+                                damage -= man.armor.getArmorClass();
                         }
                         man.damage(null, damage, fiery ? Monster.KFIRE : Monster.HYPOTHERMIA);
                         self.describe(man, "the " + s + " hits", false);
@@ -480,115 +500,117 @@ public class Level implements Header, Serializable {
                 dir = self.rand.get(Id.DIRS - 1);
                 nr = orow;
                 nc = ocol;
-                pt = get_dir_rc(dir, nr, nc, true);
+                pt = getDirRc(dir, nr, nc, true);
                 nr = pt.row;
                 nc = pt.col;
                 if ((nc >= 0 && nc <= ncol - 1) && 0 != (map[nr][nc] & SOMETHING) && 0 == (map[nr][nc] & (VERTWALL | HORWALL))) {
-                    new_dir = dir;
+                    newDirection = dir;
                     break;
                 }
             }
-            if (new_dir != -1) {
-                bounce(obj, new_dir, orow, ocol, r);
+            if (newDirection != -1) {
+                bounce(obj, newDirection, orow, ocol, r);
             }
         }
     }
 
-    void put_monsters() {
+    void putMonsters() {
         int n = self.rand.get(4, 6);
 
         for (int i = 0; i < n; i++) {
-            Rowcol pt = gr_row_col(FLOOR | TUNNEL | STAIRS | TOY, null);
+            Rowcol pt = grRowCol(FLOOR | TUNNEL | STAIRS | TOY, null);
             if (pt == null) {
                 continue;
             }
-            Monster monster = gr_monster();
-            if (0 != (monster.m_flags & Monster.WANDERS) && self.rand.coin()) {
-                monster.wake_up();
+            Monster monster = grMonster();
+            if (0 != (monster.mFlags & Monster.WANDERS) && self.rand.coin()) {
+                monster.wakeUp();
             }
-            monster.put_m_at(pt.row, pt.col);
+            monster.putMonsterAt(pt.row, pt.col);
             // System.out.println("Monster " + monster);
         }
     }
 
-    Monster gr_monster() {
+    Monster grMonster() {
         int mn;
 
         for (;;) {
             mn = self.rand.get(Monster.MONSTERS - 1);
-            if ((cur_level >= Monster.MON_TAB[mn].first_level) && (cur_level <= Monster.MON_TAB[mn].last_level)) {
+            if ((currentLevel >= Monster.MONSTER_TABLE[mn].firstLevel) && (currentLevel <= Monster.MONSTER_TABLE[mn].lastLevel)) {
                 break;
             }
         }
         Monster monster = new Monster(this, mn);
-        if (0 != (monster.m_flags & Monster.IMITATES)) {
+        if (0 != (monster.mFlags & Monster.IMITATES)) {
             monster.disguise = Id.grObjectCharacter(self.rand);
         }
-        if (cur_level > AMULET_LEVEL + 2) {
-            monster.m_flags |= Monster.HASTED;
+        if (currentLevel > AMULET_LEVEL + 2) {
+            monster.mFlags |= Monster.HASTED;
         }
         monster.trow = -1;
         
         return monster;
     }
 
-    int gmc_row_col(Man man, int row, int col) {
-        Monster monster = (Monster) level_monsters.item_at(row, col);
+    int gmcRowCol(Man man, int row, int col) {
+        Monster monster = (Monster) levelMonsters.itemAt(row, col);
         
         return monster != null ? monster.gmc(man) : '&';
     }
 
-    void mv_mons(Man man) { // Move all the monsters
-        if (0 != (man.haste_self % 2)) {
+    void moveMonsters(Man man) { // Move all the monsters
+        if (0 != (man.hasteSelf % 2)) {
             return;
         }
-        for (Iterator<Item> it = level_monsters.iterator();it.hasNext() && !Man.game_over;) {
+        for (Iterator<Item> it = levelMonsters.iterator();it.hasNext() && !Man.gameOver;) {
             Monster monster = (Monster) it.next();
             monster.dstrow = man.row;
             monster.dstcol = man.col;
-            if (0 != (monster.m_flags & Monster.HASTED)) {
-                monster.mv_monster();
-                if (!level_monsters.contains(monster))
+            if (0 != (monster.mFlags & Monster.HASTED)) {
+                monster.moveMonster();
+                if (!levelMonsters.contains(monster)) {
                     continue;
-            } else if (0 != (monster.m_flags & Monster.SLOWED)) {
-                monster.slowed_toggle = !monster.slowed_toggle;
-                if (monster.slowed_toggle)
-                    continue;
-            }
-            if (0 != (monster.m_flags & Monster.CONFUSED) && monster.move_confused()) {
-                continue;
-            }
-            boolean flew = false;
-            if (0 != (monster.m_flags & Monster.FLIES) && 0 == (monster.m_flags & Monster.NAPPING) && (monster.ihate == null || !monster.mon_can_go(monster.ihate.row, monster.ihate.col))) {
-                flew = true;
-                monster.mv_monster();
-                if (!level_monsters.contains(monster)) {
+                }
+            } else if (0 != (monster.mFlags & Monster.SLOWED)) {
+                monster.slowedToggle = !monster.slowedToggle;
+                if (monster.slowedToggle) {
                     continue;
                 }
             }
-            if (!(flew && (monster.ihate == null || monster.mon_can_go(monster.ihate.row, monster.ihate.col)))) {
-                monster.mv_monster();
+            if (0 != (monster.mFlags & Monster.CONFUSED) && monster.moveConfused()) {
+                continue;
+            }
+            boolean flew = false;
+            if (0 != (monster.mFlags & Monster.FLIES) && 0 == (monster.mFlags & Monster.NAPPING) && (monster.ihate == null || !monster.monCanGo(monster.ihate.row, monster.ihate.col))) {
+                flew = true;
+                monster.moveMonster();
+                if (!levelMonsters.contains(monster)) {
+                    continue;
+                }
+            }
+            if (!(flew && (monster.ihate == null || monster.monCanGo(monster.ihate.row, monster.ihate.col)))) {
+                monster.moveMonster();
             }
         }
     }
 
     void wanderer() {
         for (int i = 0; i < 15; i++) {
-            Monster monster = gr_monster();
-            if (0 != (monster.m_flags & (Monster.WAKENS | Monster.WANDERS))) {
-                monster.wake_up();
+            Monster monster = grMonster();
+            if (0 != (monster.mFlags & (Monster.WAKENS | Monster.WANDERS))) {
+                monster.wakeUp();
                 for (i = 0; i < 25; i++) {
-                    Rowcol pt = gr_row_col(FLOOR | TUNNEL | STAIRS | TOY, null);
+                    Rowcol pt = grRowCol(FLOOR | TUNNEL | STAIRS | TOY, null);
                     if (pt != null) {
-                        int j = level_men.size();
+                        int j = levelMen.size();
                         while (--j >= 0) {
-                            Man m = (Man) level_men.get(j);
-                            if (m.can_see(pt.row, pt.col)) {
+                            Man m = (Man) levelMen.get(j);
+                            if (m.canSee(pt.row, pt.col)) {
                                 break;
                             }
                         }
                         if (j < 0) {
-                            monster.put_m_at(pt.row, pt.col);
+                            monster.putMonsterAt(pt.row, pt.col);
                             
                             return;
                         }
@@ -600,79 +622,79 @@ public class Level implements Header, Serializable {
         }
     }
 
-    void mv_aquatars(Persona man) {
+    void moveAquatars(Persona man) {
         /* aquatars get to hit early if man removes his armor */
-        for (Item item : level_monsters) {
+        for (Item item : levelMonsters) {
             Monster monster = (Monster) item;
-            if ((monster.ichar == 'A') && monster.mon_can_go(man.row, man.col)) {
+            if ((monster.ichar == 'A') && monster.monCanGo(man.row, man.col)) {
                 monster.ihate = man;
-                monster.mv_monster();
-                monster.m_flags |= Monster.ALREADY_MOVED;
+                monster.moveMonster();
+                monster.mFlags |= Monster.ALREADY_MOVED;
             }
         }
     }
 
     boolean imitating(int r, int c) {
         if (0 != (map[r][c] & MONSTER)) {
-            Monster monster = (Monster) level_monsters.item_at(r, c);
-            return monster != null && 0 != (monster.m_flags & Monster.IMITATES);
+            Monster monster = (Monster) levelMonsters.itemAt(r, c);
+            return monster != null && 0 != (monster.mFlags & Monster.IMITATES);
         }
         
         return false;
     }
 
-    boolean show_monsters(Man man) {
+    boolean showMonsters(Man man) {
         boolean found = false;
-        man.detect_monster = true;
+        man.detectMonster = true;
         if (man.blind > 0) {
             return false;
         }
-        for (Item item : level_monsters) {
+        for (Item item : levelMonsters) {
             Monster monster = (Monster) item;
             man.view.addch(monster.row, monster.col, monster.ichar);
-            if (0 != (monster.m_flags & Monster.IMITATES)) {
-                monster.m_flags &= ~Monster.IMITATES;
-                monster.m_flags |= Monster.WAKENS;
+            if (0 != (monster.mFlags & Monster.IMITATES)) {
+                monster.mFlags &= ~Monster.IMITATES;
+                monster.mFlags |= Monster.WAKENS;
             }
             found = true;
         }
         return found;
     }
 
-    void show_toys(Man man) {
+    void showToys(Man man) {
         if (man.blind > 0) {
             return;
         }
-        for (Item item : level_toys) {
+        for (Item item : levelToys) {
             Toy t = (Toy) item;
             man.view.addch(t.row, t.col, (char) t.ichar);
         }
     }
 
-    void show_traps(Man man) {
-        for (Item t : level_traps) {
+    void showTraps(Man man) {
+        for (Item t : levelTraps) {
             man.view.addch(t.row, t.col, '^');
         }
     }
 
-    boolean seek_gold(Monster monster) {
-        for (Item item : level_toys) {
+    boolean seekGold(Monster monster) {
+        for (Item item : levelToys) {
             Toy gold = (Toy) item;
             if (gold.kind != Id.GOLD || 0 != (map[gold.row][gold.col] & MONSTER) || !sees(monster.row, monster.col, gold.row, gold.col)) {
                 continue;
             }
-            monster.m_flags |= Monster.CAN_FLIT;
-            if (monster.mon_can_go(gold.row, gold.col)) {
-                monster.m_flags &= ~Monster.CAN_FLIT;
-                monster.move_mon_to(gold.row, gold.col);
-                monster.m_flags |= Monster.ASLEEP;
-                monster.m_flags &= ~(Monster.WAKENS | Monster.SEEKS_GOLD);
+            monster.mFlags |= Monster.CAN_FLIT;
+            if (monster.monCanGo(gold.row, gold.col)) {
+                monster.mFlags &= ~Monster.CAN_FLIT;
+                monster.moveMonTo(gold.row, gold.col);
+                monster.mFlags |= Monster.ASLEEP;
+                monster.mFlags &= ~(Monster.WAKENS | Monster.SEEKS_GOLD);
             } else {
-                monster.m_flags &= ~Monster.SEEKS_GOLD;
-                monster.m_flags |= Monster.CAN_FLIT;
-                monster.mv_to(gold.row, gold.col);
-                monster.m_flags &= ~Monster.CAN_FLIT;
-                monster.m_flags |= Monster.SEEKS_GOLD;
+                monster.mFlags &= ~Monster.SEEKS_GOLD;
+                monster.mFlags |= Monster.CAN_FLIT;
+                monster.moveTo(gold.row, gold.col);
+                monster.mFlags &= ~Monster.CAN_FLIT;
+                monster.mFlags |= Monster.SEEKS_GOLD;
             }
 
             return true;
@@ -791,44 +813,45 @@ public class Level implements Header, Serializable {
         return null;
     }
 
-    void wake_room(Man man, boolean entering, int row, int col) {
-        ItemList v = new ItemList(4);
+    void wakeRoom(Man man, boolean entering, int row, int col) {
+        ItemList itemList = new ItemList(4);
 
         // List the monsters in the room that can be seen and are asleep
-        for (Item item : level_monsters) {
+        for (Item item : levelMonsters) {
             Monster monster = (Monster) item;
-            if (0 != (monster.m_flags & Monster.ASLEEP) && sees(row, col, monster.row, monster.col))
-                v.add(monster);
+            if (0 != (monster.mFlags & Monster.ASLEEP) && sees(row, col, monster.row, monster.col)) {
+                itemList.add(monster);
+            }
         }
         // It's a party if there are more than 4 sleepy monsters
-        int wake_percent = v.size() > 4 ? Monster.PARTY_WAKE_PERCENT : Monster.WAKE_PERCENT;
+        int wakePercent = itemList.size() > 4 ? Monster.PARTY_WAKE_PERCENT : Monster.WAKE_PERCENT;
         if (man.stealthy > 0) {
-            wake_percent /= (Monster.STEALTH_FACTOR + man.stealthy);
+            wakePercent /= (Monster.STEALTH_FACTOR + man.stealthy);
         }
 
-        for (Item item : v) {
+        for (Item item : itemList) {
             Monster monster = (Monster) item;
-            if (entering)
+            if (entering) {
                 monster.trow = -1;
-            else {
+            } else {
                 monster.trow = row;
                 monster.tcol = col;
             }
-            if (0 != (monster.m_flags & Monster.WAKENS) && self.rand.percent(wake_percent)) {
-                monster.wake_up();
+            if (0 != (monster.mFlags & Monster.WAKENS) && self.rand.percent(wakePercent)) {
+                monster.wakeUp();
             }
         }
     }
 
-    boolean same_row(Room rfr, Room rto) {
+    boolean sameRow(Room rfr, Room rto) {
         return false;
     }
 
-    boolean same_col(Room rfr, Room rto) {
+    boolean sameCol(Room rfr, Room rto) {
         return false;
     }
 
-    Room room_at(int row, int col) {
+    Room roomAt(int row, int col) {
         return null;
     }
 
@@ -843,7 +866,7 @@ public class Level implements Header, Serializable {
         return new Rowcol(r, c) + Integer.toString(map[r][c], 16) + ' ';
     }
 
-    char[][] init_seen() {
+    char[][] initSeen() {
         System.out.println("Level.init_seen");
         char[][] see = new char[nrow][ncol];
         for (int r = 0; r < nrow; r++) {
@@ -870,12 +893,12 @@ public class Level implements Header, Serializable {
         return see;
     }
 
-    boolean try_to_cough(int r, int c, Toy obj) {
+    boolean tryToCough(int r, int c, Toy obj) {
         if (r < MIN_ROW || r > nrow - 2 || c < 0 || c > ncol - 1) {
             return false;
         }
         if (0 == (map[r][c] & (TOY | STAIRS | TRAP)) && 0 != (map[r][c] & (TUNNEL | FLOOR | DOOR))) {
-            obj.place_at(r, c, TOY);
+            obj.placeAt(r, c, TOY);
             if (0 == (map[r][c] & (MONSTER | MAN))) {
                 self.mark(r, c);
             }

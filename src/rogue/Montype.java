@@ -13,30 +13,30 @@ import java.io.Serializable;
 public class Montype implements Serializable {
     private static final long serialVersionUID = 3776256900815795238L;
 
-    String m_name;
-    int m_flags;
-    String m_damage;
+    String mName;
+    int mFlags;
+    String mDamage;
 
     char ichar;
-    int exp_points;
-    int first_level;
-    int last_level;
-    int m_hit_chance;
-    int stationary_damage;
-    int drop_percent;
-    int hp_current;
+    int expPoints;
+    int firstLevel;
+    int lastLevel;
+    int mHitChance;
+    int stationaryDamage;
+    int dropPercent;
+    int hpCurrent;
 
-    Montype(String m_name, int m_flags, String m_damage, int hp_current, char ichar, int exp_points, int first_level, int last_level, int m_hit_chance, int stationary_damage, int drop_percent) {
-        this.m_name = m_name;
-        this.m_flags = m_flags;
-        this.m_damage = m_damage;
-        this.hp_current = hp_current;
+    Montype(String mName, int mFlags, String mDamage, int hpCurrent, char ichar, int expPoints, int firstLevel, int lastLevel, int mHitChance, int stationaryDamage, int dropPercent) {
+        this.mName = mName;
+        this.mFlags = mFlags;
+        this.mDamage = mDamage;
+        this.hpCurrent = hpCurrent;
         this.ichar = ichar;
-        this.exp_points = exp_points;
-        this.first_level = first_level;
-        this.last_level = last_level;
-        this.m_hit_chance = m_hit_chance;
-        this.stationary_damage = stationary_damage;
-        this.drop_percent = drop_percent;
+        this.expPoints = expPoints;
+        this.firstLevel = firstLevel;
+        this.lastLevel = lastLevel;
+        this.mHitChance = mHitChance;
+        this.stationaryDamage = stationaryDamage;
+        this.dropPercent = dropPercent;
     }
 }

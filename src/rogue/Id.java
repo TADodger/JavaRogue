@@ -403,7 +403,7 @@ public class Id implements Serializable {
     }
 
     static String getDescription(Toy obj) {
-        String item_name;
+        String itemName;
         String desc = "";
         int itstatus = 99;
         int species = obj.kind & ALL_TOYS;
@@ -417,7 +417,7 @@ public class Id implements Serializable {
             return "" + obj.quantity + " pieces of gold";
         }
 
-        item_name = obj.name();
+        itemName = obj.name();
 
         if (species != ARMOR) {
             desc = obj.quantity == 1 ? "a " : "" + obj.quantity + " ";
@@ -429,7 +429,7 @@ public class Id implements Serializable {
             } else {
                 desc = "a ";
             }
-            desc = desc + item_name;
+            desc = desc + itemName;
             itstatus = 98; /* Flag just name it */
         }
         Id idTable[] = getIdTable(obj);
@@ -445,10 +445,10 @@ public class Id implements Serializable {
                 case UNIDENTIFIED:
                     switch (species) {
                         case SCROLL:
-                            desc = desc + item_name + "entitled: " + idTable[what].title;
+                            desc = desc + itemName + "entitled: " + idTable[what].title;
                             break;
                         case POTION:
-                            desc = desc + idTable[what].title + item_name;
+                            desc = desc + idTable[what].title + itemName;
                             break;
                         case WAND:
                         case RING:
@@ -457,7 +457,7 @@ public class Id implements Serializable {
                             } else if (idTable[what].idStatus == CALLED) {
                                 itstatus = CALLED;
                             } else { 
-                                desc = desc + idTable[what].title + item_name;
+                                desc = desc + idTable[what].title + itemName;
                             }
                             break;
                         case ARMOR:
@@ -485,7 +485,7 @@ public class Id implements Serializable {
                         case POTION:
                         case WAND:
                         case RING:
-                            desc = desc + item_name + "called " + idTable[what].title;
+                            desc = desc + itemName + "called " + idTable[what].title;
                             break;
                     }
                     itstatus = 98;
@@ -494,7 +494,7 @@ public class Id implements Serializable {
                     switch (species) {
                         case SCROLL:
                         case POTION:
-                            desc = desc + item_name + idTable[what].real;
+                            desc = desc + itemName + idTable[what].real;
                             break;
                         case RING:
                             if (obj.identified) {
@@ -505,29 +505,29 @@ public class Id implements Serializable {
                                     desc = desc + obj.klass;
                                 }
                             }
-                            desc = desc + item_name + idTable[what].real;
+                            desc = desc + itemName + idTable[what].real;
                             break;
                         case WAND:
-                            desc = desc + item_name + idTable[what].real;
+                            desc = desc + itemName + idTable[what].real;
                             if (obj.identified) {
                                 desc = desc + '[' + obj.klass + ']';
                             }
                             break;
                         case ARMOR:
-                            if (obj.d_enchant >= 0) {
+                            if (obj.dEnchant >= 0) {
                                 desc = desc + '+';
                             }
-                            desc = desc + obj.d_enchant + " " + idTable[what].title + '[' + obj.get_armor_class() + ']';
+                            desc = desc + obj.dEnchant + " " + idTable[what].title + '[' + obj.getArmorClass() + ']';
                             break;
                         case WEAPON:
-                            if (obj.hit_enchant >= 0) {
+                            if (obj.hitEnchant >= 0) {
                                 desc = desc + '+';
                             }
-                            desc = desc + obj.hit_enchant + ',';
-                            if (obj.d_enchant >= 0) {
+                            desc = desc + obj.hitEnchant + ',';
+                            if (obj.dEnchant >= 0) {
                                 desc = desc + '+';
                             }
-                            desc = desc + obj.d_enchant + " " + obj.name();
+                            desc = desc + obj.dEnchant + " " + obj.name();
                             break;
                     }
                     itstatus = 98;
@@ -681,13 +681,13 @@ public class Id implements Serializable {
         return TOY_CHARS.charAt(rand.get(TOY_CHARS.length() - 1));
     }
 
-    static void id_type(Man man) {
+    static void idType(Man man) {
         String id = "unknown character";
         int ch;
         man.tell("what do you want identified?");
         ch = man.self.rgetchar();
         if ((ch >= 'A') && (ch <= 'Z')) {
-            id = Monster.MON_TAB[ch - 'A'].m_name;
+            id = Monster.MONSTER_TABLE[ch - 'A'].mName;
         } else if (ch < 32) {
             ch = '?';
         } else {

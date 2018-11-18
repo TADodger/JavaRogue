@@ -32,7 +32,7 @@ public class View extends JPanel implements Serializable, ComponentListener {
     Level level;
     char[][] terminal;
     char[][] buffer; // Low byte=ascii character, High byte=color index
-    boolean line_dirty[];
+    boolean[] lineDirty;
     int nrow;
     int ncol;
     int characterWidth; /* Character width */
@@ -56,12 +56,12 @@ public class View extends JPanel implements Serializable, ComponentListener {
         this.msg = new Message(this);
         terminal = new char[nrow][ncol];
         buffer = new char[nrow][ncol];
-        line_dirty = new boolean[nrow];
+        lineDirty = new boolean[nrow];
         initial = true;
 
         this.pointsize = pointsize;
         for (int k = 0; k < nrow; k++) {
-            line_dirty[k] = false;
+            lineDirty[k] = false;
             for (int c = 0; c < ncol; c++) {
                 terminal[k][c] = ' ';
             }
@@ -137,20 +137,20 @@ public class View extends JPanel implements Serializable, ComponentListener {
         self.parentFrame.pack();
     }
 
-    boolean in_sight(int row, int col) {
-        return man.can_see(row, col);
+    boolean inSight(int row, int col) {
+        return man.canSee(row, col);
     }
 
-    static Color cmap[] = new Color[8];
+    static Color[] colorMap = new Color[8];
     static {
-        cmap[0] = Color.lightGray;
-        cmap[1] = Color.gray;
-        cmap[2] = Color.black;
-        cmap[3] = Color.white;
-        cmap[4] = Color.red;
-        cmap[5] = Color.yellow;
-        cmap[6] = new Color(128, 0, 0); // Dark red
-        cmap[7] = new Color(0, 160, 0); // Green
+        colorMap[0] = Color.LIGHT_GRAY;
+        colorMap[1] = Color.GRAY;
+        colorMap[2] = Color.BLACK;
+        colorMap[3] = Color.WHITE;
+        colorMap[4] = Color.RED;
+        colorMap[5] = Color.YELLOW;
+        colorMap[6] = new Color(128, 0, 0); // Dark red
+        colorMap[7] = new Color(0, 160, 0); // Green
     }
 
     public void update(Graphics g) {
@@ -166,22 +166,19 @@ public class View extends JPanel implements Serializable, ComponentListener {
             g2.setFont(ffixed);
             byte ba[] = new byte[ncol];
             for (int y = 0; y < nrow; y++) {
-                if (line_dirty[y]) {
-                    line_dirty[y] = false;
-                    char[] ter = terminal[y];
-                    char[] buf = buffer[y];
-                    for (int x = 0; x < ncol; x++) {
-                        ter[x] = buf[x];
-                        ba[0] = (byte) (buf[x] & 127);
-                        int st = buf[x] >> 8;
-                        if (ba[0] == '_' || ba[0] == 0 || st == 2) {
-                            ba[0] = ' ';
-                        }
-                        g2.setColor(Color.black);
-                        g2.fillRect(x * characterWidth, y * characterHeight, characterWidth, characterHeight);
-                        g2.setColor(cmap[st]);
-                        g2.drawBytes(ba, 0, 1, x * characterWidth, y * characterHeight + characterAscent);
+                char[] ter = terminal[y];
+                char[] buf = buffer[y];
+                for (int x = 0; x < ncol; x++) {
+                    ter[x] = buf[x];
+                    ba[0] = (byte) (buf[x] & 127);
+                    int st = buf[x] >> 8;
+                    if (ba[0] == '_' || ba[0] == 0 || st == 2) {
+                        ba[0] = ' ';
                     }
+                    g2.setColor(Color.black);
+                    g2.fillRect(x * characterWidth, y * characterHeight, characterWidth, characterHeight);
+                    g2.setColor(colorMap[st]);
+                    g2.drawBytes(ba, 0, 1, x * characterWidth, y * characterHeight + characterAscent);
                 }
             }
             g.drawImage(backgroundBuffer, 0, 0, this);
@@ -210,14 +207,7 @@ public class View extends JPanel implements Serializable, ComponentListener {
     
     protected void paintComponent(Graphics g) {
         synchronized (self.gamer) {
-            for (int r = 0; r < nrow; r++) {
-                line_dirty[r] = true;
-                char ter[] = terminal[r];
-                for (int c = 0; c < ncol; c++) {
-                    ter[c] = 0;
-                }
-                inupdate(g);
-            }
+            inupdate(g);
         }
     }
 
@@ -232,7 +222,7 @@ public class View extends JPanel implements Serializable, ComponentListener {
         if (row >= 0 && row < nrow && col >= 0 && col < ncol) {
             if (ch != buffer[row][col]) {
                 buffer[row][col] = ch;
-                line_dirty[row] = true;
+                lineDirty[row] = true;
             }
         }
     }
@@ -247,7 +237,7 @@ public class View extends JPanel implements Serializable, ComponentListener {
                     buffer[row][col] = s.charAt(n);
                 }
             }
-            line_dirty[row] = true;
+            lineDirty[row] = true;
         }
     }
 
@@ -257,7 +247,7 @@ public class View extends JPanel implements Serializable, ComponentListener {
 
     void empty() {
         for (int r = 0; r < nrow; r++) {
-            line_dirty[r] = true;
+            lineDirty[r] = true;
             for (int c = 0; c < ncol; c++) {
                 terminal[r][c] = 0;
                 buffer[r][c] = ' ';

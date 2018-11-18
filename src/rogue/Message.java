@@ -9,23 +9,23 @@ class Message implements Serializable {
     static final int NMESSAGES = 5;
     static final int MIN_ROW = 1;
     static private String msgs[] = new String[NMESSAGES];
-    int msg_col = 0;
+    int msgCol = 0;
     int imsg = -1;
-    boolean msg_cleared = true;
+    boolean msgCleared = true;
     boolean rmsg = false;
     static private String more = " -more-";
-    boolean cant_int;
-    boolean did_int;
+    boolean cantInt;
+    boolean didInt;
     boolean flush;
 
     Message(View view) {
         this.view = view;
-        msg_col = 0;
+        msgCol = 0;
         imsg = -1;
         for (int k = 0; k < NMESSAGES; k++) {
             msgs[k] = null;
         }
-        msg_cleared = true;
+        msgCleared = true;
         rmsg = false;
     }
 
@@ -33,18 +33,18 @@ class Message implements Serializable {
         if (view == null) {
             return;
         }
-        cant_int = true;
+        cantInt = true;
 
         if (intrpt) {
             view.self.interrupted = true;
             if (flush) {
-                view.self.md_slurp();
+                view.self.mdSlurp();
             }
         }
-        if (!msg_cleared) {
-            view.addch(MIN_ROW - 1, msg_col, more);
+        if (!msgCleared) {
+            view.addch(MIN_ROW - 1, msgCol, more);
             view.refresh();
-            view.self.wait_for_ack();
+            view.self.waitForAck();
             checkMessage();
         }
         if (!rmsg) {
@@ -53,13 +53,13 @@ class Message implements Serializable {
         }
         view.addch(MIN_ROW - 1, 0, msg + ' ');
         view.refresh();
-        msg_cleared = false;
-        msg_col = msg.length();
+        msgCleared = false;
+        msgCol = msg.length();
 
-        cant_int = false;
+        cantInt = false;
 
-        if (did_int) {
-            did_int = false;
+        if (didInt) {
+            didInt = false;
             // onintr();
         }
     }
@@ -83,7 +83,7 @@ class Message implements Serializable {
 
     void checkMessage() {
         /* Erase the message line */
-        if (msg_cleared) {
+        if (msgCleared) {
             return;
         }
         String erase = new String();
@@ -92,10 +92,10 @@ class Message implements Serializable {
         }
         view.addch(MIN_ROW - 1, 0, erase);
         view.refresh();
-        msg_cleared = true;
+        msgCleared = true;
     }
 
-    String get_input_line(String prompt, String insert, String if_cancelled, boolean add_blank, boolean do_echo) {
+    String getInputLine(String prompt, String insert, String if_cancelled, boolean add_blank, boolean do_echo) {
         int ch;
         int i = 0, n = 0;
         String buf = new String(insert);
@@ -142,7 +142,7 @@ class Message implements Serializable {
         return buf;
     }
 
-    int left_or_right() {
+    int leftOrRight() {
         int ch;
         do {
             message("left or right hand?");
@@ -155,7 +155,7 @@ class Message implements Serializable {
         return ch;
     }
 
-    boolean yes_or_no(String s) {
+    boolean yesOrNo(String s) {
         int ch;
         do {
             message(s + " [y or n] ");

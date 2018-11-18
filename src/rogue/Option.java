@@ -21,8 +21,7 @@ public class Option implements Serializable {
     static String prompt[] = { "Flush typeahead during battle (\"flush\"): ", "Show position only at end of run (\"jump\"): ", "Follow turnings in passageways (\"passgo\"): ",
             "Don't print skull when killed (\"noskull\" or \"notombstone\"): ", "Ask player before saying 'Okay, bye-bye!' (\"askquit\"): ", "Name (\"name\"): ", "Fruit (\"fruit\"): " };
 
-    Option() {
-    }
+    Option() {}
 
 //    private boolean bool_opt(String prompt, boolean b) {
 //        char c;
@@ -52,7 +51,7 @@ public class Option implements Serializable {
 
     private String stringOpt(String prompt, String v) {
         msg.checkMessage();
-        String s = msg.get_input_line(prompt + '[' + v + ']', "", "", false, true);
+        String s = msg.getInputLine(prompt + '[' + v + ']', "", "", false, true);
         if (s == null || s.length() == 0 || s.indexOf('\033') >= 0) {
             return v;
         }
