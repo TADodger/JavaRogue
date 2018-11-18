@@ -1,13 +1,12 @@
 package rogue;
 
+import java.awt.BorderLayout;
 /* Rogue.java -- Rogue game for java */
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Event;
-import java.awt.FlowLayout;
-import java.awt.Frame;
-import java.awt.Graphics;
-import java.awt.Panel;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -23,15 +22,20 @@ import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
 /**
  *
  */
-public class Rogue extends Panel implements Runnable, Header, Serializable {
+public class Rogue extends JPanel implements Runnable, Header, Serializable, KeyListener {
     private static final long serialVersionUID = 1484273858992751880L;
+    private static final int[] MAP_CODES = {1002, 1003, 1001, 1000, 1006, 1004, 1007, 1005};
 
     private boolean running;
+    int pointsize = 24;
     
-    Frame f;
+    JFrame parentFrame;
     transient Thread gamer;
     Level level;
     Room endroom;
@@ -50,7 +54,6 @@ public class Rogue extends Panel implements Runnable, Header, Serializable {
     Id[] id_wands = null;
     Id[] id_rings = null;
 
-    int pointsize = 12;
     String scorepagename;
     boolean interrupted;
 
@@ -60,27 +63,27 @@ public class Rogue extends Panel implements Runnable, Header, Serializable {
     public static void main(String[] args) {
         // Rogue r = new Rogue ();
         Rogue r = loadGame();
-        if (r.f == null) {
-            r.f = new Frame();
+        if (r.parentFrame == null) {
+            r.parentFrame = new JFrame("Java Rogue");
             // r.f.setSize(800,520);
-            r.setPreferredSize(new Dimension(1200, 750));
+            r.setSize(new Dimension(1200, 750));
 
-            r.f.setLayout(new FlowLayout());
+            r.parentFrame.setLayout(new BorderLayout());
 
-            r.f.add(r);
-            r.f.pack();
+            r.parentFrame.add(r, BorderLayout.CENTER);
         }
-        r.f.addWindowListener(new WindowAdapter() {
+        ApplicationPreferences.loadPrefs(r);
+        r.parentFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
-                System.exit(0);
+                r.exit();
             }
         });
-        r.f.invalidate();
-        r.f.validate();
-        r.f.repaint();
-        r.f.pack();
-        r.f.setVisible(true);
-        r.f.validate();
+        r.parentFrame.invalidate();
+        r.parentFrame.validate();
+        r.parentFrame.repaint();
+//        r.parentFrame.pack();
+        r.parentFrame.setVisible(true);
+        r.parentFrame.validate();
 
     }
 
@@ -97,12 +100,8 @@ public class Rogue extends Panel implements Runnable, Header, Serializable {
      * 
      */
     public Rogue() {
-        try {
-            // pointsize= Integer.parseInt(getParameter("pointsize"));
-            pointsize = 16;
-        } catch (NumberFormatException e) {
-            pointsize = 12;
-        }
+        setLayout(new BorderLayout());
+        setOpaque(false);
         rand = new Randomx((int) System.currentTimeMillis());
         try {
             // int i= Integer.parseInt(getParameter("srand"));
@@ -136,12 +135,17 @@ public class Rogue extends Panel implements Runnable, Header, Serializable {
 
     boolean newlevel = true;
 
+    void exit() {
+        ApplicationPreferences.savePrefs(this);
+        System.exit(0);
+    }
+    
     void outputScores() {
         View view = (View) view_list.get(0);
         view.empty();
         view.addch(4, 32, "__--HIGH SCORES---__");
 
-        File scoreFile = new File("jrogue.scr");
+        File scoreFile = new File(System.getProperty("user.home") + "/.rogue/jrogue.scr");
         String[] topTen = new String[10];
         try {
             Scanner inStream = new Scanner(scoreFile);
@@ -153,6 +157,9 @@ public class Rogue extends Panel implements Runnable, Header, Serializable {
             System.out.println("No score file found.");
         }
         try {
+            if (!scoreFile.exists()) {
+                scoreFile.getParentFile().mkdirs();
+            }
             PrintStream outStream = new PrintStream(scoreFile);
 
             Man man = view.man;
@@ -200,8 +207,9 @@ public class Rogue extends Panel implements Runnable, Header, Serializable {
     }
 
     void end_game() {
-        if (!Man.saved_game)
+        if (!Man.saved_game) {
             outputScores();
+        }
         System.exit(0);
     }
 
@@ -210,7 +218,9 @@ public class Rogue extends Panel implements Runnable, Header, Serializable {
         View view = null;
         // Id.list_items();
         if (view_list.size() == 0) {
-            add(view = new View(this, pointsize, 25, 80));
+            view = new View(this, pointsize, 25, 80);
+            view.addKeyListener(this);
+            add(view, BorderLayout.CENTER);
             view_list.add(view);
             Man man = new Man(this, view);
             view.man = man;
@@ -238,6 +248,9 @@ public class Rogue extends Panel implements Runnable, Header, Serializable {
         System.out.println("running");
         Man man;
         gamer.setPriority(Thread.MIN_PRIORITY);
+        while (parentFrame == null ) {
+            try { Thread.sleep(50); } catch (InterruptedException e) {}
+        }
         while (running) {
             System.out.println("in main game loop");
             if (newlevel) {
@@ -267,7 +280,7 @@ public class Rogue extends Panel implements Runnable, Header, Serializable {
                     level.put_player(v.man);
                 }
                 newlevel = false;
-                f.revalidate();
+                parentFrame.revalidate();
             }
             for (View v : view_list) {
                 v.man.init_seen();
@@ -284,17 +297,7 @@ public class Rogue extends Panel implements Runnable, Header, Serializable {
             }
             newlevel = true;
         }
-    }
-
-    public void paint(Graphics g) {
-        int y = 0;
-        for (View v : view_list) {
-            Dimension s = getSize();
-            Dimension d = v.getSize();
-            v.setLocation((s.width - d.width) / 2, y + v.ch);
-            v.repaint();
-            y += d.height + 2 * v.ch;
-        }
+        exit();
     }
 
     public boolean mouseDown(Event evt, int x, int y) {
@@ -321,6 +324,33 @@ public class Rogue extends Panel implements Runnable, Header, Serializable {
         return true;
     }
 
+    @Override
+    public synchronized void keyPressed(KeyEvent e) {
+        int key = e.getKeyChar();
+        int code = e.getKeyCode();
+        
+        if (KeyEvent.VK_PAGE_UP <= code && code <= KeyEvent.VK_DOWN) {
+            key = MAP_CODES[code - KeyEvent.VK_PAGE_UP];
+        }
+        if (key == KeyEvent.VK_ESCAPE) {
+            interrupted = true;
+        }
+        if (!gamer.isAlive()) {
+            if (key == KeyEvent.VK_SPACE) {
+                start();
+            }
+        } else {
+            keybuf = keybuf + ((char) key);
+        }
+        notify();
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {}
+
+    @Override
+    public void keyTyped(KeyEvent e) {}
+    
     synchronized void md_sleep(int mseconds) {
         if (mseconds > 0) {
             try { Thread.sleep(mseconds); } catch (InterruptedException e) {}

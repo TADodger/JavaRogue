@@ -1,35 +1,43 @@
 package rogue;
 
-import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.util.EmptyStackException;
 import java.util.Stack;
 
+import javax.swing.JPanel;
+
 /**
  *
  */
-public class View extends Canvas implements Serializable {
+public class View extends JPanel implements Serializable, ComponentListener {
     private static final long serialVersionUID = -68447722052194881L;
 
+    private Dimension size;
+    int pointsize;
+    private transient BufferedImage backgroundBuffer;
+    private boolean initial;
+    
     Rogue self;
     Message msg;
     Item dummy;
     Stack<Rowcol> marked = new Stack<>();
-    int pointsize;
     Level level;
     char[][] terminal;
     char[][] buffer; // Low byte=ascii character, High byte=color index
     boolean line_dirty[];
     int nrow;
     int ncol;
-    int cw; /* Character width */
-    int ch; /* Character height */
-    int ca; /* Ascent */
+    int characterWidth; /* Character width */
+    int characterHeight; /* Character height */
+    int characterAscent; /* Ascent */
     int lead; /* Font leading */
     Font ffixed;
     FontMetrics fm;
@@ -43,44 +51,90 @@ public class View extends Canvas implements Serializable {
      */
     public View(Rogue self, int pointsize, int nrow, int ncol) {
         this.self = self;
-        this.pointsize = pointsize;
         this.nrow = nrow;
         this.ncol = ncol;
         this.msg = new Message(this);
         terminal = new char[nrow][ncol];
         buffer = new char[nrow][ncol];
         line_dirty = new boolean[nrow];
+        initial = true;
 
+        this.pointsize = pointsize;
         for (int k = 0; k < nrow; k++) {
             line_dirty[k] = false;
             for (int c = 0; c < ncol; c++) {
                 terminal[k][c] = ' ';
             }
         }
-        // Set up the view canvas
-        Dimension d = preferredSize();
-        // System.out.println("d="+d);
-        setSize(d);
+        getPreferredSize();
         requestFocus();
+        addComponentListener(this);
     }
 
-    public Dimension preferredSize() {
-        Dimension d = self.getSize();
-        ++pointsize;
-        if (d.height > 0) {
-            pointsize += pointsize / 2;
+    public Dimension getPreferredSize() {
+        calculateSize();
+
+        return size;
+    }
+
+    @Override
+    public void componentHidden(ComponentEvent e) {}
+
+    @Override
+    public void componentMoved(ComponentEvent e) {}
+
+    @Override
+    public void componentShown(ComponentEvent e) {}
+
+    @Override
+    public void componentResized(ComponentEvent e) {
+//        System.out.println("RESIZED");
+        calculateSize();
+    }
+    
+    private void calculateSize() {
+        ffixed = new Font("Courier", Font.PLAIN, pointsize);
+        FontMetrics fm = getFontMetrics(ffixed);
+        characterWidth = fm.charWidth('X');
+        characterHeight = fm.getHeight();
+        characterAscent = fm.getAscent();
+        size = new Dimension(ncol * characterWidth, nrow * characterHeight);
+        if (!initial) {
+            Dimension currentSize = getSize();
+            if (size.width < currentSize.width && size.height < currentSize.height) {
+                do {
+                    pointsize += 1;
+                    ffixed = new Font("Courier", Font.PLAIN, pointsize);
+                    fm = getFontMetrics(ffixed);
+                    characterWidth = fm.charWidth('X');
+                    characterHeight = fm.getHeight();
+                    characterAscent = fm.getAscent();
+                    size = new Dimension(ncol * characterWidth, nrow * characterHeight);
+                } while (size.width < currentSize.width && size.height < currentSize.height);
+                pointsize -= 1;
+                ffixed = new Font("Courier", Font.PLAIN, pointsize);
+                fm = getFontMetrics(ffixed);
+                characterWidth = fm.charWidth('X');
+                characterHeight = fm.getHeight();
+                characterAscent = fm.getAscent();
+                size = new Dimension(ncol * characterWidth, nrow * characterHeight);
+            } else if (size.width > currentSize.width || size.height > currentSize.height) {
+                do {
+                    pointsize -= 1;
+                    ffixed = new Font("Courier", Font.PLAIN, pointsize);
+                    fm = getFontMetrics(ffixed);
+                    characterWidth = fm.charWidth('X');
+                    characterHeight = fm.getHeight();
+                    characterAscent = fm.getAscent();
+                    size = new Dimension(ncol * characterWidth, nrow * characterHeight);
+                } while (size.width > currentSize.width || size.height > currentSize.height);
+            }
         }
-        do {
-            --pointsize;
-            ffixed = new Font("Courier", Font.PLAIN, pointsize);
-            FontMetrics fm = getFontMetrics(ffixed);
-            cw = fm.charWidth('X');
-            ch = fm.getHeight();
-            ca = fm.getAscent();
-        } while (d.height > 0 && pointsize > 8 && ((nrow + 1) * ch > d.height || (ncol + 1) * cw > d.width));
-        /// System.out.println("SIZE" + cw + " " + ch + " ascent="+ ca);
-        /// System.out.println("--");
-        return new Dimension(ncol * cw, nrow * ch);
+        initial = false;
+        backgroundBuffer = new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_ARGB);
+        self.setPreferredSize(size);
+        repaint();
+        self.parentFrame.pack();
     }
 
     boolean in_sight(int row, int col) {
@@ -99,10 +153,17 @@ public class View extends Canvas implements Serializable {
         cmap[7] = new Color(0, 160, 0); // Green
     }
 
+    public void update(Graphics g) {
+        paint(g);
+    }
+    
     private void inupdate(Graphics g) {
         if (g != null) {
-            Font ft = g.getFont();
-            g.setFont(ffixed);
+            if (backgroundBuffer == null) {
+                backgroundBuffer = new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_ARGB);
+            }
+            Graphics g2 = backgroundBuffer.getGraphics();
+            g2.setFont(ffixed);
             byte ba[] = new byte[ncol];
             for (int y = 0; y < nrow; y++) {
                 if (line_dirty[y]) {
@@ -116,14 +177,14 @@ public class View extends Canvas implements Serializable {
                         if (ba[0] == '_' || ba[0] == 0 || st == 2) {
                             ba[0] = ' ';
                         }
-                        g.setColor(Color.black);
-                        g.fillRect(x * cw, y * ch, cw, ch);
-                        g.setColor(cmap[st]);
-                        g.drawBytes(ba, 0, 1, x * cw, y * ch + ca);
+                        g2.setColor(Color.black);
+                        g2.fillRect(x * characterWidth, y * characterHeight, characterWidth, characterHeight);
+                        g2.setColor(cmap[st]);
+                        g2.drawBytes(ba, 0, 1, x * characterWidth, y * characterHeight + characterAscent);
                     }
                 }
             }
-            g.setFont(ft);
+            g.drawImage(backgroundBuffer, 0, 0, this);
         }
     }
 
@@ -146,8 +207,8 @@ public class View extends Canvas implements Serializable {
         
         return pt;
     }
-
-    public void update(Graphics g) {
+    
+    protected void paintComponent(Graphics g) {
         synchronized (self.gamer) {
             for (int r = 0; r < nrow; r++) {
                 line_dirty[r] = true;
@@ -158,10 +219,6 @@ public class View extends Canvas implements Serializable {
                 inupdate(g);
             }
         }
-    }
-
-    public void paint(Graphics g) {
-        update(g);
     }
 
     void refresh() {
