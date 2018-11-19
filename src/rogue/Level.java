@@ -165,14 +165,14 @@ public class Level implements Header, Serializable {
 
     Scroll grScroll() {
         Scroll t = new Scroll(this);
-        t.kind = Id.grWhichScroll(self.rand);
+        t.kind = Id.getRandomWhichScroll(self.rand);
         
         return t;
     }
 
     Potion grPotion() {
         Potion t = new Potion(this);
-        t.kind = Id.grWhichPotion(self.rand);
+        t.kind = Id.getRandomWhichPotion(self.rand);
         
         return t;
     }
@@ -211,7 +211,7 @@ public class Level implements Header, Serializable {
             k = Id.FOOD;
             foods++;
         } else
-            k = Id.grSpecies(self.rand);
+            k = Id.getRandomSpecies(self.rand);
         switch (k) {
             case Id.SCROLL:
                 return (Toy) grScroll();
@@ -542,7 +542,7 @@ public class Level implements Header, Serializable {
         }
         Monster monster = new Monster(this, mn);
         if (0 != (monster.mFlags & Monster.IMITATES)) {
-            monster.disguise = Id.grObjectCharacter(self.rand);
+            monster.disguise = Id.getRandomObjectCharacter(self.rand);
         }
         if (currentLevel > AMULET_LEVEL + 2) {
             monster.mFlags |= Monster.HASTED;
@@ -874,8 +874,8 @@ public class Level implements Header, Serializable {
                 if (0 == (map[r][c] & (STAIRS | FLOOR))) {
                     char s = 0; // Opaque cell
                     for (int k = 0; k < 8; k++) {
-                        int r1 = r + Id.xtab[k];
-                        int c1 = c + Id.ytab[k];
+                        int r1 = r + Id.X_TABLE[k];
+                        int c1 = c + Id.Y_TABLE[k];
                         if (r1 >= 0 && r1 < nrow && c1 >= 0 && c1 < ncol) {
                             if (0 != (map[r1][c1] & (FLOOR | DOOR))) {
                                 s = 2; // Cell neighbors transparent cell

@@ -10,15 +10,21 @@ import java.io.Serializable;
 public class Id implements Serializable {
     private static final long serialVersionUID = -1091380658537367767L;
 
-    int value;
-    String title;
-    String real;
-    int idStatus; // whether it's been identified or not
+    @SuppressWarnings("unused")
+    private int value; //possibly not used
+    private String real;
+    
+    /** Name of object */
+    public String title;
+    /** whether it's been identified or not */
+    public int idStatus;
 
-    static final int xtab[] = { 1, 1, 0, -1, -1, -1, 0, 1, 0 };
-    static final int ytab[] = { 0, 1, 1, 1, 0, -1, -1, -1, 0 };
+    /** X offset used when creating objects */
+    public static final int X_TABLE[] = { 1, 1, 0, -1, -1, -1, 0, 1, 0 };
+    /** Y offset used when creating objects */
+    public static final int Y_TABLE[] = { 0, 1, 1, 1, 0, -1, -1, -1, 0 };
 
-    static final String potionslist[] = { 
+    private static final String POTIONS_LIST[] = { 
             "100", "blue ", "of increase strength ", 
             "250", "red ", "of restore strength ", 
             "100", "green ", "of healing ", 
@@ -34,18 +40,24 @@ public class Id implements Serializable {
             "150", "burgundy ", "of haste self ", 
             "145", "beige ", "of see invisible " 
             };
-    static Id idPotions[] = getIdList(potionslist, 0);
+    /** Identity of potions */
+    public static Id idPotions[] = getIdList(POTIONS_LIST, 0);
 
-    static void mixColors(Randomx rand) {
-        for (int j = idPotions.length; --j > 1;) {
-            int k = rand.get(j - 1);
-            String t = idPotions[j].title;
-            idPotions[j].title = idPotions[k].title;
-            idPotions[k].title = t;
+    /**
+     * Mix the potion colors around
+     * 
+     * @param rand
+     */
+    public static void mixColors(Randomx rand) {
+        for (int i = idPotions.length; --i > 1;) {
+            int otherIndex = rand.get(i - 1);
+            String title = idPotions[i].title;
+            idPotions[i].title = idPotions[otherIndex].title;
+            idPotions[otherIndex].title = title;
         }
     }
 
-    static final String scrollslist[] = { 
+    private static final String SCROLLS_LIST[] = { 
             "505", "", "of protect armor ", 
             "200", "", "of hold monster ", 
             "235", "", "of enchant weapon ", 
@@ -61,16 +73,17 @@ public class Id implements Serializable {
             "90", "", "of confuse monster " 
             };
 
-    static final String syllables[] = { 
+    private static final String SYLLABLES[] = { 
             "blech ", "foo ", "barf ", "rech ", "bar ", "blech ", "quo ", "bloto ", 
             "oh ", "caca ", "blorp ", "erp ", "festr ", "rot ", "slie ", "snorf ", 
             "iky ", "yuky ", "ooze ", "ah ", "bahl ", "zep ", "druhl ", "flem ", 
             "behil ", "arek ", "mep ", "zihr ", "grit ", "kona ", "kini ", "ichi ", 
             "tims ", "ogr ", "oo ", "ighr ", "coph ", "swerr ", "mihln ", "poxi "
             };
-    static Id idScrolls[] = getIdList(scrollslist, 0);
+    /** Identity of scrolls */
+    public static Id idScrolls[] = getIdList(SCROLLS_LIST, 0);
 
-    static final String weaponslist[] = { 
+    private static final String WEAPONS_LIST[] = { 
             "150", "short bow ", "", 
             "8", "darts ", "", 
             "15", "arrows ", "", 
@@ -80,9 +93,10 @@ public class Id implements Serializable {
             "470", "long sword ", "",
             "580", "two-handed sword ", "" 
             };
-    static Id idWeapons[] = getIdList(weaponslist, 0);
+    /** Identity of weapons */
+    public static Id idWeapons[] = getIdList(WEAPONS_LIST, 0);
 
-    static final String armorslist[] = { 
+    private static final String ARMORS_LIST[] = { 
             "300", "leather armor ", "", 
             "300", "ring mail ", "", 
             "400", "scale mail ", "", 
@@ -91,9 +105,10 @@ public class Id implements Serializable {
             "600", "splint mail ", "",
             "700", "plate mail ", "" 
             };
-    static Id idArmors[] = getIdList(armorslist, 0);
+    /** Identity of armor */
+    public static Id idArmors[] = getIdList(ARMORS_LIST, 0);
 
-    static final String wandslist[] = { 
+    private static final String WANDS_LIST[] = { 
             "25", "", "of teleport away ", 
             "50", "", "of slow monster ", 
             "8", "", "of invisibility ", 
@@ -106,9 +121,10 @@ public class Id implements Serializable {
             "20", "", "of cold ", 
             "20", "", "of fire " 
             };
-    static Id idWands[] = getIdList(wandslist, 0);
+    /** Identity of wands */
+    public static Id idWands[] = getIdList(WANDS_LIST, 0);
 
-    static final String ringslist[] = { 
+    private static final String RINGS_LIST[] = { 
             "250", "", "of stealth ", 
             "100", "", "of teleportation ", 
             "255", "", "of regeneration ", 
@@ -121,9 +137,10 @@ public class Id implements Serializable {
             "290", "", "of maintain armor ", 
             "270", "", "of searching " 
             };
-    static Id idRings[] = getIdList(ringslist, 0);
+    /** Identity of rings */
+    public static Id idRings[] = getIdList(RINGS_LIST, 0);
 
-    static final String wandMaterials[] = { 
+    private static final String WAND_MATERIALS[] = { 
             "steel ", "bronze ", "gold ", "silver ", "copper ", 
             "nickel ", "cobalt ", "tin ", "iron ", "magnesium ", 
             "chrome ", "carbon ", "platinum ", "silicon ", "titanium ",
@@ -132,156 +149,166 @@ public class Id implements Serializable {
             "cedar ", "redwood ", "balsa ", "ivory ", "walnut ", 
             "maple ", "mahogany ", "elm ", "palm ", "wooden " 
             };
-    static final boolean isWood[] = new boolean[wandMaterials.length];
+    /** Whether the wand at each index is made of wood or not */
+    public static final boolean IS_WOOD[] = new boolean[WAND_MATERIALS.length];
     static {
         boolean wood = false;
-        for (int k = 0; k < isWood.length; k++) {
-            if (wandMaterials[k].compareTo("teak") == 0) {
+        for (int k = 0; k < IS_WOOD.length; k++) {
+            if (WAND_MATERIALS[k].compareTo("teak") == 0) {
                 wood = true;
             }
-            isWood[k] = wood;
+            IS_WOOD[k] = wood;
         }
     }
-    static final String gems[] = { 
+    private static final String GEMS[] = { 
             "diamond ", "stibotantalite ", "lapi-lazuli ", "ruby ", "emerald ", "sapphire ", "amethyst ", 
             "quartz ", "tiger-eye ", "opal ", "agate ", "turquoise ", "pearl ", "garnet " 
             };
 
-    static void makeScrollTitles(Randomx rand) {
+    /**
+     * Make wand titles out of random syllables
+     * 
+     * @param rand
+     */
+    public static void makeScrollTitles(Randomx rand) {
         // Also name the wands and rings
         for (int i = 0; i < idScrolls.length; i++) {
             int syllableCount = rand.get(2, 5);
             String title = "'";
             for (int j = 0; j < syllableCount; j++) {
-                int syllableNumber = rand.get(1, syllables.length - 1);
-                title = title.concat(syllables[syllableNumber]);
+                int syllableNumber = rand.get(1, SYLLABLES.length - 1);
+                title = title.concat(SYLLABLES[syllableNumber]);
             }
             idScrolls[i].title = title.concat("' ");
         }
-        int[] permutaion = rand.permute(wandMaterials.length);
+        int[] permutaion = rand.permute(WAND_MATERIALS.length);
         for (int i = 0; i < idWands.length; i++) {
-            idWands[i].title = wandMaterials[permutaion[i]];
+            idWands[i].title = WAND_MATERIALS[permutaion[i]];
         }
 
-        permutaion = rand.permute(gems.length);
+        permutaion = rand.permute(GEMS.length);
         for (int i = 0; i < idRings.length; i++) {
-            idRings[i].title = gems[permutaion[i]];
+            idRings[i].title = GEMS[permutaion[i]];
         }
     }
 
-    static final int ARMOR = 0x00100;
-    static final int WEAPON = 0x00200;
-    static final int SCROLL = 0x00400;
-    static final int POTION = 0x00800;
-    static final int GOLD = 0x01000;
-    static final int FOOD = 0x02000;
-    static final int WAND = 0x04000;
-    static final int RING = 0x08000;
-    static final int AMULET = 0x10000;
-    static final int ALL_TOYS = 0x1ff00;
+    /** Constant */ public static final int ARMOR = 0x00100;
+    /** Constant */ public static final int WEAPON = 0x00200;
+    /** Constant */ public static final int SCROLL = 0x00400;
+    /** Constant */ public static final int POTION = 0x00800;
+    /** Constant */ public static final int GOLD = 0x01000;
+    /** Constant */ public static final int FOOD = 0x02000;
+    /** Constant */ public static final int WAND = 0x04000;
+    /** Constant */ public static final int RING = 0x08000;
+    /** Constant */ public static final int AMULET = 0x10000;
+    /** Constant */ public static final int ALL_TOYS = 0x1ff00;
 
-    static final int LEATHER = 0 + ARMOR;
-    static final int RINGMAIL = 1 + ARMOR;
-    static final int SCALE = 2 + ARMOR;
-    static final int CHAIN = 3 + ARMOR;
-    static final int BANDED = 4 + ARMOR;
-    static final int SPLINT = 5 + ARMOR;
-    static final int PLATE = 6 + ARMOR;
-    static final int ARMORS = 7 + ARMOR;
+    /** Constant */ public static final int LEATHER = 0 + ARMOR;
+    /** Constant */ public static final int RINGMAIL = 1 + ARMOR;
+    /** Constant */ public static final int SCALE = 2 + ARMOR;
+    /** Constant */ public static final int CHAIN = 3 + ARMOR;
+    /** Constant */ public static final int BANDED = 4 + ARMOR;
+    /** Constant */ public static final int SPLINT = 5 + ARMOR;
+    /** Constant */ public static final int PLATE = 6 + ARMOR;
+    /** Constant */ public static final int ARMORS = 7 + ARMOR;
 
-    static final int BOW = 0 + WEAPON;
-    static final int DART = 1 + WEAPON;
-    static final int ARROW = 2 + WEAPON;
-    static final int DAGGER = 3 + WEAPON;
-    static final int SHURIKEN = 4 + WEAPON;
-    static final int MACE = 5 + WEAPON;
-    static final int LONG_SWORD = 6 + WEAPON;
-    static final int TWO_HANDED_SWORD = 7 + WEAPON;
-    static final int WEAPONS = 8;
+    /** Constant */ public static final int BOW = 0 + WEAPON;
+    /** Constant */ public static final int DART = 1 + WEAPON;
+    /** Constant */ public static final int ARROW = 2 + WEAPON;
+    /** Constant */ public static final int DAGGER = 3 + WEAPON;
+    /** Constant */ public static final int SHURIKEN = 4 + WEAPON;
+    /** Constant */ public static final int MACE = 5 + WEAPON;
+    /** Constant */ public static final int LONG_SWORD = 6 + WEAPON;
+    /** Constant */ public static final int TWO_HANDED_SWORD = 7 + WEAPON;
+    /** Constant */ public static final int WEAPONS = 8;
 
-    static final int PROTECT_ARMOR = 0 + SCROLL;
-    static final int HOLD_MONSTER = 1 + SCROLL;
-    static final int ENCH_WEAPON = 2 + SCROLL;
-    static final int ENCH_ARMOR = 3 + SCROLL;
-    static final int IDENTIFY = 4 + SCROLL;
-    static final int TELEPORT = 5 + SCROLL;
-    static final int SLEEP = 6 + SCROLL;
-    static final int SCARE_MONSTER = 7 + SCROLL;
-    static final int REMOVE_CURSE = 8 + SCROLL;
-    static final int CREATE_MONSTER = 9 + SCROLL;
-    static final int AGGRAVATE_MONSTER = 10 + SCROLL;
-    static final int MAGIC_MAPPING = 11 + SCROLL;
-    static final int CON_MON = 12 + SCROLL;
-    static final int SCROLS = 13 + SCROLL;
+    /** Constant */ public static final int PROTECT_ARMOR = 0 + SCROLL;
+    /** Constant */ public static final int HOLD_MONSTER = 1 + SCROLL;
+    /** Constant */ public static final int ENCH_WEAPON = 2 + SCROLL;
+    /** Constant */ public static final int ENCH_ARMOR = 3 + SCROLL;
+    /** Constant */ public static final int IDENTIFY = 4 + SCROLL;
+    /** Constant */ public static final int TELEPORT = 5 + SCROLL;
+    /** Constant */ public static final int SLEEP = 6 + SCROLL;
+    /** Constant */ public static final int SCARE_MONSTER = 7 + SCROLL;
+    /** Constant */ public static final int REMOVE_CURSE = 8 + SCROLL;
+    /** Constant */ public static final int CREATE_MONSTER = 9 + SCROLL;
+    /** Constant */ public static final int AGGRAVATE_MONSTER = 10 + SCROLL;
+    /** Constant */ public static final int MAGIC_MAPPING = 11 + SCROLL;
+    /** Constant */ public static final int CON_MON = 12 + SCROLL;
+    /** Constant */ public static final int SCROLS = 13 + SCROLL;
 
-    static final int INCREASE_STRENGTH = 0 + POTION;
-    static final int RESTORE_STRENGTH = 1 + POTION;
-    static final int HEALING = 2 + POTION;
-    static final int EXTRA_HEALING = 3 + POTION;
-    static final int POISON = 4 + POTION;
-    static final int RAISE_LEVEL = 5 + POTION;
-    static final int BLINDNESS = 6 + POTION;
-    static final int HALLUCINATION = 7 + POTION;
-    static final int DETECT_MONSTER = 8 + POTION;
-    static final int DETECT_TOYS = 9 + POTION;
-    static final int CONFUSION = 10 + POTION;
-    static final int LEVITATION = 11 + POTION;
-    static final int HASTE_SELF = 12 + POTION;
-    static final int SEE_INVISIBLE = 13 + POTION;
-    static final int POTIONS = 14 + POTION;
+    /** Constant */ public static final int INCREASE_STRENGTH = 0 + POTION;
+    /** Constant */ public static final int RESTORE_STRENGTH = 1 + POTION;
+    /** Constant */ public static final int HEALING = 2 + POTION;
+    /** Constant */ public static final int EXTRA_HEALING = 3 + POTION;
+    /** Constant */ public static final int POISON = 4 + POTION;
+    /** Constant */ public static final int RAISE_LEVEL = 5 + POTION;
+    /** Constant */ public static final int BLINDNESS = 6 + POTION;
+    /** Constant */ public static final int HALLUCINATION = 7 + POTION;
+    /** Constant */ public static final int DETECT_MONSTER = 8 + POTION;
+    /** Constant */ public static final int DETECT_TOYS = 9 + POTION;
+    /** Constant */ public static final int CONFUSION = 10 + POTION;
+    /** Constant */ public static final int LEVITATION = 11 + POTION;
+    /** Constant */ public static final int HASTE_SELF = 12 + POTION;
+    /** Constant */ public static final int SEE_INVISIBLE = 13 + POTION;
+    /** Constant */ public static final int POTIONS = 14 + POTION;
 
-    static final int TELE_AWAY = 0 + WAND;
-    static final int SLOW_MONSTER = 1 + WAND;
-    static final int INVISIBILITY = 2 + WAND;
-    static final int POLYMORPH = 3 + WAND;
-    static final int HASTE_MONSTER = 4 + WAND;
-    static final int MAGIC_MISSILE = 5 + WAND;
-    static final int CANCELLATION = 6 + WAND;
-    static final int DO_NOTHING = 7 + WAND;
-    static final int DRAIN_LIFE = 8 + WAND;
-    static final int COLD = 9 + WAND;
-    static final int FIRE = 10 + WAND;
-    static final int WANDS = 11 + WAND;
+    /** Constant */ public static final int TELE_AWAY = 0 + WAND;
+    /** Constant */ public static final int SLOW_MONSTER = 1 + WAND;
+    /** Constant */ public static final int INVISIBILITY = 2 + WAND;
+    /** Constant */ public static final int POLYMORPH = 3 + WAND;
+    /** Constant */ public static final int HASTE_MONSTER = 4 + WAND;
+    /** Constant */ public static final int MAGIC_MISSILE = 5 + WAND;
+    /** Constant */ public static final int CANCELLATION = 6 + WAND;
+    /** Constant */ public static final int DO_NOTHING = 7 + WAND;
+    /** Constant */ public static final int DRAIN_LIFE = 8 + WAND;
+    /** Constant */ public static final int COLD = 9 + WAND;
+    /** Constant */ public static final int FIRE = 10 + WAND;
+    /** Constant */ public static final int WANDS = 11 + WAND;
 
-    static final int STEALTH = 0 + RING;
-    static final int R_TELEPORT = 1 + RING;
-    static final int REGENERATION = 2 + RING;
-    static final int SLOW_DIGEST = 3 + RING;
-    static final int ADD_STRENGTH = 4 + RING;
-    static final int SUSTAIN_STRENGTH = 5 + RING;
-    static final int DEXTERITY = 6 + RING;
-    static final int ADORNMENT = 7 + RING;
-    static final int R_SEE_INVISIBLE = 8 + RING;
-    static final int MAINTAIN_ARMOR = 9 + RING;
-    static final int SEARCHING = 10 + RING;
-    static final int RINGS = 11 + RING;
+    /** Constant */ public static final int STEALTH = 0 + RING;
+    /** Constant */ public static final int R_TELEPORT = 1 + RING;
+    /** Constant */ public static final int REGENERATION = 2 + RING;
+    /** Constant */ public static final int SLOW_DIGEST = 3 + RING;
+    /** Constant */ public static final int ADD_STRENGTH = 4 + RING;
+    /** Constant */ public static final int SUSTAIN_STRENGTH = 5 + RING;
+    /** Constant */ public static final int DEXTERITY = 6 + RING;
+    /** Constant */ public static final int ADORNMENT = 7 + RING;
+    /** Constant */ public static final int R_SEE_INVISIBLE = 8 + RING;
+    /** Constant */ public static final int MAINTAIN_ARMOR = 9 + RING;
+    /** Constant */ public static final int SEARCHING = 10 + RING;
+    /** Constant */ public static final int RINGS = 11 + RING;
 
-    static final int RATION = 0 + FOOD;
-    static final int FRUIT = 1 + FOOD;
+    /** Constant */ public static final int RATION = 0 + FOOD;
+    /** Constant */ public static final int FRUIT = 1 + FOOD;
 
-    static final int NOT_USED = 0;
-    static final int BEING_WIELDED = 01;
-    static final int BEING_WORN = 02;
-    static final int ON_LEFT_HAND = 04;
-    static final int ON_RIGHT_HAND = 010;
-    static final int ON_EITHER_HAND = 014;
-    static final int BEING_USED = 017;
+    /** Constant */ public static final int NOT_USED = 0;
+    /** Constant */ public static final int BEING_WIELDED = 01;
+    /** Constant */ public static final int BEING_WORN = 02;
+    /** Constant */ public static final int ON_LEFT_HAND = 04;
+    /** Constant */ public static final int ON_RIGHT_HAND = 010;
+    /** Constant */ public static final int ON_EITHER_HAND = 014;
+    /** Constant */ public static final int BEING_USED = 017;
 
-    static final int UNIDENTIFIED = 0;
-    static final int IDENTIFIED = 1;
-    static final int CALLED = 2;
+    /** Constant */ public static final int UNIDENTIFIED = 0;
+    /** Constant */ public static final int IDENTIFIED = 1;
+    /** Constant */ public static final int CALLED = 2;
 
-    static final int UPWARD = 0;
-    static final int UPRIGHT = 1;
-    static final int RIGHT = 2;
-    static final int DOWNRIGHT = 3;
-    static final int DOWN = 4;
-    static final int DOWNLEFT = 5;
-    static final int LEFT = 6;
-    static final int UPLEFT = 7;
-    static final int DIRS = 8;
+    /** Constant */ public static final int UPWARD = 0;
+    /** Constant */ public static final int UPRIGHT = 1;
+    /** Constant */ public static final int RIGHT = 2;
+    /** Constant */ public static final int DOWNRIGHT = 3;
+    /** Constant */ public static final int DOWN = 4;
+    /** Constant */ public static final int DOWNLEFT = 5;
+    /** Constant */ public static final int LEFT = 6;
+    /** Constant */ public static final int UPLEFT = 7;
+    /** Constant */ public static final int DIRS = 8;
 
-    static int isDirection(int character) {
+    /**
+     * @param character
+     * @return true if the provided character is for moving in a direction.
+     */
+    public static int isDirection(int character) {
         switch (character) {
             case Event.LEFT:
             case 'h':
@@ -314,7 +341,14 @@ public class Id implements Serializable {
         return -2;
     }
 
-    static int getDirection(int startRow, int startCol, int destinationRow, int destinationCol) {
+    /**
+     * @param startRow
+     * @param startCol
+     * @param destinationRow
+     * @param destinationCol
+     * @return The direction constant for the direction between the start and destination location 
+     */
+    public static int getDirection(int startRow, int startCol, int destinationRow, int destinationCol) {
         if (startRow > destinationRow) {
             return startCol > destinationCol ? UPLEFT : (startCol < destinationCol ? UPRIGHT : UPWARD);
         }
@@ -325,16 +359,16 @@ public class Id implements Serializable {
         return startCol < destinationCol ? RIGHT : LEFT;
     }
 
-    static Id[] getIdList(String[] list, int status) {
-        int n = list.length / 3;
+    private static Id[] getIdList(String[] list, int status) {
+        int itemCount = list.length / 3;
         int i = 0;
-        Id[] ids = new Id[n];
-        for (int k = 0; k < n; k++) {
-            ids[k] = new Id();
-            ids[k].value = Integer.parseInt(list[i++]);
-            ids[k].title = list[i++];
-            ids[k].real = list[i++];
-            ids[k].idStatus = status;
+        Id[] ids = new Id[itemCount];
+        for (int j = 0; j < itemCount; j++) {
+            ids[j] = new Id();
+            ids[j].value = Integer.parseInt(list[i++]);
+            ids[j].title = list[i++];
+            ids[j].real = list[i++];
+            ids[j].idStatus = status;
         }
         
         return ids;
@@ -346,7 +380,11 @@ public class Id implements Serializable {
      * idlist(armorslist, 0); id_wands= idlist(wandslist, 0); id_rings=
      * idlist(ringslist, 0); }
      */
-    static boolean isVowel(int ch) {
+    /**
+     * @param ch
+     * @return true if the given character is a vowel
+     */
+    public static boolean isVowel(int ch) {
         if (ch < 'a') {
             ch += 32;
         }
@@ -354,7 +392,11 @@ public class Id implements Serializable {
         return ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u';
     }
 
-    static char getMaskCharacter(int mask) {
+    /**
+     * @param mask
+     * @return The display character based on the Toy type
+     */
+    public static char getMaskCharacter(int mask) {
         switch (mask & ALL_TOYS) {
             case SCROLL:
                 return '?';
@@ -379,7 +421,7 @@ public class Id implements Serializable {
         }
     }
 
-    static Id getIdTable(int kind)[] {
+    private static Id[] getIdTable(int kind) {
         switch (kind & ALL_TOYS) {
             case SCROLL:
                 return idScrolls;
@@ -398,41 +440,49 @@ public class Id implements Serializable {
         return null;
     }
 
-    static Id getIdTable(Toy obj)[] {
+    /**
+     * @param obj
+     * @return The table to be used for the type of Toy
+     */
+    public static Id[] getIdTable(Toy obj) {
         return getIdTable(obj.kind);
     }
 
-    static String getDescription(Toy obj) {
+    /**
+     * @param toy
+     * @return The description for the provided Toy
+     */
+    public static String getDescription(Toy toy) {
         String itemName;
-        String desc = "";
+        String description = "";
         int itstatus = 99;
-        int species = obj.kind & ALL_TOYS;
-        int what = obj.kind & 255;
+        int species = toy.kind & ALL_TOYS;
+        int what = toy.kind & 255;
 
         if (species == AMULET) {
             return "the amulet of Yendor ";
         }
 
         if (species == GOLD) {
-            return "" + obj.quantity + " pieces of gold";
+            return "" + toy.quantity + " pieces of gold";
         }
 
-        itemName = obj.name();
+        itemName = toy.name();
 
         if (species != ARMOR) {
-            desc = obj.quantity == 1 ? "a " : "" + obj.quantity + " ";
+            description = toy.quantity == 1 ? "a " : "" + toy.quantity + " ";
         }
 
         if (species == FOOD) {
-            if (obj.kind == RATION) {
-                desc = obj.quantity > 1 ? "" + obj.quantity + " rations of " : "some ";
+            if (toy.kind == RATION) {
+                description = toy.quantity > 1 ? "" + toy.quantity + " rations of " : "some ";
             } else {
-                desc = "a ";
+                description = "a ";
             }
-            desc = desc + itemName;
+            description = description + itemName;
             itstatus = 98; /* Flag just name it */
         }
-        Id idTable[] = getIdTable(obj);
+        Id[] idTable = getIdTable(toy);
 
         if (0 != (species & (WEAPON | ARMOR | WAND | RING))) {
             itstatus = UNIDENTIFIED;
@@ -445,33 +495,33 @@ public class Id implements Serializable {
                 case UNIDENTIFIED:
                     switch (species) {
                         case SCROLL:
-                            desc = desc + itemName + "entitled: " + idTable[what].title;
+                            description = description + itemName + "entitled: " + idTable[what].title;
                             break;
                         case POTION:
-                            desc = desc + idTable[what].title + itemName;
+                            description = description + idTable[what].title + itemName;
                             break;
                         case WAND:
                         case RING:
-                            if (obj.identified || idTable[what].idStatus == IDENTIFIED) {
+                            if (toy.identified || idTable[what].idStatus == IDENTIFIED) {
                                 itstatus = IDENTIFIED;
                             } else if (idTable[what].idStatus == CALLED) {
                                 itstatus = CALLED;
                             } else { 
-                                desc = desc + idTable[what].title + itemName;
+                                description = description + idTable[what].title + itemName;
                             }
                             break;
                         case ARMOR:
-                            if (obj.identified) {
+                            if (toy.identified) {
                                 itstatus = IDENTIFIED;
                             } else {
-                                desc = desc + idTable[what].title;
+                                description = description + idTable[what].title;
                             }
                             break;
                         case WEAPON:
-                            if (obj.identified) {
+                            if (toy.identified) {
                                 itstatus = IDENTIFIED;
                             } else {
-                                desc = desc + obj.name();
+                                description = description + toy.name();
                             }
                             break;
                     }
@@ -485,7 +535,7 @@ public class Id implements Serializable {
                         case POTION:
                         case WAND:
                         case RING:
-                            desc = desc + itemName + "called " + idTable[what].title;
+                            description = description + itemName + "called " + idTable[what].title;
                             break;
                     }
                     itstatus = 98;
@@ -494,68 +544,72 @@ public class Id implements Serializable {
                     switch (species) {
                         case SCROLL:
                         case POTION:
-                            desc = desc + itemName + idTable[what].real;
+                            description = description + itemName + idTable[what].real;
                             break;
                         case RING:
-                            if (obj.identified) {
-                                if (obj.kind == DEXTERITY || obj.kind == ADD_STRENGTH) {
-                                    if (obj.klass > 0) {
-                                        desc = desc + '+';
+                            if (toy.identified) {
+                                if (toy.kind == DEXTERITY || toy.kind == ADD_STRENGTH) {
+                                    if (toy.klass > 0) {
+                                        description = description + '+';
                                     }
-                                    desc = desc + obj.klass;
+                                    description = description + toy.klass;
                                 }
                             }
-                            desc = desc + itemName + idTable[what].real;
+                            description = description + itemName + idTable[what].real;
                             break;
                         case WAND:
-                            desc = desc + itemName + idTable[what].real;
-                            if (obj.identified) {
-                                desc = desc + '[' + obj.klass + ']';
+                            description = description + itemName + idTable[what].real;
+                            if (toy.identified) {
+                                description = description + '[' + toy.klass + ']';
                             }
                             break;
                         case ARMOR:
-                            if (obj.dEnchant >= 0) {
-                                desc = desc + '+';
+                            if (toy.dEnchant >= 0) {
+                                description = description + '+';
                             }
-                            desc = desc + obj.dEnchant + " " + idTable[what].title + '[' + obj.getArmorClass() + ']';
+                            description = description + toy.dEnchant + " " + idTable[what].title + '[' + toy.getArmorClass() + ']';
                             break;
                         case WEAPON:
-                            if (obj.hitEnchant >= 0) {
-                                desc = desc + '+';
+                            if (toy.hitEnchant >= 0) {
+                                description = description + '+';
                             }
-                            desc = desc + obj.hitEnchant + ',';
-                            if (obj.dEnchant >= 0) {
-                                desc = desc + '+';
+                            description = description + toy.hitEnchant + ',';
+                            if (toy.dEnchant >= 0) {
+                                description = description + '+';
                             }
-                            desc = desc + obj.dEnchant + " " + obj.name();
+                            description = description + toy.dEnchant + " " + toy.name();
                             break;
                     }
                     itstatus = 98;
                     break;
             }
         }
-        if (desc.length() > 3) {
-            if (desc.charAt(0) == 'a' && desc.charAt(1) == ' ') {
-                if (isVowel(desc.charAt(2))) {
-                    String t = desc.substring(1);
-                    desc = "an" + t;
+        if (description.length() > 3) {
+            if (description.charAt(0) == 'a' && description.charAt(1) == ' ') {
+                if (isVowel(description.charAt(2))) {
+                    String title = description.substring(1);
+                    description = "an" + title;
                 }
             }
         }
-        if (0 != (obj.inUseFlags & BEING_WIELDED)) {
-            desc = desc + " in hand";
-        } else if (0 != (obj.inUseFlags & BEING_WORN)) {
-            desc = desc + " being worn";
-        } else if (0 != (obj.inUseFlags & ON_LEFT_HAND)) {
-            desc = desc + " on left hand";
-        } else if (0 != (obj.inUseFlags & ON_RIGHT_HAND)) {
-            desc = desc + " on right hand";
+        if (0 != (toy.inUseFlags & BEING_WIELDED)) {
+            description = description + " in hand";
+        } else if (0 != (toy.inUseFlags & BEING_WORN)) {
+            description = description + " being worn";
+        } else if (0 != (toy.inUseFlags & ON_LEFT_HAND)) {
+            description = description + " on left hand";
+        } else if (0 != (toy.inUseFlags & ON_RIGHT_HAND)) {
+            description = description + " on right hand";
         }
         
-        return desc;
+        return description;
     }
 
-    static int grSpecies(Randomx rand) {
+    /**
+     * @param rand
+     * @return A random species of Toy
+     */
+    public static int getRandomSpecies(Randomx rand) {
         int species = RING;
         int percent = rand.get(1, 91);
 
@@ -576,86 +630,102 @@ public class Id implements Serializable {
         return species;
     }
 
-    static int grWhichScroll(Randomx rand) {
+    /**
+     * @param rand
+     * @return A random scroll
+     */
+    public static int getRandomWhichScroll(Randomx rand) {
         int percent = rand.get(91);
-        int k = 0;
+        int scroll = 0;
 
         if (percent <= 5) {
-            k = PROTECT_ARMOR;
+            scroll = PROTECT_ARMOR;
         } else if (percent <= 10) {
-            k = HOLD_MONSTER;
+            scroll = HOLD_MONSTER;
         } else if (percent <= 20) {
-            k = CREATE_MONSTER;
+            scroll = CREATE_MONSTER;
         } else if (percent <= 35) {
-            k = IDENTIFY;
+            scroll = IDENTIFY;
         } else if (percent <= 43) {
-            k = TELEPORT;
+            scroll = TELEPORT;
         } else if (percent <= 50) {
-            k = SLEEP;
+            scroll = SLEEP;
         } else if (percent <= 55) {
-            k = SCARE_MONSTER;
+            scroll = SCARE_MONSTER;
         } else if (percent <= 64) {
-            k = REMOVE_CURSE;
+            scroll = REMOVE_CURSE;
         } else if (percent <= 69) {
-            k = ENCH_ARMOR;
+            scroll = ENCH_ARMOR;
         } else if (percent <= 74) {
-            k = ENCH_WEAPON;
+            scroll = ENCH_WEAPON;
         } else if (percent <= 80) {
-            k = AGGRAVATE_MONSTER;
+            scroll = AGGRAVATE_MONSTER;
         } else if (percent <= 86) {
-            k = CON_MON;
+            scroll = CON_MON;
         } else {
-            k = MAGIC_MAPPING;
+            scroll = MAGIC_MAPPING;
         }
         
-        return k;
+        return scroll;
     }
 
-    static int grWhichPotion(Randomx rand) {
+    /**
+     * @param rand
+     * @return A random potion
+     */
+    public static int getRandomWhichPotion(Randomx rand) {
         int percent = rand.get(118);
-        int k = 0;
+        int potion = 0;
         
         if (percent <= 5) {
-            k = RAISE_LEVEL;
+            potion = RAISE_LEVEL;
         } else if (percent <= 15) {
-            k = DETECT_TOYS;
+            potion = DETECT_TOYS;
         } else if (percent <= 25) {
-            k = DETECT_MONSTER;
+            potion = DETECT_MONSTER;
         } else if (percent <= 35) {
-            k = INCREASE_STRENGTH;
+            potion = INCREASE_STRENGTH;
         } else if (percent <= 45) {
-            k = RESTORE_STRENGTH;
+            potion = RESTORE_STRENGTH;
         } else if (percent <= 55) {
-            k = HEALING;
+            potion = HEALING;
         } else if (percent <= 65) {
-            k = EXTRA_HEALING;
+            potion = EXTRA_HEALING;
         } else if (percent <= 75) {
-            k = BLINDNESS;
+            potion = BLINDNESS;
         } else if (percent <= 85) {
-            k = HALLUCINATION;
+            potion = HALLUCINATION;
         } else if (percent <= 95) {
-            k = CONFUSION;
+            potion = CONFUSION;
         } else if (percent <= 105) {
-            k = POISON;
+            potion = POISON;
         } else if (percent <= 110) {
-            k = LEVITATION;
+            potion = LEVITATION;
         } else if (percent <= 114) {
-            k = HASTE_SELF;
+            potion = HASTE_SELF;
         } else {
-            k = SEE_INVISIBLE;
+            potion = SEE_INVISIBLE;
         }
         
-        return k;
+        return potion;
     }
 
-    static void identify(int kind) {
-        Id idTable[] = getIdTable(kind);
+    /**
+     * Set the status of the provided item to identified
+     * 
+     * @param kind
+     */
+    public static void identify(int kind) {
+        Id[] idTable = getIdTable(kind);
         if (idTable != null) {
             idTable[kind & 255].idStatus = IDENTIFIED;
         }
     }
 
-    static void identifyUncalled(int kind) {
+    /**
+     * @param kind
+     */
+    public static void identifyUncalled(int kind) {
         Id[] idTable = getIdTable(kind);
         if (idTable != null) {
             if (idTable[kind & 255].idStatus != CALLED) {
@@ -664,24 +734,36 @@ public class Id implements Serializable {
         }
     }
 
-    static void wizardIdentify() {
+    /**
+     * 
+     */
+    public static void wizardIdentify() {
         for (int species = ARMOR; species <= ALL_TOYS; species *= 2) {
-            Id idTable[] = getIdTable(species);
+            Id[] idTable = getIdTable(species);
             if (idTable != null) {
-                for (int k = 0; k < idTable.length; k++) {
-                    identify(species + k);
+                for (int i = 0; i < idTable.length; i++) {
+                    identify(species + i);
                 }
             }
         }
     }
 
-    final static String TOY_CHARS = "%!?]=/):*";
+    private final static String TOY_CHARS = "%!?]=/):*";
 
-    static char grObjectCharacter(Randomx rand) {
+    /**
+     * @param rand
+     * @return Random character for a Toy
+     */
+    public static char getRandomObjectCharacter(Randomx rand) {
         return TOY_CHARS.charAt(rand.get(TOY_CHARS.length() - 1));
     }
 
-    static void idType(Man man) {
+    /**
+     * Set an identity string for the Man.
+     * 
+     * @param man
+     */
+    public static void idType(Man man) {
         String id = "unknown character";
         int ch;
         man.tell("what do you want identified?");
@@ -753,12 +835,16 @@ public class Id implements Serializable {
         man.tell((char) ch + " : " + id);
     }
 
-    static int parseDamage(String s)[] {
+    /**
+     * @param s
+     * @return An array with the first index being the number of rolls and the second index being the size of the die.
+     */
+    public static int[] parseDamage(String s) {
         int[] answer = new int[2];
-        int d = s.indexOf('d');
-        if (d > 0) {
-            answer[0] = Integer.parseInt(s.substring(0, d));
-            answer[1] = Integer.parseInt(s.substring(d + 1));
+        int damage = s.indexOf('d');
+        if (damage > 0) {
+            answer[0] = Integer.parseInt(s.substring(0, damage));
+            answer[1] = Integer.parseInt(s.substring(damage + 1));
         } else {
             answer[0] = Integer.parseInt(s);
             answer[1] = 0;
@@ -767,14 +853,19 @@ public class Id implements Serializable {
         return answer;
     }
 
-    static int getDamage(String damageString, Randomx rand) {
+    /**
+     * @param damageString
+     * @param rand
+     * @return The amount of damage done
+     */
+    public static int getDamage(String damageString, Randomx rand) {
         int total = 0;
         StringTokenizer st = new StringTokenizer(damageString, "/d", false);
         while (st.hasMoreTokens()) {
-            int n = Integer.parseInt(st.nextToken());
-            int d = Integer.parseInt(st.nextToken());
-            for (int i = 0; i < n; i++) {
-                total += rand != null ? rand.get(1, d) : d;
+            int numberOfRolls = Integer.parseInt(st.nextToken());
+            int diceType = Integer.parseInt(st.nextToken());
+            for (int i = 0; i < numberOfRolls; i++) {
+                total += rand != null ? rand.get(1, diceType) : diceType;
             }
         }
         

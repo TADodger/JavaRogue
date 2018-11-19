@@ -225,7 +225,7 @@ class Toy extends Item implements Serializable {
                 }
                 break;
             case Id.WAND:
-                retstring = Id.isWood[kind & 255] ? "staff " : "wand ";
+                retstring = Id.IS_WOOD[kind & 255] ? "staff " : "wand ";
                 break;
             case Id.WEAPON:
                 switch (kind) {
@@ -435,8 +435,8 @@ class Toy extends Item implements Serializable {
         // Find a point near the destination where something can be dropped
         int perm[] = level.self.rand.permute(9);
         for (i = 0; i < 9; i++) {
-            pt.col = Id.xtab[perm[i]] + c;
-            pt.row = Id.ytab[perm[i]] + r;
+            pt.col = Id.X_TABLE[perm[i]] + c;
+            pt.row = Id.Y_TABLE[perm[i]] + r;
             if (pt.row <= level.nrow - 2 && pt.row > MIN_ROW && pt.col < level.ncol && pt.col >= 0 && 0 != level.map[pt.row][pt.col] && 0 == (level.map[pt.row][pt.col] & (~DROPHERE))) {
                 r = pt.row;
                 c = pt.col;

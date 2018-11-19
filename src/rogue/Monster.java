@@ -288,8 +288,8 @@ public class Monster extends Persona implements Serializable {
             }
             int perm[] = self.rand.permute(9);
             for (int i = 0; i < 9; i++) {
-                int c = Id.xtab[perm[i]] + col;
-                int r = Id.ytab[perm[i]] + row;
+                int c = Id.X_TABLE[perm[i]] + col;
+                int r = Id.Y_TABLE[perm[i]] + row;
                 if (0 != (level.map[r][c] & MAN)) {
                     return false;
                 }
@@ -311,8 +311,8 @@ public class Monster extends Persona implements Serializable {
         }
         int perm[] = self.rand.permute(9);
         for (int i = 0; i < 9; i++) {
-            int c = Id.xtab[perm[i]] + col;
-            int r = Id.ytab[perm[i]] + row;
+            int c = Id.X_TABLE[perm[i]] + col;
+            int r = Id.Y_TABLE[perm[i]] + row;
 
             if (0 == (level.map[r][c] & MAN)) {
                 if (mtry(r, c)) {

@@ -105,8 +105,8 @@ class Scroll extends Toy implements Serializable {
     boolean createMonster(Persona man) {
         int perm[] = level.self.rand.permute(9);
         for (int i = 0; i < 9; i++) {
-            int c = Id.xtab[perm[i]] + man.col;
-            int r = Id.ytab[perm[i]] + man.row;
+            int c = Id.X_TABLE[perm[i]] + man.col;
+            int r = Id.Y_TABLE[perm[i]] + man.row;
             if ((r == man.row && c == man.col) || r < MIN_ROW || r > level.nrow - 2 || c < 0 || c > level.ncol - 1) {
                 continue;
             }

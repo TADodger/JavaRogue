@@ -12,14 +12,14 @@ public class Door extends Item implements Serializable {
     // A monster entering at row,col wants to go to oth
     // passageto is null when it does not connect to another room
     // Monsters prefer passages that do connect to other rooms
-    Rowcol oth;
+    Rowcol other;
     Door passageto = null;
 
-    Door(Level level, int r, int c, int or, int oc) {
-        super(level, r, c);
+    Door(Level level, int row, int col, int otherRow, int otherCol) {
+        super(level, row, col);
         ichar = '+';
-        placeAt(r, c, DOOR);
-        oth = new Rowcol(or, oc);
+        placeAt(row, col, DOOR);
+        other = new Rowcol(otherRow, otherCol);
     }
 
     Rowcol porch() {
@@ -38,12 +38,12 @@ public class Door extends Item implements Serializable {
         return level.roomAt(row, col);
     }
 
-    void connect(Door dto) {
-        passageto = dto;
-        dto.passageto = this;
+    void connect(Door doorToOther) {
+        passageto = doorToOther;
+        doorToOther.passageto = this;
     }
 
     public String toString() {
-        return super.toString() + oth + passageto == null ? " to void" : " to room";
+        return super.toString() + other + passageto == null ? " to void" : " to room";
     }
 }

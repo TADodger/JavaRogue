@@ -549,7 +549,7 @@ public class Man extends Persona implements Serializable {
                         ch = t.ichar;
                     }
                 } else {
-                    ch = (char) Id.grObjectCharacter(self.rand);
+                    ch = (char) Id.getRandomObjectCharacter(self.rand);
                 }
             } else {
                 ch = level.getChar(r, c);
@@ -1993,8 +1993,8 @@ public class Man extends Persona implements Serializable {
     void vizset() {
         if (0 != (level.map[row][col] & TUNNEL)) {
             for (int k = 0; k < 8; k++) {
-                int r = row + Id.xtab[k];
-                int c = col + Id.ytab[k];
+                int r = row + Id.X_TABLE[k];
+                int c = col + Id.Y_TABLE[k];
                 int mask = level.map[r][c];
                 if (0 != (mask & (TUNNEL | DOOR))) {
                     if (0 == (mask & HIDDEN)) {
