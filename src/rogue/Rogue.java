@@ -250,7 +250,7 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
         System.out.println("running");
         Man man;
         gamer.setPriority(Thread.MIN_PRIORITY);
-        while (parentFrame == null ) {
+        while (parentFrame == null && pointsize < 0) {
             try { Thread.sleep(50); } catch (InterruptedException e) {}
         }
         while (running) {

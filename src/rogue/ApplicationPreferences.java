@@ -32,6 +32,8 @@ import javax.swing.JFrame;
 public class ApplicationPreferences {
     private static final String WINDOW_X = "window_x";
     private static final String WINDOW_Y = "window_y";
+    private static final String WINDOW_WIDTH = "window_width";
+    private static final String WINDOW_HEIGHT = "window_height";
     private static final String WINDOW_MAXIMIZED = "window_maximized";
     private static final String POINT_SIZE = "point_size";
     
@@ -48,11 +50,21 @@ public class ApplicationPreferences {
         rogue.parentFrame.setLocation(posX, posY);
         if (prefs.getBoolean(WINDOW_MAXIMIZED, false)) {
             rogue.parentFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        } else {
+            //TODO still not working
+            rogue.parentFrame.setSize(prefs.getInt(WINDOW_WIDTH, 1280),  prefs.getInt(WINDOW_HEIGHT, 1024));
         }
         while (rogue.viewList.size() < 1) {
             try { Thread.sleep(50); } catch (InterruptedException e) {}
         }
-        rogue.pointsize = prefs.getInt(POINT_SIZE, 24);
+        int pointsize = prefs.getInt(POINT_SIZE, 24);
+        rogue.pointsize = pointsize;
+        if (rogue.viewList.size() > 0) {
+            rogue.viewList.get(0).pointsize = pointsize;
+            rogue.viewList.get(0).getPreferredSize();
+            rogue.viewList.get(0).repaint();
+            rogue.parentFrame.pack();
+        }
     }
     
     /**
@@ -66,7 +78,13 @@ public class ApplicationPreferences {
         Point point = rogue.parentFrame.getLocation();
         prefs.putInt(WINDOW_X, point.x);
         prefs.putInt(WINDOW_Y, point.y);
-        prefs.putBoolean(WINDOW_MAXIMIZED, rogue.parentFrame.getExtendedState() == JFrame.MAXIMIZED_BOTH);
+        boolean maximized = rogue.parentFrame.getExtendedState() == JFrame.MAXIMIZED_BOTH;
+        prefs.putBoolean(WINDOW_MAXIMIZED, maximized);
+        if (!maximized) {
+            //TODO still not working
+            prefs.putInt(WINDOW_WIDTH, rogue.parentFrame.getWidth());
+            prefs.putInt(WINDOW_HEIGHT, rogue.parentFrame.getHeight());
+        }
         prefs.putInt(POINT_SIZE, rogue.viewList.get(0).pointsize);
     }
     
