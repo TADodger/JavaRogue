@@ -177,12 +177,12 @@ public class Level implements Header, Serializable {
         return t;
     }
 
-    Toy grWeapon(int assign_wk) {
-        if (assign_wk < 0) {
-            assign_wk = self.rand.get(Id.idWeapons.length - 1);
+    Toy grWeapon(int assignWk) {
+        if (assignWk < 0) {
+            assignWk = self.rand.get(Id.idWeapons.length - 1);
         }
         
-        return new Toy(this, Id.WEAPON | assign_wk);
+        return new Toy(this, Id.WEAPON | assignWk);
     }
 
     Toy grArmor() {
@@ -193,16 +193,16 @@ public class Level implements Header, Serializable {
         return new Toy(this, Id.WAND + self.rand.get(Id.idWands.length - 1));
     }
 
-    Toy grWing(int assign_wk) {
-        if (assign_wk < 0) {
-            assign_wk = self.rand.get(Id.idRings.length - 1);
+    Toy grWing(int assignWk) {
+        if (assignWk < 0) {
+            assignWk = self.rand.get(Id.idRings.length - 1);
         }
         
-        return new Toy(this, Id.RING + assign_wk);
+        return new Toy(this, Id.RING + assignWk);
     }
 
-    Toy getFood(boolean force_ration) {
-        return new Toy(this, force_ration || self.rand.percent(80) ? Id.RATION : Id.FRUIT);
+    Toy getFood(boolean forceRation) {
+        return new Toy(this, forceRation || self.rand.percent(80) ? Id.RATION : Id.FRUIT);
     }
 
     Toy grToy() {
@@ -315,7 +315,7 @@ public class Level implements Header, Serializable {
         }
     }
 
-    Rowcol getDirRc(int dir, int row, int col, boolean allow_off_screen) {
+    Rowcol getDirRc(int dir, int row, int col, boolean allowOffScreen) {
         switch (dir) {
             case Id.UPLEFT:
                 --row;
@@ -338,7 +338,7 @@ public class Level implements Header, Serializable {
                 ++col;
                 break;
         }
-        if (allow_off_screen || (row > MIN_ROW && row < nrow - 2 && col > 0 && col < ncol - 1)) {
+        if (allowOffScreen || (row > MIN_ROW && row < nrow - 2 && col > 0 && col < ncol - 1)) {
             return new Rowcol(row, col);
         }
         
@@ -867,7 +867,7 @@ public class Level implements Header, Serializable {
     }
 
     char[][] initSeen() {
-        System.out.println("Level.init_seen");
+        System.out.println("Level.initSeen");
         char[][] see = new char[nrow][ncol];
         for (int r = 0; r < nrow; r++) {
             for (int c = 0; c < ncol; c++) {
