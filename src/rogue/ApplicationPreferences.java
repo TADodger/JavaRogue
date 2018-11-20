@@ -54,16 +54,11 @@ public class ApplicationPreferences {
             //TODO still not working
             rogue.parentFrame.setSize(prefs.getInt(WINDOW_WIDTH, 1280),  prefs.getInt(WINDOW_HEIGHT, 1024));
         }
-        while (rogue.viewList.size() < 1) {
-            try { Thread.sleep(50); } catch (InterruptedException e) {}
-        }
+//        while (rogue.viewList.size() < 1) {
+//            try { Thread.sleep(50); } catch (InterruptedException e) {}
+//        }
         int pointsize = prefs.getInt(POINT_SIZE, 24);
         rogue.pointsize = pointsize;
-        if (rogue.viewList.size() > 0) {
-            rogue.viewList.get(0).pointsize = pointsize;
-            rogue.viewList.get(0).getPreferredSize();
-            rogue.viewList.get(0).repaint();
-        }
     }
     
     /**

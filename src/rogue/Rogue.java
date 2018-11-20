@@ -72,18 +72,18 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
 
             r.parentFrame.add(r, BorderLayout.CENTER);
         }
-        ApplicationPreferences.loadPrefs(r);
         r.parentFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
                 r.exit();
             }
         });
-        r.parentFrame.invalidate();
-        r.parentFrame.validate();
-        r.parentFrame.repaint();
-        r.parentFrame.pack();
-        r.parentFrame.setVisible(true);
-        r.parentFrame.validate();
+//        ApplicationPreferences.loadPrefs(r);
+//        r.parentFrame.invalidate();
+//        r.parentFrame.validate();
+//        r.parentFrame.repaint();
+//        r.parentFrame.pack();
+//        r.parentFrame.setVisible(true);
+//        r.parentFrame.validate();
 
     }
 
@@ -222,7 +222,6 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
         // Id.list_items();
         if (viewList.size() == 0) {
             view = new View(this, pointsize, 25, 80);
-            view.addKeyListener(this);
             add(view, BorderLayout.CENTER);
             viewList.add(view);
             Man man = new Man(this, view);
@@ -236,6 +235,7 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
             man.option = oldop;
         }
         view.requestFocus();
+        view.addKeyListener(this);
         Id.mixColors(rand);
         Id.makeScrollTitles(rand);
         // Level.cur_level= 0;
@@ -250,9 +250,23 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
         System.out.println("running");
         Man man;
         gamer.setPriority(Thread.MIN_PRIORITY);
-        while (parentFrame == null && pointsize < 0) {
+        while (parentFrame == null) {
             try { Thread.sleep(50); } catch (InterruptedException e) {}
         }
+        ApplicationPreferences.loadPrefs(this);
+        if (viewList.size() == 0) {
+            beginGame();
+        } else {
+            viewList.get(0).pointsize = pointsize;
+            viewList.get(0).getPreferredSize();
+            viewList.get(0).repaint();
+        }
+        parentFrame.invalidate();
+        parentFrame.validate();
+        parentFrame.repaint();
+        parentFrame.pack();
+        parentFrame.setVisible(true);
+        parentFrame.validate();
         while (running) {
             System.out.println("in main game loop");
             if (newlevel) {
