@@ -9,26 +9,48 @@ import java.util.List;
 public class Item extends Rowcol implements Header, Serializable {
     private static final long serialVersionUID = 2276875920996375357L;
 
-    char ichar; /* 'A' is for aquatar */
-    Level level;
+    /** display character for this Item */
+    public char itemCharacter; /* 'A' is for aquatar */
+    /** Level this Item is found on */
+    public Level level;
 
-    Item() {
+    /**
+     * Create an empty item
+     */
+    public Item() {
         level = null;
     }
 
-    Item(Level level, int r, int c) {
+    /**
+     * @param level
+     * @param row
+     * @param col
+     */
+    public Item(Level level, int row, int col) {
+        super(row, col);
         this.level = level;
-        row = r;
-        col = c;
-        ichar = '?';
+        itemCharacter = '?';
     }
 
-    Item(Level level) {
+    /**
+     * @param level
+     */
+    public Item(Level level) {
         this(level, 0, 0);
     }
 
-    void placeAt(int r, int c, int what) {
-        List<Item> list = null;
+    /**
+     * Place this Item at the specified location
+     * 
+     * @param destRow
+     * @param destCol
+     * @param what
+     */
+    @SuppressWarnings("unchecked")
+    public void placeAt(int destRow, int destCol, int what) {
+        //Due to the way the generic type system works this will only work with a raw type.
+        @SuppressWarnings("rawtypes")
+        List list = null;
         switch (what) {
             case TOY:
                 list = level.levelToys;
@@ -50,21 +72,21 @@ public class Item extends Rowcol implements Header, Serializable {
             if (list.contains(this)) {
                 level.mark(row, col);
                 level.map[row][col] &= ~what;
-            } else if (r >= 0) {
+            } else if (destRow >= 0) {
                 list.add(this);
             }
         }
-        row = r;
-        col = c;
-        if (r > 0) {
-            level.mark(r, c);
-            level.map[r][c] |= what;
+        row = destRow;
+        col = destCol;
+        if (destRow > 0) {
+            level.mark(destRow, destCol);
+            level.map[destRow][destCol] |= what;
         } else if (list != null) {
             list.remove(this);
         }
     }
 
     public String toString() {
-        return super.toString() + Integer.toString(ichar >> 8) + ((char) (ichar & 255)) + " ";
+        return super.toString() + Integer.toString(itemCharacter >> 8) + ((char) (itemCharacter & 255)) + " ";
     }
 }

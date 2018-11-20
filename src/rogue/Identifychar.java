@@ -4,8 +4,9 @@ package rogue;
  *
  */
 public class Identifychar {
-    static char characterCmd[] = new char[48];
-    static String characterDesc[] = new String[48];
+    private static char[] characterCmd = new char[48];
+    private static String[] characterDesc = new String[48];
+
     static {
         characterCmd[0] = '?'; characterDesc[0] = "?       prints help";
         characterCmd[1] = 'r'; characterDesc[1] = "r       read scroll";
@@ -39,20 +40,20 @@ public class Identifychar {
         characterCmd[29] = 'o'; characterDesc[29] = "o       examine/set options";
         characterCmd[30] = '^'; characterDesc[30] = "^<dir>  identify trap type";
         characterCmd[31] = '\022'; characterDesc[31] = "^R      redraw screen";
-        // c_cmd[32]='&'; c_desc[32]= "& save screen into 'rogue.screen'";
+        // characterCmd[32]='&'; characterDesc[32]= "& save screen into 'rogue.screen'";
         characterCmd[33] = 's'; characterDesc[33] = "s       search for trap/secret door";
         characterCmd[34] = '\020'; characterDesc[34] = "^P      repeat last message";
         characterCmd[35] = '>'; characterDesc[35] = ">       go down a staircase";
         characterCmd[36] = '\033'; characterDesc[36] = "^[      cancel command";
         characterCmd[37] = '<'; characterDesc[37] = "<       go up a staircase";
-        // c_cmd[38]='S'; c_desc[38]= "S save game";
+        // characterCmd[38]='S'; characterDesc[38]= "S save game";
         characterCmd[39] = '.'; characterDesc[39] = ".       rest for a turn";
         characterCmd[40] = 'Q'; characterDesc[40] = "Q       quit";
         characterCmd[41] = ','; characterDesc[41] = ",       pick something up";
-        // c_cmd[42]='!'; c_desc[42]= "! shell escape";
+        // characterCmd[42]='!'; characterDesc[42]= "! shell escape";
         characterCmd[43] = 'i'; characterDesc[43] = "i       inventory";
         characterCmd[44] = 'F'; characterDesc[44] = "F<dir>  fight till either of you dies";
-        // c_cmd[45]='I'; c_desc[45]= "I inventory single item";
+        // characterCmd[45]='I'; characterDesc[45]= "I inventory single item";
         characterCmd[46] = 'v'; characterDesc[46] = "v       print version number";
         characterCmd[47] = 'q'; characterDesc[47] = "q       quaff potion";
         characterDesc[19] = "";
@@ -63,9 +64,15 @@ public class Identifychar {
         characterDesc[45] = "";
     }
 
-    static void cmdsList(char ch, Message msg) {
+    /**
+     * Populate the Message based on the command character
+     * 
+     * @param ch
+     * @param message
+     */
+    public static void cmdsList(char ch, Message message) {
         if (ch == '*' || ch == '?') {
-            msg.rightlist(characterDesc, false);
+            message.rightlist(characterDesc, false);
         } else {
             String[] desc = new String[1];
             desc[0] = "No such command: " + ch;
@@ -75,7 +82,7 @@ public class Identifychar {
                     break;
                 }
             }
-            msg.rightlist(desc, false);
+            message.rightlist(desc, false);
         }
     }
 }

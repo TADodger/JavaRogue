@@ -32,19 +32,19 @@ class Toy extends Item implements Serializable {
         int increment;
 
         this.kind = kind;
-        this.ichar = Id.getMaskCharacter(kind);
+        this.itemCharacter = Id.getMaskCharacter(kind);
         switch (kind & Id.ALL_TOYS) {
             case Id.WEAPON:
                 if (kind == Id.ARROW || kind == Id.DAGGER || kind == Id.SHURIKEN || kind == Id.DART) {
-                    this.quantity = level.self.rand.get(3, 15);
-                    this.quiver = level.self.rand.get(126);
+                    this.quantity = level.rogue.rand.get(3, 15);
+                    this.quiver = level.rogue.rand.get(126);
                 } else {
                     this.quantity = 1;
                 }
                 this.hitEnchant = this.dEnchant = 0;
 
-                percent = level.self.rand.get(1, 96);
-                blessing = level.self.rand.get(1, 3);
+                percent = level.rogue.rand.get(1, 96);
+                blessing = level.rogue.rand.get(1, 3);
                 increment = 1;
 
                 if (percent > 16 && percent <= 32) {
@@ -53,7 +53,7 @@ class Toy extends Item implements Serializable {
                 }
                 if (percent <= 32) {
                     for (int i = 0; i < blessing; i++) {
-                        if (level.self.rand.coin()) {
+                        if (level.rogue.rand.coin()) {
                             this.hitEnchant += increment;
                         } else {
                             this.dEnchant += increment;
@@ -93,8 +93,8 @@ class Toy extends Item implements Serializable {
                 isProtected = false;
                 dEnchant = 0;
 
-                percent = level.self.rand.get(1, 100);
-                blessing = level.self.rand.get(1, 3);
+                percent = level.rogue.rand.get(1, 100);
+                blessing = level.rogue.rand.get(1, 3);
 
                 if (percent <= 16) {
                     isCursed = true;
@@ -104,7 +104,7 @@ class Toy extends Item implements Serializable {
                 }
                 break;
             case Id.WAND:
-                klass = level.self.rand.get(3, 7);
+                klass = level.rogue.rand.get(3, 7);
                 break;
             case Id.RING:
                 klass = 0;
@@ -128,12 +128,12 @@ class Toy extends Item implements Serializable {
                         break;
                     case Id.ADD_STRENGTH:
                     case Id.DEXTERITY:
-                        while ((klass = level.self.rand.get(4) - 2) == 0)
+                        while ((klass = level.rogue.rand.get(4) - 2) == 0)
                             ;
                         isCursed = klass < 0;
                         break;
                     case Id.ADORNMENT:
-                        isCursed = level.self.rand.coin();
+                        isCursed = level.rogue.rand.coin();
                         break;
                 }
                 break;
@@ -156,7 +156,7 @@ class Toy extends Item implements Serializable {
         kind = t.kind;
         inUseFlags = Id.NOT_USED;
         owner = t.owner;
-        this.ichar = Id.getMaskCharacter(kind);
+        this.itemCharacter = Id.getMaskCharacter(kind);
     }
 
     Toy checkDuplicate(List<Item> pack) {
@@ -187,9 +187,9 @@ class Toy extends Item implements Serializable {
         if (null != pdup) {
             return pdup;
         }
-        ichar = man.pack.nextAvailIchar();
+        itemCharacter = man.pack.nextAvailItemChar();
         placeAt(-1, -1, TOY);
-        int k = ichar - 'a';
+        int k = itemCharacter - 'a';
         if (k < man.pack.size()) {
             man.pack.add(k, this);
         } else {
@@ -288,7 +288,7 @@ class Toy extends Item implements Serializable {
             quantity--;
             obj = new Toy(obj);
         } else if (owner instanceof Man) {
-            ichar = Id.getMaskCharacter(kind);
+            itemCharacter = Id.getMaskCharacter(kind);
             ((Man) owner).pack.remove(this);
         }
         obj.placeAt(owner.row, owner.col, TOY);
@@ -340,15 +340,15 @@ class Toy extends Item implements Serializable {
         }
         Man owner = (Man) this.owner;
         int moves = 0;
-        if ((kind == Id.FRUIT) || level.self.rand.percent(60)) {
-            moves = level.self.rand.get(950, 1150);
+        if ((kind == Id.FRUIT) || level.rogue.rand.percent(60)) {
+            moves = level.rogue.rand.get(950, 1150);
             if (kind == Id.RATION) {
                 owner.tell("yum, that tasted good");
             } else {
                 owner.tell("my, that was a yummy " + owner.option.fruit);
             }
         } else {
-            moves = level.self.rand.get(750, 950);
+            moves = level.rogue.rand.get(750, 950);
             owner.tell("yuk, that food tasted awful");
             owner.add_exp(2, true);
         }
@@ -397,21 +397,21 @@ class Toy extends Item implements Serializable {
         int ch = Id.getMaskCharacter(kind);
 
         for (int i = 0; i < 24; i++) {
-            Rowcol pt = level.getDirRc(dir, row, col, false);
+            Rowcol pt = level.getDirRowCol(dir, row, col, false);
             row = pt.row;
             col = pt.col;
-            if (col <= 0 || col >= level.ncol - 1 || 0 == (level.map[row][col] & SOMETHING) || (0 != (level.map[row][col] & (HORWALL | VERTWALL | HIDDEN)) && 0 == (level.map[row][col] & TRAP))) {
+            if (col <= 0 || col >= level.numCol - 1 || 0 == (level.map[row][col] & SOMETHING) || (0 != (level.map[row][col] & (HORWALL | VERTWALL | HIDDEN)) && 0 == (level.map[row][col] & TRAP))) {
                 break;
             }
             if (i != 0) {
-                level.self.mark(orow, ocol);
+                level.rogue.mark(orow, ocol);
             }
 
             if (0 == (level.map[row][col] & MONSTER)) {
-                level.self.vflash(row, col, (char) ch);
+                level.rogue.vflash(row, col, (char) ch);
             } else {
-                level.self.refresh();
-                level.self.mdSleep(50);
+                level.rogue.refresh();
+                level.rogue.mdSleep(50);
             }
             orow = row;
             ocol = col;
@@ -433,11 +433,11 @@ class Toy extends Item implements Serializable {
         int i;
 
         // Find a point near the destination where something can be dropped
-        int perm[] = level.self.rand.permute(9);
+        int perm[] = level.rogue.rand.permute(9);
         for (i = 0; i < 9; i++) {
             pt.col = Id.X_TABLE[perm[i]] + c;
             pt.row = Id.Y_TABLE[perm[i]] + r;
-            if (pt.row <= level.nrow - 2 && pt.row > MIN_ROW && pt.col < level.ncol && pt.col >= 0 && 0 != level.map[pt.row][pt.col] && 0 == (level.map[pt.row][pt.col] & (~DROPHERE))) {
+            if (pt.row <= level.numRow - 2 && pt.row > MIN_ROW && pt.col < level.numCol && pt.col >= 0 && 0 != level.map[pt.row][pt.col] && 0 == (level.map[pt.row][pt.col] & (~DROPHERE))) {
                 r = pt.row;
                 c = pt.col;
                 Toy newMissile = new Toy(this);
@@ -461,7 +461,7 @@ class Toy extends Item implements Serializable {
         dd[1] += dEnchant;
         String dnew = "" + dd[0] + 'd' + dd[1];
         
-        return Id.getDamage(dnew, level.self.rand);
+        return Id.getDamage(dnew, level.rogue.rand);
     }
 
     int toHit() {// Check for null (1)

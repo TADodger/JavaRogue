@@ -11,16 +11,20 @@ public class Rowcol implements Serializable {
     int row;
     int col;
 
-    Rowcol(int r, int c) {
-        row = r;
-        col = c;
+    /**
+     * @param row
+     * @param col
+     */
+    public Rowcol(int row, int col) {
+        this.row = row;
+        this.col = col;
     }
 
-    Rowcol() {
+    protected Rowcol() {
         this(0, 0);
     }
 
     public String toString() {
-        return '[' + Integer.toString(row) + ' ' + Integer.toString(col) + ']';
+        return "[" + Integer.toString(row) + ' ' + Integer.toString(col) + "]";
     }
 }

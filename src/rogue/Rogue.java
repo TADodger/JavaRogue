@@ -5,6 +5,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Event;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
@@ -271,9 +272,6 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
             System.out.println("in main game loop");
             if (newlevel) {
                 System.out.println("creating new level");
-                if (viewList.size() == 0) {
-                    beginGame();
-                }
                 interrupted = false;
                 level = new NineRoom(25, 80, this);
                 level.putMonsters();
@@ -284,7 +282,7 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
                         man.playerInit();
                     }
                     if (!man.hasAmulet() && (level.currentLevel >= Level.AMULET_LEVEL)) {
-                        Rowcol pt = level.grRowCol(Level.FLOOR | Level.TUNNEL, null);
+                        Rowcol pt = level.getRandomRowCol(Level.FLOOR | Level.TUNNEL, null);
                         if (pt != null) {
                             Toy amulet = new Toy(level, Id.AMULET);
                             amulet.placeAt(pt.row, pt.col, TOY);
@@ -345,18 +343,33 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
         int key = e.getKeyChar();
         int code = e.getKeyCode();
         
-        if (KeyEvent.VK_PAGE_UP <= code && code <= KeyEvent.VK_DOWN) {
-            key = MAP_CODES[code - KeyEvent.VK_PAGE_UP];
-        }
-        if (key == KeyEvent.VK_ESCAPE) {
-            interrupted = true;
-        }
-        if (!gamer.isAlive()) {
-            if (key == KeyEvent.VK_SPACE) {
-                start();
+        if (code != KeyEvent.VK_SHIFT && code != KeyEvent.VK_CONTROL) {
+            if (KeyEvent.VK_PAGE_UP <= code && code <= KeyEvent.VK_DOWN) {
+                key = MAP_CODES[code - KeyEvent.VK_PAGE_UP];
             }
-        } else {
-            keybuf = keybuf + ((char) key);
+            if (key == KeyEvent.VK_ESCAPE) {
+                interrupted = true;
+            }
+            if (!gamer.isAlive()) {
+                if (key == KeyEvent.VK_SPACE) {
+                    start();
+                }
+            } else {
+                if ((e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK) {
+                    if (code >= KeyEvent.VK_A && code <= KeyEvent.VK_Z) {
+                        key = '\000' + (char) (code - KeyEvent.VK_A);
+                    } else if (code == KeyEvent.VK_LEFT) {
+                        key = '\010';
+                    } else if (code == KeyEvent.VK_RIGHT) {
+                        key = '\014';
+                    } else if (code == KeyEvent.VK_UP) {
+                        key = '\013';
+                    } else if (code == KeyEvent.VK_DOWN) {
+                        key = '\012';
+                    }
+                }
+                keybuf = keybuf + ((char) key);
+            }
         }
         notify();
     }

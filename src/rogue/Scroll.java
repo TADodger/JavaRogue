@@ -22,7 +22,7 @@ class Scroll extends Toy implements Serializable {
                     if (0 != (owner.weapon.kind & Id.WEAPON)) {
                         String plural = owner.weapon.quantity <= 1 ? "s " : " ";
                         owner.tell("your " + owner.weapon.name() + "glow" + plural + owner.getEnchColor());
-                        if (level.self.rand.coin()) {
+                        if (level.rogue.rand.coin()) {
                             owner.weapon.hitEnchant++;
                         } else {
                             owner.weapon.dEnchant++;
@@ -103,17 +103,17 @@ class Scroll extends Toy implements Serializable {
     }
 
     boolean createMonster(Persona man) {
-        int perm[] = level.self.rand.permute(9);
+        int perm[] = level.rogue.rand.permute(9);
         for (int i = 0; i < 9; i++) {
             int c = Id.X_TABLE[perm[i]] + man.col;
             int r = Id.Y_TABLE[perm[i]] + man.row;
-            if ((r == man.row && c == man.col) || r < MIN_ROW || r > level.nrow - 2 || c < 0 || c > level.ncol - 1) {
+            if ((r == man.row && c == man.col) || r < MIN_ROW || r > level.numRow - 2 || c < 0 || c > level.numCol - 1) {
                 continue;
             }
             if (0 == (level.map[r][c] & MONSTER) && 0 != (level.map[r][c] & (FLOOR | TUNNEL | STAIRS | DOOR))) {
-                Monster monster = level.grMonster();
+                Monster monster = level.getRandomMonster();
                 monster.putMonsterAt(r, c);
-                level.self.vset(r, c);
+                level.rogue.vset(r, c);
                 if (0 != (monster.mFlags & (Monster.WANDERS | Monster.WAKENS))) {
                     monster.wakeUp();
                 }
@@ -125,11 +125,10 @@ class Scroll extends Toy implements Serializable {
     }
 
     void aggravate(Persona man) {
-        for (Item item : level.levelMonsters) {
-            Monster monster = (Monster) item;
+        for (Monster monster : level.levelMonsters) {
             monster.wakeUp();
             monster.mFlags &= ~Monster.IMITATES;
-            level.self.vset(monster.row, monster.col);
+            level.rogue.vset(monster.row, monster.col);
         }
     }
 
@@ -139,11 +138,11 @@ class Scroll extends Toy implements Serializable {
             for (int j = -2; j <= 2; j++) {
                 int r = owner.row + i;
                 int c = owner.col + j;
-                if (r < MIN_ROW || r > level.nrow - 2 || c < 0 || c > level.ncol - 1) {
+                if (r < MIN_ROW || r > level.numRow - 2 || c < 0 || c > level.numCol - 1) {
                     continue;
                 }
                 if (0 != (level.map[r][c] & MONSTER)) {
-                    Monster monster = (Monster) level.levelMonsters.itemAt(r, c);
+                    Monster monster = level.levelMonsters.itemAt(r, c);
                     if (monster != null && monster != owner) {
                         monster.mFlags |= Monster.ASLEEP;
                         monster.mFlags &= ~Monster.WAKENS;

@@ -50,7 +50,7 @@ class Persona extends Item implements Serializable {
     Persona(Level level) {
         super(level, 0, 0);
         if (level != null) {
-            this.self = level.self;
+            this.self = level.rogue;
         }
     }
 

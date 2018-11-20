@@ -36,7 +36,7 @@ class Potion extends Toy implements Serializable {
                 if ((owner instanceof Man) && ((Man) owner).sustainStrength) {
                     break;
                 }
-                owner.strCurrent -= level.self.rand.get(1, 3);
+                owner.strCurrent -= level.rogue.rand.get(1, 3);
                 if (owner.strCurrent < 1) {
                     owner.strCurrent = 1;
                 }
@@ -57,7 +57,7 @@ class Potion extends Toy implements Serializable {
                 break;
             case Id.HALLUCINATION:
                 owner.tell("oh wow, everything seems so cosmic");
-                owner.halluc += level.self.rand.get(500, 800);
+                owner.halluc += level.rogue.rand.get(500, 800);
                 break;
             case Id.DETECT_MONSTER:
                 if ((owner instanceof Man) && !level.showMonsters((Man) owner)) {
@@ -73,17 +73,17 @@ class Potion extends Toy implements Serializable {
                 break;
             case Id.CONFUSION:
                 owner.tell(owner.halluc > 0 ? "what a trippy feeling" : "you feel confused");
-                owner.cnfs(level.self.rand.get(12, 22));
+                owner.cnfs(level.rogue.rand.get(12, 22));
                 break;
             case Id.LEVITATION:
                 owner.describe(owner.who("start") + "to float in the air", false);
-                owner.levitate += level.self.rand.get(15, 30);
+                owner.levitate += level.rogue.rand.get(15, 30);
                 owner.beingHeld = false;
                 owner.bearTrap = 0;
                 break;
             case Id.HASTE_SELF:
                 owner.tell("you feel yourself moving much faster");
-                owner.hasteSelf += level.self.rand.get(11, 21);
+                owner.hasteSelf += level.rogue.rand.get(11, 21);
                 owner.hasteSelf += 1 - (owner.hasteSelf & 1);
                 break;
             case Id.SEE_INVISIBLE:

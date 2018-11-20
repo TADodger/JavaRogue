@@ -108,7 +108,7 @@ public class Monster extends Persona implements Serializable {
         mt = MONSTER_TABLE[k];
         mFlags = mt.mFlags;
         hpMax = hpCurrent = mt.hpCurrent;
-        ichar = mt.ichar;
+        itemCharacter = mt.ichar;
         expPoints = mt.expPoints;
         mHitChance = mt.mHitChance;
         stationaryDamage = mt.stationaryDamage;
@@ -146,7 +146,7 @@ public class Monster extends Persona implements Serializable {
                 if (0 != (mFlags & HOLDS)) {
                     man.beingHeld = false;
                 }
-                Monster mnew = level.grMonster();
+                Monster mnew = level.getRandomMonster();
                 if (mnew != null) {
                     die();
                     mnew.putMonsterAt(row, col);
@@ -335,7 +335,7 @@ public class Monster extends Persona implements Serializable {
             return disguise | color();
         }
         
-        return ichar | color();
+        return itemCharacter | color();
     }
 
     boolean rogueIsAround() {
@@ -484,8 +484,8 @@ public class Monster extends Persona implements Serializable {
             if (++stuck > 4) {
                 if (trow == -1 && (ihate == null || !monSees(ihate.row, ihate.col))) {
                     setHated();
-                    trow = self.rand.get(1, level.nrow - 2);
-                    tcol = self.rand.get(level.ncol - 1);
+                    trow = self.rand.get(1, level.numRow - 2);
+                    tcol = self.rand.get(level.numCol - 1);
                 } else {
                     trow = -1;
                     stuck = 0;
@@ -649,7 +649,7 @@ public class Monster extends Persona implements Serializable {
             hitChance /= 2;
         }
         if (null == man.ihate) {
-            level.self.interrupted = true;
+            level.rogue.interrupted = true;
         }
         if (!self.rand.percent(hitChance)) {
             if (null == man.ihate) {
@@ -784,7 +784,7 @@ public class Monster extends Persona implements Serializable {
         } else {
             if (!self.rand.percent(dropPercent))
                 return;
-            obj = level.grToy();
+            obj = level.getRandomToy();
         }
         for (int n = 0; n <= 5; n++) {
             for (int i = -n; i <= n; i++) {
@@ -838,7 +838,7 @@ public class Monster extends Persona implements Serializable {
         }
 
         int dir = Id.getDirection(row, col, man.row, man.col);
-        Toy wand = level.grWand();
+        Toy wand = level.getRandomWand();
         wand.kind = Id.FIRE;
         wand.owner = this;
         level.bounce(wand, dir, row, col, 0);
@@ -898,7 +898,7 @@ public class Monster extends Persona implements Serializable {
     }
 
     void tele() {
-        Rowcol pt = level.grRowCol(FLOOR | TUNNEL | STAIRS | TOY, this);
+        Rowcol pt = level.getRandomRowCol(FLOOR | TUNNEL | STAIRS | TOY, this);
         if (pt != null) {
             putMonsterAt(pt.row, pt.col);
         }

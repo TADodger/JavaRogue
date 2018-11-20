@@ -129,7 +129,7 @@ class NineRoom extends Level implements Serializable {
                     fillOutLevel();
                 }
                 // put_stairs here, but not in a maze room
-                Rowcol p = grRowCol(FLOOR, null);
+                Rowcol p = getRandomRowCol(FLOOR, null);
                 map[p.row][p.col] |= STAIRS | FLOOR;
 
                 addTraps();
@@ -171,15 +171,15 @@ class NineRoom extends Level implements Serializable {
             while (--i >= 0) {
                 Room rj = room.get(i);
                 if (rj.isRoom == Room.R_NOTHING) {
-                    if (self.rand.percent(maze_percent)) {
+                    if (rogue.rand.percent(maze_percent)) {
                         rj.isRoom = Room.R_MAZE;
                         if (rj.leftCol < 2) {
                             rj.leftCol = 2;
                         }
-                        int rv = self.rand.get(rj.topRow + 1, rj.bottomRow - 1);
-                        int cv = self.rand.get(rj.leftCol + 1, rj.rightCol - 1);
+                        int rv = rogue.rand.get(rj.topRow + 1, rj.bottomRow - 1);
+                        int cv = rogue.rand.get(rj.leftCol + 1, rj.rightCol - 1);
                         rj.makeMaze(rv, cv);
-                        rj.hideBoxedPassage(rj.topRow, rj.leftCol, rj.bottomRow, rj.rightCol, self.rand.get(2));
+                        rj.hideBoxedPassage(rj.topRow, rj.leftCol, rj.bottomRow, rj.rightCol, rogue.rand.get(2));
                     }
                 }
             }
@@ -214,21 +214,21 @@ class NineRoom extends Level implements Serializable {
 
     void fillOutLevel() {
         int i = room.size();
-        int perm[] = self.rand.permute(i);
+        int perm[] = rogue.rand.permute(i);
 
-        self.endroom = null;
+        rogue.endroom = null;
         while (--i >= 0) {
             Room r = room.get(perm[i]);
-            if (r != null && (0 != (r.isRoom & Room.R_NOTHING) || (0 != (r.isRoom & Room.R_CROSS) && self.rand.coin()))) {
+            if (r != null && (0 != (r.isRoom & Room.R_NOTHING) || (0 != (r.isRoom & Room.R_CROSS) && rogue.rand.coin()))) {
                 r.fillIt(true);
             }
         }
-        if (self.endroom != null)
-            self.endroom.fillIt(false);
+        if (rogue.endroom != null)
+            rogue.endroom.fillIt(false);
     }
 
     Room gr_room() {
-        int perm[] = self.rand.permute(room.size());
+        int perm[] = rogue.rand.permute(room.size());
         for (int i = 0; i < room.size(); i++) {
             Room rm = room.get(perm[i]);
             if (0 != (rm.isRoom & (Room.R_ROOM | Room.R_MAZE))) {
@@ -242,14 +242,14 @@ class NineRoom extends Level implements Serializable {
     void make_party() {
         partyRoom = gr_room();
         if (partyRoom != null) {
-            int n = self.rand.percent(99) ? partyRoom.partyToys() : 11;
-            if (self.rand.percent(99)) {
+            int n = rogue.rand.percent(99) ? partyRoom.partyToys() : 11;
+            if (rogue.rand.percent(99)) {
                 partyRoom.partyMonsters(n);
             }
         }
     }
 
-    void putToys() {
+    protected void putToys() {
         if (currentLevel < maxLevel) {
             return;
         }
@@ -265,28 +265,28 @@ class NineRoom extends Level implements Serializable {
         int row = 0, col = 0;
 
         if (currentLevel > 2 && currentLevel <= 7) {
-            n = self.rand.get(2);
+            n = rogue.rand.get(2);
         } else if (currentLevel <= 11) {
-            n = self.rand.get(1, 2);
+            n = rogue.rand.get(1, 2);
         } else if (currentLevel <= 16) {
-            n = self.rand.get(2, 3);
+            n = rogue.rand.get(2, 3);
         } else if (currentLevel <= 21) {
-            n = self.rand.get(2, 4);
+            n = rogue.rand.get(2, 4);
         } else if (currentLevel <= AMULET_LEVEL + 2) {
-            n = self.rand.get(3, 5);
+            n = rogue.rand.get(3, 5);
         } else {
-            n = self.rand.get(5, 10); // Maximum number of traps
+            n = rogue.rand.get(5, 10); // Maximum number of traps
         }
         for (i = 0; i < n; i++) {
             if (i == 0 && partyRoom != null) {
                 do {
-                    row = self.rand.get(partyRoom.topRow + 1, partyRoom.bottomRow - 1);
-                    col = self.rand.get(partyRoom.leftCol + 1, partyRoom.rightCol - 1);
+                    row = rogue.rand.get(partyRoom.topRow + 1, partyRoom.bottomRow - 1);
+                    col = rogue.rand.get(partyRoom.leftCol + 1, partyRoom.rightCol - 1);
                     tries++;
                 } while (0 != (map[row][col] & (TOY | STAIRS | TRAP | TUNNEL)) || (0 == (map[row][col] & SOMETHING) && tries < 15));
             }
             if (tries == 0 || tries >= 15) {
-                Rowcol pt = grRowCol(FLOOR | MONSTER, null);
+                Rowcol pt = getRandomRowCol(FLOOR | MONSTER, null);
                 if (pt != null) {
                     row = pt.row;
                     col = pt.col;
@@ -335,7 +335,7 @@ class NineRoom extends Level implements Serializable {
         }
         do {
             rfr.drawSimplePassage(p1.row, p1.col, p2.row, p2.col, dir);
-        } while (self.rand.percent(4));
+        } while (rogue.rand.percent(4));
         rfr.doors[dir / 2] = new Door(this, p1.row, p1.col, p2.row, p2.col);
         rto.doors[((dir + 4) % Id.DIRS) / 2] = new Door(this, p2.row, p2.col, p1.row, p1.col);
         rfr.doors[dir / 2].connect(rto.doors[((dir + 4) % Id.DIRS) / 2]);
@@ -343,11 +343,11 @@ class NineRoom extends Level implements Serializable {
         return true;
     }
 
-    boolean sameRow(Room rfr, Room rto) {
+    public boolean sameRow(Room rfr, Room rto) {
         return rfr.rn / 3 == rto.rn / 3;
     }
 
-    boolean sameCol(Room rfr, Room rto) {
+    public boolean sameCol(Room rfr, Room rto) {
         return rfr.rn % 3 == rto.rn % 3;
     }
 
@@ -355,7 +355,7 @@ class NineRoom extends Level implements Serializable {
         return n >= 0 && n < room.size() ? (Room) room.get(n) : null;
     }
 
-    Room nabes(Room r)[] {
+    public Room nabes(Room r)[] {
         Room ra[] = new Room[4];
         ra[0] = nthRoom(r.rn - 3);
         ra[1] = nthRoom(r.rn + 1);
@@ -365,7 +365,7 @@ class NineRoom extends Level implements Serializable {
         return ra;
     }
 
-    Room roomAt(int row, int col) {
+    public Room roomAt(int row, int col) {
         for (Room r : room) {
             if (r.inRoom(row, col)) {
                 return r;

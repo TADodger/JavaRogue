@@ -17,7 +17,7 @@ public class Door extends Item implements Serializable {
 
     Door(Level level, int row, int col, int otherRow, int otherCol) {
         super(level, row, col);
-        ichar = '+';
+        itemCharacter = '+';
         placeAt(row, col, DOOR);
         other = new Rowcol(otherRow, otherCol);
     }

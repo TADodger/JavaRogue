@@ -58,7 +58,7 @@ public class Room implements Header, Serializable {
     Room(int rn, int leftCol, int topRow, int width, int height, Level level, boolean isnothing) {
         int darkPct = (level.currentLevel - 2) * 100 / (27 - 2);
         int floormask = FLOOR | HOLDER;
-        if (darkPct > 0 && level.self.rand.percent(darkPct)) {
+        if (darkPct > 0 && level.rogue.rand.percent(darkPct)) {
             floormask |= DARK;
         }
         this.rn = rn;
@@ -102,8 +102,8 @@ public class Room implements Header, Serializable {
 
         level.map[r][c] = TUNNEL | HOLDER;
 
-        if (level.self.rand.percent(20))
-            level.self.rand.permute(dirs);
+        if (level.rogue.rand.percent(20))
+            level.rogue.rand.permute(dirs);
         for (i = 0; i < 4; i++) {
             switch (dirs[i]) {
                 case Id.UPWARD:
@@ -159,8 +159,8 @@ public class Room implements Header, Serializable {
 
                 for (i = 0; i < n; i++) {
                     for (j = 0; j < 10; j++) {
-                        row = level.self.rand.get(row1 + row_cut, row2 - row_cut);
-                        col = level.self.rand.get(col1 + col_cut, col2 - col_cut);
+                        row = level.rogue.rand.get(row1 + row_cut, row2 - row_cut);
+                        col = level.rogue.rand.get(col1 + col_cut, col2 - col_cut);
                         if (0 != (level.map[row][col] & TUNNEL)) {
                             level.map[row][col] |= Level.HIDDEN;
                             break;
@@ -193,17 +193,17 @@ public class Room implements Header, Serializable {
         }
         if (row >= 0) {
             do {
-                col = level.self.rand.get(leftCol + wallWidth, rightCol - wallWidth);
+                col = level.rogue.rand.get(leftCol + wallWidth, rightCol - wallWidth);
             } while (0 == (level.map[row][col] & (Level.HORWALL | TUNNEL)));
         } else {
             do {
-                row = level.self.rand.get(topRow + wallWidth, bottomRow - wallWidth);
+                row = level.rogue.rand.get(topRow + wallWidth, bottomRow - wallWidth);
             } while (0 == (level.map[row][col] & (Level.VERTWALL | TUNNEL)));
         }
         if (0 != (isRoom & R_ROOM)) {
             level.map[row][col] = Level.DOOR;
         }
-        if ((level.currentLevel > 2) && level.self.rand.percent(HIDE_PERCENT)) {
+        if ((level.currentLevel > 2) && level.rogue.rand.percent(HIDE_PERCENT)) {
             level.map[row][col] |= Level.HIDDEN;
         }
         
@@ -236,7 +236,7 @@ public class Room implements Header, Serializable {
                 col1 = col2;
                 col2 = t;
             }
-            middle = level.self.rand.get(col1 + 1, col2 - 1);
+            middle = level.rogue.rand.get(col1 + 1, col2 - 1);
             for (i = col1 + 1; i != middle; i++) {
                 if (!settunnel(row1, i)) {
                     return;
@@ -261,7 +261,7 @@ public class Room implements Header, Serializable {
                 col1 = col2;
                 col2 = t;
             }
-            middle = level.self.rand.get(row1 + 1, row2 - 1);
+            middle = level.rogue.rand.get(row1 + 1, row2 - 1);
             for (i = row1 + 1; i != middle; i++) {
                 if (!settunnel(i, col1)) {
                     return;
@@ -278,7 +278,7 @@ public class Room implements Header, Serializable {
                 }
             }
         }
-        if (level.self.rand.percent(HIDE_PERCENT)) {
+        if (level.rogue.rand.percent(HIDE_PERCENT)) {
             hideBoxedPassage(row1, col1, row2, col2, 1);
         }
     }
@@ -309,7 +309,7 @@ public class Room implements Header, Serializable {
         int drow, dcol, tunnel_dir = 0;
         Room[] nabes = level.nabes(this);
 
-        level.self.rand.permute((Object[]) nabes);
+        level.rogue.rand.permute((Object[]) nabes);
         isRoom = R_DEADEND;
         if (0 == (level.map[srow][scol] & (HORWALL | VERTWALL | FLOOR | HOLDER | STAIRS))) {
             level.map[srow][scol] = TUNNEL;
@@ -331,7 +331,7 @@ public class Room implements Header, Serializable {
             drow = (r.topRow + r.bottomRow) / 2;
             dcol = (r.leftCol + r.rightCol) / 2;
             drawSimplePassage(srow, scol, drow, dcol, tunnel_dir);
-            level.self.endroom = r;
+            level.rogue.endroom = r;
             r.recursiveDeadend(drow, dcol);
         }
     }
@@ -357,7 +357,7 @@ public class Room implements Header, Serializable {
         boolean didThis = false;
         Room[] nabes = level.nabes(this);
 
-        level.self.rand.permute((Object[]) nabes);
+        level.rogue.rand.permute((Object[]) nabes);
         for (i = 0; i < 4; i++) {
             Room r = nabes[i];
             if (r == null || 0 == (r.isRoom & (R_ROOM | R_MAZE))) {
@@ -412,16 +412,16 @@ public class Room implements Header, Serializable {
     int partyToys() {
         int nf = 0;
         int area = (bottomRow - topRow - 1) * (rightCol - leftCol - 1);
-        int n = level.self.rand.get(5, 10);
+        int n = level.rogue.rand.get(5, 10);
         if (n >= area) {
             n = area - 2;
         }
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < 250; j++) {
-                int r = level.self.rand.get(topRow + 1, bottomRow - 1);
-                int c = level.self.rand.get(leftCol + 1, rightCol - 1);
+                int r = level.rogue.rand.get(topRow + 1, bottomRow - 1);
+                int c = level.rogue.rand.get(leftCol + 1, rightCol - 1);
                 if (0 != (level.map[r][c] & HOLDER)) {
-                    Toy obj = level.grToy();
+                    Toy obj = level.getRandomToy();
                     obj.placeAt(r, c, TOY);
                     nf++;
                     break;
@@ -440,10 +440,10 @@ public class Room implements Header, Serializable {
         }
         for (int i = 0; i < n && !noRoomForMonster(); i++) {
             for (int j = 0; j < 250; j++) {
-                int row = level.self.rand.get(topRow + 1, bottomRow - 1);
-                int col = level.self.rand.get(leftCol + 1, rightCol - 1);
+                int row = level.rogue.rand.get(topRow + 1, bottomRow - 1);
+                int col = level.rogue.rand.get(leftCol + 1, rightCol - 1);
                 if (0 == (level.map[row][col] & MONSTER) && 0 != (level.map[row][col] & HOLDER)) {
-                    Monster monster = level.grMonster();
+                    Monster monster = level.getRandomMonster();
                     if (0 == (monster.mFlags & Monster.IMITATES)) {
                         monster.mFlags |= Monster.WAKENS;
                     }
@@ -462,13 +462,13 @@ public class Room implements Header, Serializable {
             return;
         }
         boolean isMaze = 0 != (isRoom & R_MAZE);
-        if (isMaze || level.self.rand.percent(goldPct)) {
+        if (isMaze || level.rogue.rand.percent(goldPct)) {
             for (int j = 0; j < 50; j++) {
-                int row = level.self.rand.get(topRow + 1, bottomRow - 1);
-                int col = level.self.rand.get(leftCol + 1, rightCol - 1);
+                int row = level.rogue.rand.get(topRow + 1, bottomRow - 1);
+                int col = level.rogue.rand.get(leftCol + 1, rightCol - 1);
                 if (0 != (level.map[row][col] & HOLDER)) {
                     int gold = (isMaze ? 24 : 16) * level.currentLevel;
-                    gold = level.self.rand.get(gold / 8, gold);
+                    gold = level.rogue.rand.get(gold / 8, gold);
                     level.plantGold(row, col, gold);
                     break;
                 }
