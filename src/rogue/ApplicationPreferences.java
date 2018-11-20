@@ -63,7 +63,6 @@ public class ApplicationPreferences {
             rogue.viewList.get(0).pointsize = pointsize;
             rogue.viewList.get(0).getPreferredSize();
             rogue.viewList.get(0).repaint();
-            rogue.parentFrame.pack();
         }
     }
     
