@@ -93,7 +93,7 @@ public class View extends JPanel implements Serializable, ComponentListener {
     }
     
     private void calculateSize() {
-        ffixed = new Font("Courier", Font.PLAIN, pointsize);
+        ffixed = new Font("Courier New", Font.PLAIN, pointsize);
         FontMetrics fm = getFontMetrics(ffixed);
         characterWidth = fm.charWidth('X');
         characterHeight = fm.getHeight();
@@ -104,7 +104,7 @@ public class View extends JPanel implements Serializable, ComponentListener {
             if (size.width < currentSize.width && size.height < currentSize.height) {
                 do {
                     pointsize += 1;
-                    ffixed = new Font("Courier", Font.PLAIN, pointsize);
+                    ffixed = new Font("Courier New", Font.PLAIN, pointsize);
                     fm = getFontMetrics(ffixed);
                     characterWidth = fm.charWidth('X');
                     characterHeight = fm.getHeight();
@@ -112,7 +112,7 @@ public class View extends JPanel implements Serializable, ComponentListener {
                     size = new Dimension(ncol * characterWidth, nrow * characterHeight);
                 } while (size.width < currentSize.width && size.height < currentSize.height);
                 pointsize -= 1;
-                ffixed = new Font("Courier", Font.PLAIN, pointsize);
+                ffixed = new Font("Courier New", Font.PLAIN, pointsize);
                 fm = getFontMetrics(ffixed);
                 characterWidth = fm.charWidth('X');
                 characterHeight = fm.getHeight();
@@ -121,7 +121,7 @@ public class View extends JPanel implements Serializable, ComponentListener {
             } else if (size.width > currentSize.width || size.height > currentSize.height) {
                 do {
                     pointsize -= 1;
-                    ffixed = new Font("Courier", Font.PLAIN, pointsize);
+                    ffixed = new Font("Courier New", Font.PLAIN, pointsize);
                     fm = getFontMetrics(ffixed);
                     characterWidth = fm.charWidth('X');
                     characterHeight = fm.getHeight();
