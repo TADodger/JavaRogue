@@ -357,7 +357,7 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
             } else {
                 if ((e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK) {
                     if (code >= KeyEvent.VK_A && code <= KeyEvent.VK_Z) {
-                        key = '\000' + (char) (code - KeyEvent.VK_A);
+                        key = '\001' + (char) (code - KeyEvent.VK_A);
                     } else if (code == KeyEvent.VK_LEFT) {
                         key = '\010';
                     } else if (code == KeyEvent.VK_RIGHT) {
