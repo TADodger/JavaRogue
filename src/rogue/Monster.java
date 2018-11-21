@@ -261,17 +261,16 @@ public class Monster extends Persona implements Serializable {
     }
 
     void aimMonster() {
-        List<Door> v = new ArrayList<>(4);
-        for (Item item : level.levelDoors) {
-            Door dr = (Door) item;
-            if (dr.passageto != null && monSees(dr.row, dr.col)) {
-                v.add(dr);
+        List<Door> doorList = new ArrayList<>(4);
+        for (Door door : level.levelDoors) {
+            if (door.passageto != null && monSees(door.row, door.col)) {
+                doorList.add(door);
             }
         }
-        if (v.size() > 0) {
-            Door dr = v.get(self.rand.get(v.size() - 1));
-            trow = dr.row;
-            tcol = dr.col;
+        if (doorList.size() > 0) {
+            Door door = doorList.get(self.rand.get(doorList.size() - 1));
+            trow = door.row;
+            tcol = door.col;
         }
     }
 
@@ -344,7 +343,7 @@ public class Monster extends Persona implements Serializable {
                 if (0 != (level.map[row + r][col + c] & MAN)) {
                     setHated();
                     if (ihate == null) {
-                        ihate = (Man) level.levelMen.itemAt(row + r, col + c);
+                        ihate = level.levelMen.itemAt(row + r, col + c);
                     }
         
                     return true;
@@ -376,7 +375,7 @@ public class Monster extends Persona implements Serializable {
         }
     }
 
-    void moveTo(int r, int c) {
+    void moveTo(int targetRow, int targetCol) {
         int i;
         if (0 != (mFlags & ASLEEP)) {
             if (0 != (mFlags & NAPPING)) {
@@ -423,58 +422,58 @@ public class Monster extends Persona implements Serializable {
         if (trow == row && tcol == col) {
             trow = -1;
         } else if (trow != -1) {
-            r = trow;
-            c = tcol;
+            targetRow = trow;
+            targetCol = tcol;
         }
-        if (row > r) {
-            r = row - 1;
-        } else if (row < r) {
-            r = row + 1;
+        if (row > targetRow) {
+            targetRow = row - 1;
+        } else if (row < targetRow) {
+            targetRow = row + 1;
         }
-        if (0 != (level.map[r][col] & DOOR) && mtry(r, col)) {
+        if (0 != (level.map[targetRow][col] & DOOR) && mtry(targetRow, col)) {
             return;
         }
-        if (col > c) {
-            c = col - 1;
-        } else if (col < c) {
-            c = col + 1;
+        if (col > targetCol) {
+            targetCol = col - 1;
+        } else if (col < targetCol) {
+            targetCol = col + 1;
         }
-        if (0 != (level.map[row][c] & DOOR) && mtry(row, c)) {
+        if (0 != (level.map[row][targetCol] & DOOR) && mtry(row, targetCol)) {
             return;
         }
-        if (mtry(r, c)) {
+        if (mtry(targetRow, targetCol)) {
             return;
         }
         int perm[] = self.rand.permute(6);
         for (i = 0; i < 6; i++) {
             switch (perm[i]) {
                 case 0:
-                    if (mtry(r, col - 1)) {
+                    if (mtry(targetRow, col - 1)) {
                         i = 6;
                     }
                     break;
                 case 1:
-                    if (mtry(r, col)) {
+                    if (mtry(targetRow, col)) {
                         i = 6;
                     }
                     break;
                 case 2:
-                    if (mtry(r, col + 1)) {
+                    if (mtry(targetRow, col + 1)) {
                         i = 6;
                     }
                     break;
                 case 3:
-                    if (mtry(row - 1, c)) {
+                    if (mtry(row - 1, targetCol)) {
                         i = 6;
                     }
                     break;
                 case 4:
-                    if (mtry(row, c)) {
+                    if (mtry(row, targetCol)) {
                         i = 6;
                     }
                     break;
                 case 5:
-                    if (mtry(row + 1, c)) {
+                    if (mtry(row + 1, targetCol)) {
                         i = 6;
                     }
                     break;
@@ -503,7 +502,7 @@ public class Monster extends Persona implements Serializable {
         int dmin = 10000;
         int j = level.levelMen.size();
         while (--j >= 0) {
-            Man m = (Man) level.levelMen.get(j);
+            Man m = level.levelMen.get(j);
             if (monSees(m.row, m.col)) {
                 int dr = m.row - row;
                 int dc = m.col - col;
@@ -534,40 +533,40 @@ public class Monster extends Persona implements Serializable {
         }
     }
 
-    boolean monCanGo(int r, int c) {
-        int dr = row - r; /* check if move distance > 1 */
+    boolean monCanGo(int targetRow, int targetCol) {
+        int dr = row - targetRow; /* check if move distance > 1 */
         if (dr >= 2 || dr <= -2) {
             return false;
         }
-        int dc = c - col;
+        int dc = targetCol - col;
         if (dc >= 2 || dc <= -2) {
             return false;
         }
-        if (0 == level.map[row][c] || 0 == level.map[r][col]) {
+        if (0 == level.map[row][targetCol] || 0 == level.map[targetRow][col]) {
             return false;
         }
-        if (!level.isPassable(r, c) || 0 != (level.map[r][c] & MONSTER)) {
+        if (!level.isPassable(targetRow, targetCol) || 0 != (level.map[targetRow][targetCol] & MONSTER)) {
             return false;
         }
-        if (row != r && col != c && 0 != ((level.map[r][c] | level.map[row][col]) & DOOR)) {
+        if (row != targetRow && col != targetCol && 0 != ((level.map[targetRow][targetCol] | level.map[row][col]) & DOOR)) {
             return false;
         }
         if (0 == (mFlags & (FLITS | CONFUSED | CAN_FLIT)) && trow == -1) {
-            if (row < dstrow && r < row) {
+            if (row < dstrow && targetRow < row) {
                 return false;
             }
-            if (row > dstrow && r > row) {
+            if (row > dstrow && targetRow > row) {
                 return false;
             }
-            if (col < dstcol && c < col) {
+            if (col < dstcol && targetCol < col) {
                 return false;
             }
-            if (col > dstcol && c > col) {
+            if (col > dstcol && targetCol > col) {
                 return false;
             }
         }
-        if (0 != (level.map[r][c] & TOY)) {
-            Toy obj = (Toy) level.levelToys.itemAt(r, c);
+        if (0 != (level.map[targetRow][targetCol] & TOY)) {
+            Toy obj = level.levelToys.itemAt(targetRow, targetCol);
             if (obj.kind == Id.SCARE_MONSTER) {
                 return false;
             }
@@ -593,33 +592,33 @@ public class Monster extends Persona implements Serializable {
     }
 
     void drCourse(boolean entering) {
-        Door my = (Door) level.levelDoors.itemAt(row, col);
+        Door myDoor = level.levelDoors.itemAt(row, col);
         if (entering) {
             Rowcol foyer = level.foyer(row, col);
             Door dtab[] = new Door[level.levelDoors.size()];
             dtab = level.levelDoors.toArray(dtab);
             self.rand.permute(dtab);
             for (int i = 0; i < dtab.length; i++) {
-                Door dr = dtab[i];
-                Door d = dr.passageto;
-                if (dr == my) {
+                Door srcDoor = dtab[i];
+                Door targetDoor = srcDoor.passageto;
+                if (srcDoor == myDoor) {
                     // My door is a last resort (go back)
-                    if (trow == -1 && d != null) {
-                        trow = d.row;
-                        tcol = d.col;
+                    if (trow == -1 && targetDoor != null) {
+                        trow = targetDoor.row;
+                        tcol = targetDoor.col;
                     }
-                } else if (foyer != null && level.sees(dr.row, dr.col, foyer.row, foyer.col)) {
-                    trow = dr.row;
-                    tcol = dr.col;
+                } else if (foyer != null && level.sees(srcDoor.row, srcDoor.col, foyer.row, foyer.col)) {
+                    trow = srcDoor.row;
+                    tcol = srcDoor.col;
                     // Passage to another door is preferred
-                    if (d != null) {
+                    if (targetDoor != null) {
                         break;
                     }
                 }
             }
-        } else if (my != null && my.passageto != null) {
-            trow = my.passageto.row;
-            tcol = my.passageto.col;
+        } else if (myDoor != null && myDoor.passageto != null) {
+            trow = myDoor.passageto.row;
+            tcol = myDoor.passageto.col;
         }
     }
 

@@ -181,15 +181,15 @@ class Persona extends Item implements Serializable {
 
     Trap trapPlayer() {
         /* Traps a monster (man traps overrides this) */
-        Trap t = (Trap) level.levelTraps.itemAt(row, col);
-        if (t != null) {
-            switch (t.kind) {
+        Trap trap = level.levelTraps.itemAt(row, col);
+        if (trap != null) {
+            switch (trap.kind) {
                 case Trap.BEAR_TRAP:
-                    if (describe(t.trapMessage(this), true)) {
+                    if (describe(trap.trapMessage(this), true)) {
                         level.map[row][col] &= ~HIDDEN;
                     }
                     bearTrap = self.rand.get(4, 7);
-                    t = null;
+                    trap = null;
                     break;
                 case Trap.TRAP_DOOR:
                     die(); /* Just kill it! */
@@ -204,13 +204,13 @@ class Persona extends Item implements Serializable {
                     tele();
                     break;
                 case Trap.SLEEPING_GAS_TRAP:
-                    if (describe(t.trapMessage(this), true)) {
+                    if (describe(trap.trapMessage(this), true)) {
                         level.map[row][col] &= ~HIDDEN;
                     }
                     takeANap();
                     break;
                 case Trap.DART_TRAP:
-                    String s = t.trapMessage(this);
+                    String s = trap.trapMessage(this);
                     if (damage(null, Id.getDamage("1d6", self.rand), 0)) {
                         s += ", and killed it.";
                     }
@@ -221,7 +221,7 @@ class Persona extends Item implements Serializable {
             }
         }
         
-        return t;
+        return trap;
     }
 
     boolean mConfuse(Persona monster) {

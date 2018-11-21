@@ -139,9 +139,9 @@ public class Man extends Persona implements Serializable {
                                 }
                                 shown++;
                                 if (0 != (level.map[r][c] & TRAP)) {
-                                    Trap t = (Trap) level.levelTraps.itemAt(r, c);
-                                    if (t != null && t.kind < Trap.name.length) {
-                                        tell(Trap.name[t.kind], true);
+                                    Trap trap = level.levelTraps.itemAt(r, c);
+                                    if (trap != null && trap.kind < Trap.name.length) {
+                                        tell(Trap.name[trap.kind], true);
                                     } else {
                                         System.out.println("Err in search=flag=" + r + " " + c);
                                     }
@@ -555,15 +555,15 @@ public class Man extends Persona implements Serializable {
                 }
             }
             if (0 != (mask & MONSTER)) {
-                Monster monster = (Monster) level.levelMonsters.itemAt(r, c);
+                Monster monster = level.levelMonsters.itemAt(r, c);
                 ch = (char) (monster != null ? monster.gmc(this) : '$');
             } else if (0 != (mask & TOY)) {
                 if (halluc == 0) {
-                    Toy t = (Toy) level.levelToys.itemAt(r, c);
-                    if (t == null) {
+                    Toy toy = level.levelToys.itemAt(r, c);
+                    if (toy == null) {
                         System.out.println("See no toy at " + new Rowcol(r, c));
                     } else {
-                        ch = t.itemCharacter;
+                        ch = toy.itemCharacter;
                     }
                 } else {
                     ch = (char) Id.getRandomObjectCharacter(self.rand);
@@ -775,21 +775,21 @@ public class Man extends Persona implements Serializable {
             view.refresh();
         }
         //////////////////////////////////////////////////
-        Toy obj = null;
+        Toy toy = null;
         boolean sos = false; // Stopped on something
         if (0 != (level.map[row][col] & TOY)) {
             if (levitate > 0 && pickup) {
                 return STOPPED_ON_SOMETHING;
             }
             if (pickup && 0 == levitate) {
-                obj = pickUp();
+                toy = pickUp();
             }
-            if (obj == null) {
-                obj = (Toy) level.levelToys.itemAt(row, col);
-                if (obj != null) {
-                    tell("moved onto " + obj.getDesc());
+            if (toy == null) {
+                toy = level.levelToys.itemAt(row, col);
+                if (toy != null) {
+                    tell("moved onto " + toy.getDesc());
                 }
-            } else if (obj.itemCharacter == 1) { // Not a dusted scroll
+            } else if (toy.itemCharacter == 1) { // Not a dusted scroll
                 return STOPPED_ON_SOMETHING;
             }
             sos = true;
@@ -871,26 +871,26 @@ public class Man extends Persona implements Serializable {
             tell("the trap failed", true);
             return null;
         }
-        Trap t = (Trap) level.levelTraps.itemAt(row, col);
-        if (t == null) {
+        Trap trap = level.levelTraps.itemAt(row, col);
+        if (trap == null) {
             return null;
         }
-        switch (t.kind) {
+        switch (trap.kind) {
             case Trap.BEAR_TRAP:
-                tell(t.trapMessage(this), true);
+                tell(trap.trapMessage(this), true);
                 bearTrap = self.rand.get(4, 7);
-                t = null;
+                trap = null;
                 break;
             case Trap.TRAP_DOOR:
                 trapDoor = true;
-                newLevelMessage = t.trapMessage(this);
+                newLevelMessage = trap.trapMessage(this);
                 break;
             case Trap.TELE_TRAP:
                 view.mark(row, col);
                 tele();
                 break;
             case Trap.DART_TRAP:
-                tell(t.trapMessage(this), true);
+                tell(trap.trapMessage(this), true);
                 hpCurrent -= Id.getDamage("1d6", self.rand);
                 if (hpCurrent <= 0) {
                     hpCurrent = 0;
@@ -904,15 +904,15 @@ public class Man extends Persona implements Serializable {
                 }
                 break;
             case Trap.SLEEPING_GAS_TRAP:
-                tell(t.trapMessage(this), true);
+                tell(trap.trapMessage(this), true);
                 takeANap();
                 break;
             case Trap.RUST_TRAP:
-                tell(t.trapMessage(this), true);
+                tell(trap.trapMessage(this), true);
                 rust(null);
                 break;
         }
-        return t;
+        return trap;
     }
 
     void takeANap() {
@@ -1200,8 +1200,8 @@ public class Man extends Persona implements Serializable {
     }
 
     Toy pickUp() {
-        Toy obj = (Toy) level.levelToys.itemAt(row, col);
-        if (obj == null) {
+        Toy toy = level.levelToys.itemAt(row, col);
+        if (toy == null) {
             tell("pick_up(): inconsistent", true);
             
             return null;
@@ -1211,7 +1211,7 @@ public class Man extends Persona implements Serializable {
             
             return null;
         }
-        if (pack.size() >= MAX_PACK_COUNT && obj.kind != Id.GOLD) {
+        if (pack.size() >= MAX_PACK_COUNT && toy.kind != Id.GOLD) {
             tell("pack too full", true);
             
             return null;
@@ -1225,29 +1225,29 @@ public class Man extends Persona implements Serializable {
         if (0 != (level.map[row][col] & DOOR)) {
             seen[row][col] |= wallcode('+');
         }
-        level.levelToys.remove(obj);
+        level.levelToys.remove(toy);
 
-        if (obj.kind == Id.SCARE_MONSTER && obj.pickedUp) {
+        if (toy.kind == Id.SCARE_MONSTER && toy.pickedUp) {
             tell("the scroll turns to dust as you pick it up");
             if (Id.idScrolls[Id.SCARE_MONSTER & 255].idStatus == Id.UNIDENTIFIED) {
                 Id.idScrolls[Id.SCARE_MONSTER & 255].idStatus = Id.IDENTIFIED;
             }
-            obj.itemCharacter = 1; // Flag the dusted scroll
+            toy.itemCharacter = 1; // Flag the dusted scroll
 
-            return obj;
+            return toy;
         }
-        if (obj.kind == Id.GOLD) {
-            gold += obj.quantity;
-            tell(obj.getDesc(), true);
+        if (toy.kind == Id.GOLD) {
+            gold += toy.quantity;
+            tell(toy.getDesc(), true);
             printStat();
         } else {
-            obj = obj.addToPack(this);
-            if (obj != null) {
-                obj.pickedUp = true;
-                tell(obj.getDesc() + " (" + ((char) obj.itemCharacter) + ")", true);
+            toy = toy.addToPack(this);
+            if (toy != null) {
+                toy.pickedUp = true;
+                tell(toy.getDesc() + " (" + ((char) toy.itemCharacter) + ")", true);
             }
         }
-        return obj;
+        return toy;
     }
 
     static final int[] LEVEL_POINTS = { 10, 20, 40, 80, 160, 320, 640, 1300, 2600, 5200, 10000, 20000, 40000, 80000, 160000, 320000, 1000000, 3333333, 6666666, MAX_EXP, 99900000 };
@@ -1504,7 +1504,7 @@ public class Man extends Persona implements Serializable {
                 Monster monster = level.getZappedMonster(d, row, col);
                 if (monster != null) {
                     if (wand.kind == Id.DRAIN_LIFE) {
-                        level.wdrainLife(this, monster);
+                        level.wandDrainLife(this, monster);
                     } else if (monster != null) {
                         monster.wakeUp();
                         monster.sConMon(this);
@@ -1589,9 +1589,9 @@ public class Man extends Persona implements Serializable {
         Rowcol pt = level.getDirRowCol(d, row, col, false);
         int r = pt.row;
         int c = pt.col;
-        Trap t;
-        if (0 != (level.map[r][c] & TRAP) && 0 == (level.map[r][c] & HIDDEN) && (t = (Trap) level.levelTraps.itemAt(r, c)) != null) {
-            tell(Trap.name[t.kind]);
+        Trap trap;
+        if (0 != (level.map[r][c] & TRAP) && 0 == (level.map[r][c] & HIDDEN) && (trap = level.levelTraps.itemAt(r, c)) != null) {
+            tell(Trap.name[trap.kind]);
         } else {
             tell("no trap there");
         }

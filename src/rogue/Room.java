@@ -16,7 +16,7 @@ public class Room implements Header, Serializable {
     int leftCol, rightCol, topRow, bottomRow;
     Door doors[] = new Door[4];
 
-    int rn; /* Room location classification */
+    int roomSize; /* Room location classification */
 
     static final int HIDE_PERCENT = 12;
     static final int R_NOTHING = 01;
@@ -29,7 +29,7 @@ public class Room implements Header, Serializable {
     public String toString() {
         int wi = rightCol - leftCol;
         int hi = bottomRow - topRow;
-        String s = new String("[" + rn + "  +" + leftCol + "+" + topRow + " " + wi + "x" + hi);
+        String s = new String("[" + roomSize + "  +" + leftCol + "+" + topRow + " " + wi + "x" + hi);
         if (0 != (isRoom & R_NOTHING)) {
             s = s.concat(" Nothing");
         }
@@ -55,13 +55,13 @@ public class Room implements Header, Serializable {
     Room() { // A named place-holder
     }
 
-    Room(int rn, int leftCol, int topRow, int width, int height, Level level, boolean isnothing) {
+    Room(int roomSize, int leftCol, int topRow, int width, int height, Level level, boolean isnothing) {
         int darkPct = (level.currentLevel - 2) * 100 / (27 - 2);
         int floormask = FLOOR | HOLDER;
         if (darkPct > 0 && level.rogue.rand.percent(darkPct)) {
             floormask |= DARK;
         }
-        this.rn = rn;
+        this.roomSize = roomSize;
         this.level = level;
         this.isRoom = R_NOTHING;
         for (int i = 0; i < 4; i++) {

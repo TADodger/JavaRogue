@@ -373,7 +373,7 @@ class Toy extends Item implements Serializable {
         col = owner.col;
 
         getThrownAtMonster(dir);
-        Monster monster = (Monster) level.levelMonsters.itemAt(row, col);
+        Monster monster = level.levelMonsters.itemAt(row, col);
         /* Only if the point is visible? */
         owner.self.mark(owner.row, owner.col);
         owner.self.refresh();

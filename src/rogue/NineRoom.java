@@ -18,7 +18,7 @@ class NineRoom extends Level implements Serializable {
 
     NineRoom(int nrow, int ncol, Rogue self) {
         super(nrow, ncol, self);
-        PASSAGE.rn = -1;
+        PASSAGE.roomSize = -1;
         int i;
         int j;
         boolean bfinished = false;
@@ -110,15 +110,15 @@ class NineRoom extends Level implements Serializable {
                         r = (Room) room.get(perm[j]);
                         connect(r, 1);
                         connect(r, 3);
-                        if (r.rn + 2 < room.size() && room.get(r.rn + 1).isRoom == Room.R_NOTHING) {
+                        if (r.roomSize + 2 < room.size() && room.get(r.roomSize + 1).isRoom == Room.R_NOTHING) {
                             if (connect(r, 2)) {
-                                Room ra = room.get(r.rn + 1);
+                                Room ra = room.get(r.roomSize + 1);
                                 ra.isRoom = Room.R_CROSS;
                             }
                         }
-                        if (r.rn + 6 < room.size() && room.get(r.rn + 3).isRoom == Room.R_NOTHING) {
+                        if (r.roomSize + 6 < room.size() && room.get(r.roomSize + 3).isRoom == Room.R_NOTHING) {
                             if (connect(r, 6)) {
-                                Room ra = room.get(r.rn + 3);
+                                Room ra = room.get(r.roomSize + 3);
                                 ra.isRoom = Room.R_CROSS;
                             }
                         }
@@ -302,10 +302,10 @@ class NineRoom extends Level implements Serializable {
         Rowcol p1 = null, p2 = null;
         int dir = 0;
 
-        if (rfr.rn + n >= room.size()) {
+        if (rfr.roomSize + n >= room.size()) {
             return false;
         }
-        Room rto = room.get(rfr.rn + n);
+        Room rto = room.get(rfr.roomSize + n);
         if (0 == (rfr.isRoom & (Room.R_ROOM | Room.R_MAZE)) || 0 == (rto.isRoom & (Room.R_ROOM | Room.R_MAZE))) {
             return false;
         }
@@ -343,26 +343,29 @@ class NineRoom extends Level implements Serializable {
         return true;
     }
 
+    @Override
     public boolean sameRow(Room rfr, Room rto) {
-        return rfr.rn / 3 == rto.rn / 3;
+        return rfr.roomSize / 3 == rto.roomSize / 3;
     }
 
+    @Override
     public boolean sameCol(Room rfr, Room rto) {
-        return rfr.rn % 3 == rto.rn % 3;
+        return rfr.roomSize % 3 == rto.roomSize % 3;
     }
 
     private Room nthRoom(int n) {
         return n >= 0 && n < room.size() ? (Room) room.get(n) : null;
     }
 
-    public Room nabes(Room r)[] {
-        Room ra[] = new Room[4];
-        ra[0] = nthRoom(r.rn - 3);
-        ra[1] = nthRoom(r.rn + 1);
-        ra[2] = nthRoom(r.rn + 3);
-        ra[3] = nthRoom(r.rn - 1);
+    @Override
+    public Room[] nabes(Room room) {
+        Room[] rooms = new Room[4];
+        rooms[0] = nthRoom(room.roomSize - 3);
+        rooms[1] = nthRoom(room.roomSize + 1);
+        rooms[2] = nthRoom(room.roomSize + 3);
+        rooms[3] = nthRoom(room.roomSize - 1);
 
-        return ra;
+        return rooms;
     }
 
     public Room roomAt(int row, int col) {
