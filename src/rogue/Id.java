@@ -767,7 +767,7 @@ public class Id implements Serializable {
         String id = "unknown character";
         int ch;
         man.tell("what do you want identified?");
-        ch = man.self.rgetchar();
+        ch = man.rogue.rgetchar();
         if ((ch >= 'A') && (ch <= 'Z')) {
             id = Monster.MONSTER_TABLE[ch - 'A'].mName;
         } else if (ch < 32) {
