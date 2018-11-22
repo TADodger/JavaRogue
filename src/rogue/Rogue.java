@@ -73,6 +73,7 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
 
             r.parentFrame.add(r, BorderLayout.CENTER);
         }
+        r.parentFrame.addKeyListener(r);
         r.parentFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
                 r.exit();
@@ -236,7 +237,7 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
             man.option = oldop;
         }
         view.requestFocus();
-        view.addKeyListener(this);
+//        view.addKeyListener(this);
         Id.mixColors(rand);
         Id.makeScrollTitles(rand);
         // Level.cur_level= 0;
@@ -268,6 +269,7 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
         parentFrame.pack();
         parentFrame.setVisible(true);
         parentFrame.validate();
+        parentFrame.requestFocus();
         while (running) {
             System.out.println("in main game loop");
             if (newlevel) {
@@ -615,6 +617,7 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
                 // Id.mix_colors(new Randomx(r.potionSeed));
                 // Id.make_scroll_titles(new Randomx(r.scrollSeed));
                 r.pushIds();
+//                r.viewList.get(0).addKeyListener(r);
             } catch (InvalidClassException e) {
                 // This is thrown when the code is updated and invalidates
                 // saved games from previous versions.

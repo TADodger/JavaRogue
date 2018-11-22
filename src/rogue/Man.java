@@ -29,9 +29,12 @@ public class Man extends Persona implements Serializable {
     private static final int MAX_PACK_COUNT = 24;
 
     private static final char[] WALLYS = { ' ', '|', '-', '+', '#', '%', '^' };
-    public char[][] seen; // Set seen to 1(stairs-floor) 2(walls) 0(other)
-        // Also 4=just seen 8=last seen
-        // Bits 4-6 are the wally code above
+    /**
+     * Set seen to 1(stairs-floor) 2(walls) 0(other)
+     * Also 4=just seen 8=last seen
+     * Bits 4-6 are the wally code above
+     */
+    public char[][] seen;
 
     Rogue rogue;
     View view;
@@ -2047,6 +2050,7 @@ public class Man extends Persona implements Serializable {
     void saveGame() {
         System.out.println("Saving game.");
         rogue.pullIds();
+        rogue.parentFrame.removeKeyListener(rogue);
         try {
             File saveFile = new File(System.getProperty("user.home") + "/.rogue/rogue.ser");
             if (!saveFile.getParentFile().exists()) {

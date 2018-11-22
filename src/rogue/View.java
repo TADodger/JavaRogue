@@ -67,7 +67,7 @@ public class View extends JPanel implements Serializable, ComponentListener {
             }
         }
         getPreferredSize();
-        requestFocus();
+//        requestFocus();
         addComponentListener(this);
     }
 
