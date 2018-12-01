@@ -2,23 +2,28 @@ package rogue;
 
 import java.io.Serializable;
 
-class Message implements Serializable {
+/**
+ *
+ */
+public class Message implements Serializable {
     private static final long serialVersionUID = -3233497156787715360L;
 
-    View view;
-    static final int NMESSAGES = 5;
-    static final int MIN_ROW = 1;
-    static private String msgs[] = new String[NMESSAGES];
-    int msgCol = 0;
-    int imsg = -1;
-    boolean msgCleared = true;
-    boolean rmsg = false;
-    static private String more = " -more-";
-    boolean cantInt;
-    boolean didInt;
-    boolean flush;
+    private View view;
+    private static final int NMESSAGES = 5;
+    private static final int MIN_ROW = 1;
+    private static String msgs[] = new String[NMESSAGES];
+    private int msgCol = 0;
+    private int imsg = -1;
+    private boolean msgCleared = true;
+    private boolean rmsg = false;
+    private static String more = " -more-";
+    private boolean didInt;
+    private boolean flush;
 
-    Message(View view) {
+    /**
+     * @param view
+     */
+    public Message(View view) {
         this.view = view;
         msgCol = 0;
         imsg = -1;
@@ -29,11 +34,14 @@ class Message implements Serializable {
         rmsg = false;
     }
 
-    void message(String msg, boolean intrpt) {
+    /**
+     * @param msg
+     * @param intrpt
+     */
+    public void message(String msg, boolean intrpt) {
         if (view == null) {
             return;
         }
-        cantInt = true;
 
         if (intrpt) {
             view.self.interrupted = true;
@@ -56,7 +64,6 @@ class Message implements Serializable {
         msgCleared = false;
         msgCol = msg.length();
 
-        cantInt = false;
 
         if (didInt) {
             didInt = false;
@@ -64,11 +71,17 @@ class Message implements Serializable {
         }
     }
 
-    void message(String msg) {
+    /**
+     * @param msg
+     */
+    public void message(String msg) {
         message(msg, false);
     }
 
-    void remessage(int c) {
+    /**
+     * @param c
+     */
+    public void remessage(int c) {
         if (imsg != -1 && view != null) {
             checkMessage();
             rmsg = true;
@@ -81,7 +94,10 @@ class Message implements Serializable {
         }
     }
 
-    void checkMessage() {
+    /**
+     * 
+     */
+    public void checkMessage() {
         /* Erase the message line */
         if (msgCleared) {
             return;
@@ -95,10 +111,18 @@ class Message implements Serializable {
         msgCleared = true;
     }
 
-    String getInputLine(String prompt, String insert, String if_cancelled, boolean add_blank, boolean do_echo) {
+    /**
+     * @param prompt
+     * @param insert
+     * @param ifCancelled
+     * @param addBlank
+     * @param doEcho
+     * @return the input buffer
+     */
+    public String getInputLine(String prompt, String insert, String ifCancelled, boolean addBlank, boolean doEcho) {
         int ch;
         int i = 0, n = 0;
-        String buf = new String(insert);
+        String buffer = new String(insert);
 
         if (prompt != null) {
             message(prompt, false);
@@ -112,37 +136,40 @@ class Message implements Serializable {
         while (((ch = view.self.rgetchar()) != '\r') && ch != '\n' && ch != '\033') {
             if (ch >= ' ' && ch <= '~') {
                 if (ch != ' ' || i > 0) {
-                    buf = buf + ((char) ch);
+                    buffer = buffer + ((char) ch);
                     ++i;
-                    if (do_echo) {
+                    if (doEcho) {
                         view.addch(MIN_ROW - 1, n + i, (char) ch);
                     }
                 }
             }
             if (ch == '\b' && i > 0) {
-                if (do_echo) {
+                if (doEcho) {
                     view.addch(0, i + n, ' ');
                 }
                 i--;
-                buf = buf.substring(0, i);
+                buffer = buffer.substring(0, i);
             }
             view.refresh();
         }
         checkMessage();
-        buf = add_blank ? buf + ' ' : buf.trim();
+        buffer = addBlank ? buffer + ' ' : buffer.trim();
 
-        if (ch == '\033' || i == 0 || (i == 1 && add_blank)) {
-            if (if_cancelled != null) {
-                message(if_cancelled, false);
+        if (ch == '\033' || i == 0 || (i == 1 && addBlank)) {
+            if (ifCancelled != null) {
+                message(ifCancelled, false);
             }
         
             return null;
         }
 
-        return buf;
+        return buffer;
     }
 
-    int leftOrRight() {
+    /**
+     * @return the message for which hand
+     */
+    public int leftOrRight() {
         int ch;
         do {
             message("left or right hand?");
@@ -155,7 +182,11 @@ class Message implements Serializable {
         return ch;
     }
 
-    boolean yesOrNo(String s) {
+    /**
+     * @param s
+     * @return yes or no with the message
+     */
+    public boolean yesOrNo(String s) {
         int ch;
         do {
             message(s + " [y or n] ");
@@ -165,13 +196,18 @@ class Message implements Serializable {
         return ch == 'y';
     }
 
-    int rightlist(String list[], boolean asking) {
+    /**
+     * @param list
+     * @param asking
+     * @return ???
+     */
+    public int rightlist(String[] list, boolean asking) {
         int i;
         int n;
         int ch = '\033';
         String lastline = " --press space to continue-- ";
         int nmax = lastline.length();
-        String keep[] = new String[view.nrow - 1];
+        String[] keep = new String[view.nrow - 1];
         char chmin = 'z';
         char chmax = 'a';
 
@@ -237,7 +273,10 @@ class Message implements Serializable {
         return ch;
     }
 
-    int kbd_direction() {
+    /**
+     * @return the chosen direction
+     */
+    public int keyboardDirection() {
         int ch = 0;
         int dir = -1;
         do {
@@ -262,7 +301,7 @@ class Message implements Serializable {
      * fp); } fclose(fp); } else { sound_bell(); } }
      * 
      */
-    static String[] bnr = new String[5];
+    private static String[] bnr = new String[5];
     static {
         bnr[0] = " @@@ @@@@  @@@ @@@@ @@@@@@@@@@ @@@ @   @  @  @@@  @   @@    @   @@   @ @@@ @@@@  @@@ @@@@  @@@ @@@@@@   @@   @@   @@   @@   @@@@@@";
         bnr[1] = "@   @@   @@   @@   @@    @    @    @   @  @    @  @  @ @    @@ @@@@  @@   @@   @@   @@   @@      @  @   @@   @@   @ @ @  @ @    @ ";
@@ -271,10 +310,15 @@ class Message implements Serializable {
         bnr[4] = "@   @@@@@  @@@ @@@@ @@@@@@     @@@ @   @  @   @   @   @@@@@@@   @@   @ @@@ @     @@ @@   @ @@@   @   @@@   @  @   @@   @  @  @@@@@";
     }
 
-    void banner(int ro, int co, String s) {
-        for (int k = 0; k < 5; k++) {
-            for (int i = 0; i < s.length(); i++) {
-                int c = (int) s.charAt(i);
+    /**
+     * @param row
+     * @param col
+     * @param s
+     */
+    public void banner(int row, int col, String s) {
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < s.length(); j++) {
+                int c = (int) s.charAt(j);
                 if (c >= 'a' && c <= 'z') {
                     c -= 'a';
                 } else if (c >= 'A' && c <= 'Z') {
@@ -284,7 +328,7 @@ class Message implements Serializable {
                 }
                 try {
                     c *= 5;
-                    view.addch(k + ro, co + 6 * i, bnr[k].substring(c, c + 5));
+                    view.addch(i + row, col + 6 * j, bnr[i].substring(c, c + 5));
                 } catch (Exception e) {
                 }
             }

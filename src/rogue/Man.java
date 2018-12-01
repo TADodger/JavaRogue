@@ -36,40 +36,58 @@ public class Man extends Persona implements Serializable {
      */
     public char[][] seen;
 
-    Rogue rogue;
-    View view;
-    Option option;
-    ItemList<Item> pack = null;
-    int expPoints = 0; // Experience points
-    int movesLeft = 1250; // Food counter
-    int lessHp = 0;
-    int mMoves = 0; // General move counter
+    /** */
+    public Rogue rogue;
+    /** */
+    public View view;
+    /** */
+    public Option option;
+    /** */
+    public ItemList<Item> pack = null;
+    /** */
+    public int expPoints = 0; // Experience points
+    /** */
+    public int movesLeft = 1250; // Food counter
+    private int mMoves = 0; // General move counter
 
-    boolean sustainStrength = false;
-    boolean detectMonster = false;
-    boolean passgo = false;
-    boolean rTeleport = false;
-    boolean jump = false;
-    boolean seeInvisible;
-    static boolean gameOver = false;
-    static boolean savedGame = false;
-    static String gameOverMessage = "";
-    boolean wizzed = false;
-    static int justLoaded = 0;
+    /** */
+    public boolean sustainStrength = false;
+    /** */
+    public boolean detectMonster = false;
+    private boolean passgo = false;
+    private boolean rTeleport = false;
+    private boolean jump = false;
+    /** */
+    public boolean seeInvisible;
+    /** */
+    public static boolean gameOver = false;
+    /** */
+    public static boolean savedGame = false;
+    /** */
+    public static String gameOverMessage = "";
+    /** */
+    public static int justLoaded = 0;
 
-    int regeneration = 0;
-    boolean rSeeInvisible = false;
-    boolean maintainArmor = false;
+    private int regeneration = 0;
+    /** */
+    public boolean rSeeInvisible = false;
+    private boolean maintainArmor = false;
 
-    static final int R_TELE_PERCENT = 8;
+    private static final int R_TELE_PERCENT = 8;
 
-    int autoSearch = 0; // Number of times to auto-search each turn
+    private int autoSearch = 0; // Number of times to auto-search each turn
 
-    String newLevelMessage;
-    String hungerStr = "";
-    boolean trapDoor;
+    /** */
+    public String newLevelMessage;
+    /** */
+    public String hungerStr = "";
+    private boolean trapDoor;
 
-    Man(Rogue self, View view) {
+    /**
+     * @param self
+     * @param view
+     */
+    public Man(Rogue self, View view) {
         super(self);
         mt = Monster.MONSTER_TABLE[Monster.MONSTERS - 1];
         itemCharacter = (char) (mt.ichar | U_ROGUE);
@@ -81,7 +99,7 @@ public class Man extends Persona implements Serializable {
         exp = 1;
     }
 
-    void rest(int count) {
+    private void rest(int count) {
         rogue.interrupted = false;
         do {
             if (rogue.interrupted) {
@@ -116,7 +134,7 @@ public class Man extends Persona implements Serializable {
         }
     }
 
-    boolean search(int n, boolean isAuto) {
+    private boolean search(int n, boolean isAuto) {
         int found = 0, shown = 0;
         for (int r = row - 1; r <= row + 1; r++) {
             if (r >= MIN_ROW && r < level.numRow - 1) {
@@ -165,7 +183,7 @@ public class Man extends Persona implements Serializable {
         return shown > 0;
     }
 
-    int playMove(int ch, int count) {
+    private int playMove(int ch, int count) {
         System.out.println((char) ch + " " + ch + " " + count);
         switch (ch) {
             case '.':
@@ -306,7 +324,6 @@ public class Man extends Persona implements Serializable {
                 break;
             case 'W' - '@':
                 tell((wizard = !wizard) ? "Welcome, wizard!" : "not wizard anymore");
-                wizzed = true;
                 Id.wizardIdentify();
                 break;
             case 'R' - '@':
@@ -498,7 +515,10 @@ public class Man extends Persona implements Serializable {
         return count;
     }
 
-    void play_level() {
+    /**
+     * 
+     */
+    public void play_level() {
         int ch;
         int count = 0;
         initSeen();
@@ -542,7 +562,7 @@ public class Man extends Persona implements Serializable {
         } while (count >= 0 && !gameOver);
     }
 
-    char showrc(int r, int c) { // What man sees at this position
+    private char showrc(int r, int c) { // What man sees at this position
         char ch = 0;
 
         if (r == row && c == col) {
@@ -587,7 +607,7 @@ public class Man extends Persona implements Serializable {
         return ch;
     }
 
-    void showmap() {
+    private void showmap() {
         Rowcol pt;
         while ((pt = view.getmark()) != null) {
             if (pt.col == 0 && pt.row == 0) {
@@ -604,7 +624,7 @@ public class Man extends Persona implements Serializable {
         }
     }
 
-    boolean checkHunger(boolean messageOnly) {
+    private boolean checkHunger(boolean messageOnly) {
         int i, n;
         boolean fainted = false;
 
@@ -668,7 +688,7 @@ public class Man extends Persona implements Serializable {
         return fainted;
     }
 
-    boolean regMove() {
+    protected boolean regMove() {
         boolean fainted = false;
 
         if ((movesLeft <= HUNGRY) || level.currentLevel >= level.maxLevel) {
@@ -690,7 +710,7 @@ public class Man extends Persona implements Serializable {
         return fainted;
     }
 
-    void move_onto() {
+    private void move_onto() {
         int ch;
         if (-2 == Id.isDirection(ch = rogue.rgetchar())) {
             tell("direction? ");
@@ -702,7 +722,7 @@ public class Man extends Persona implements Serializable {
         }
     }
 
-    int oneMoveRogue(int dirch, boolean pickup) {
+    private int oneMoveRogue(int dirch, boolean pickup) {
         System.out.println("oneMoveRogue - 1");
         if (confused != 0) {
             dirch = movConfused();
@@ -867,7 +887,7 @@ public class Man extends Persona implements Serializable {
         return false;
     }
 
-    Trap trapPlayer() { // Call with the trap list
+    protected Trap trapPlayer() { // Call with the trap list
         level.map[row][col] &= ~HIDDEN;
         if (rogue.rand.percent(exp + ringExp)) {
             tell("the trap failed", true);
@@ -917,7 +937,7 @@ public class Man extends Persona implements Serializable {
         return trap;
     }
 
-    void takeANap() {
+    protected void takeANap() {
         int i = rogue.rand.get(2, 5);
         rogue.mdSleep(1000);
         while (--i >= 0) {
@@ -931,7 +951,7 @@ public class Man extends Persona implements Serializable {
      * Level: 99 Gold: 999999 Hp: 999(999) Str: 99(99) Arm: 99 Exp: 21/10000000
      * Hungry 0 5 1 5 2 5 3 5 4 5 5 5 6 5 7 5
      */
-    String statString() {
+    private String statString() {
         if (hpMax > MAX_HP) {
             hpCurrent -= hpMax - MAX_HP;
             hpMax = MAX_HP;
@@ -959,12 +979,12 @@ public class Man extends Persona implements Serializable {
                 + ") Arm: " + String.format("%2d", armorclass, 2) + " Exp: " + String.format("%2d", exp, 2) + '/' + String.format("%8d", expPoints, 8) + " " + hungerStr;
     }
 
-    void printStat() {
+    protected void printStat() {
         view.addch(level.numRow - 1, 0, statString());
         /// view.refresh();
     }
 
-    void drop() {
+    private void drop() {
         Toy obj;
         int ch;
 
@@ -1018,7 +1038,7 @@ public class Man extends Persona implements Serializable {
 //        return 0;
 //    }
 
-    int packLetter(String prompt, int mask) {
+    private int packLetter(String prompt, int mask) {
         int ch;
 
         if (!pack.maskPack(mask)) {
@@ -1042,7 +1062,7 @@ public class Man extends Persona implements Serializable {
         return ch;
     }
 
-    void takeOff() {
+    private void takeOff() {
         if (armor != null) {
             if (armor.isCursed) {
                 tell(Toy.curseMessage);
@@ -1059,7 +1079,7 @@ public class Man extends Persona implements Serializable {
         }
     }
 
-    void wear() {
+    private void wear() {
         if (armor != null) {
             tell("your already wearing some");
             
@@ -1087,7 +1107,7 @@ public class Man extends Persona implements Serializable {
         regMove();
     }
 
-    void wield() {
+    private void wield() {
         if (weapon != null && weapon.isCursed) {
             tell(Toy.curseMessage);
             
@@ -1122,25 +1142,32 @@ public class Man extends Persona implements Serializable {
         }
     }
 
-    Toy find(int mask, String prompt, String fail) {
+    /**
+     * @param mask
+     * @param prompt
+     * @param fail
+     * @return The Toy that was found
+     */
+    public Toy find(int mask, String prompt, String fail) {
         int ch = packLetter(prompt, mask);
         if (ch == '\033') {
             return null;
         }
         view.msg.checkMessage();
-        Toy t = (Toy) pack.getLetterToy(ch);
-        if (t == null) {
+        Toy toy = (Toy) pack.getLetterToy(ch);
+        if (toy == null) {
             tell("no such item.");
             return null;
         }
-        if (0 == (t.kind & mask)) {
+        if (0 == (toy.kind & mask)) {
             tell(fail);
             return null;
         }
-        return t;
+        
+        return toy;
     }
 
-    void callIt() {
+    private void callIt() {
         Toy obj = find(Id.SCROLL | Id.POTION | Id.WAND | Id.RING, "call what?", "surely you already know what that's called");
         if (obj == null) {
             return;
@@ -1153,7 +1180,7 @@ public class Man extends Persona implements Serializable {
         }
     }
 
-    void kickIntoPack() {
+    private void kickIntoPack() {
         if (0 == (level.map[row][col] & TOY)) {
             tell("nothing here");
         } else {
@@ -1164,7 +1191,7 @@ public class Man extends Persona implements Serializable {
         }
     }
 
-    void monsterForWizard() {
+    private void monsterForWizard() {
         tell("type of monster? ");
         int ch = rogue.rgetchar();
         view.msg.checkMessage();
@@ -1180,7 +1207,7 @@ public class Man extends Persona implements Serializable {
         }
     }
 
-    void cToyForWizard() {
+    private void cToyForWizard() {
         if (pack.size() >= MAX_PACK_COUNT) {
             tell("pack full");
             
@@ -1201,7 +1228,7 @@ public class Man extends Persona implements Serializable {
         }
     }
 
-    Toy pickUp() {
+    private Toy pickUp() {
         Toy toy = level.levelToys.itemAt(row, col);
         if (toy == null) {
             tell("pick_up(): inconsistent", true);
@@ -1252,13 +1279,16 @@ public class Man extends Persona implements Serializable {
         return toy;
     }
 
-    static final int[] LEVEL_POINTS = { 10, 20, 40, 80, 160, 320, 640, 1300, 2600, 5200, 10000, 20000, 40000, 80000, 160000, 320000, 1000000, 3333333, 6666666, MAX_EXP, 99900000 };
+    /**
+     * 
+     */
+    public static final int[] LEVEL_POINTS = { 10, 20, 40, 80, 160, 320, 640, 1300, 2600, 5200, 10000, 20000, 40000, 80000, 160000, 320000, 1000000, 3333333, 6666666, MAX_EXP, 99900000 };
 
-    int hpRaise() {
+    private int hpRaise() {
         return wizard ? 10 : rogue.rand.get(3, 10);
     }
 
-    static int getExpLevel(int e) {
+    private static int getExpLevel(int e) {
         int i;
         
         for (i = 0; i < LEVEL_POINTS.length; i++) {
@@ -1270,8 +1300,12 @@ public class Man extends Persona implements Serializable {
         return i + 1;
     }
 
-    void add_exp(int e, boolean promotion) {
-        expPoints += e;
+    /**
+     * @param points
+     * @param promotion
+     */
+    public void add_exp(int points, boolean promotion) {
+        expPoints += points;
         if (expPoints >= LEVEL_POINTS[exp - 1]) {
             int new_exp = getExpLevel(expPoints);
             if (expPoints > MAX_EXP) {
@@ -1292,7 +1326,7 @@ public class Man extends Persona implements Serializable {
         }
     }
 
-    void eat() {
+    private void eat() {
         Toy obj = find(Id.FOOD, "eat what?", "you can't eat that");
         if (obj != null) {
             obj.eatenby();
@@ -1300,7 +1334,7 @@ public class Man extends Persona implements Serializable {
         }
     }
 
-    void quaff() {
+    private void quaff() {
         Potion obj = (Potion) find(Id.POTION, "quaff what?", "you can't drink that");
         if (obj != null) {
             obj.quaffby();
@@ -1308,7 +1342,7 @@ public class Man extends Persona implements Serializable {
         }
     }
 
-    void readScroll() {
+    private void readScroll() {
         Scroll obj = (Scroll) find(Id.SCROLL, "read what?", "you can't read that");
         if (obj != null) {
             obj.readby();
@@ -1318,7 +1352,7 @@ public class Man extends Persona implements Serializable {
         }
     }
 
-    void putOnRing() {
+    private void putOnRing() {
         if (leftRing != null && rightRing != null) {
             tell("wearing two rings already");
             
@@ -1356,7 +1390,7 @@ public class Man extends Persona implements Serializable {
         }
     }
 
-    void removeRing() {
+    private void removeRing() {
         Toy obj = rightRing;
         if (leftRing != null && rightRing != null) {
             int ch = view.msg.leftOrRight();
@@ -1381,15 +1415,7 @@ public class Man extends Persona implements Serializable {
         }
     }
 
-    void uncurseAll() {
-        int i = pack.size();
-        while (--i >= 0) {
-            Toy obj = (Toy) pack.get(i);
-            obj.isCursed = false;
-        }
-    }
-
-    void tele() {
+    protected void tele() {
         level.putPlayer(this);
         vizset();
         moveSeen();
@@ -1397,7 +1423,7 @@ public class Man extends Persona implements Serializable {
         bearTrap = 0;
     }
 
-    void ringStats(boolean pr) {
+    protected void ringStats(boolean pr) {
         stealthy = 0;
         rRings = 0;
         eRings = 0;
@@ -1462,11 +1488,11 @@ public class Man extends Persona implements Serializable {
         }
     }
 
-    static final int[] HEALTAB = { 2, 20, 18, 17, 14, 13, 10, 9, 8, 7, 4, 3, 2 };
-    int cHeal = 0;
-    boolean bHealAlt = false;
+    private static final int[] HEALTAB = { 2, 20, 18, 17, 14, 13, 10, 9, 8, 7, 4, 3, 2 };
+    private int cHeal = 0;
+    private boolean bHealAlt = false;
 
-    void heal() {
+    private void heal() {
         if (hpCurrent == hpMax) {
             cHeal = 0;
             return;
@@ -1486,8 +1512,8 @@ public class Man extends Persona implements Serializable {
         }
     }
 
-    void zapp() {
-        int d = view.msg.kbd_direction();
+    private void zapp() {
+        int d = view.msg.keyboardDirection();
         if (d < 0) {
             return;
         }
@@ -1519,7 +1545,7 @@ public class Man extends Persona implements Serializable {
         regMove();
     }
 
-    void idCom() {
+    private void idCom() {
         view.msg.checkMessage();
         tell("Character you want help for(* for all):");
         int ch = rogue.mdGetchar();
@@ -1528,11 +1554,17 @@ public class Man extends Persona implements Serializable {
         view.markall(); // relight
     }
 
-    boolean hasAmulet() {
+    /**
+     * @return true of the pack has an amulet
+     */
+    public boolean hasAmulet() {
         return pack.maskPack(Id.AMULET);
     }
 
-    void playerInit() {
+    /**
+     * 
+     */
+    public void playerInit() {
         pack = new ItemList<Item>(MAX_PACK_COUNT);
         level.getFood(true).addToPack(this);
         level.getFood(true).addToPack(this);
@@ -1580,7 +1612,7 @@ public class Man extends Persona implements Serializable {
         }
     }
 
-    void idTrap() {
+    private void idTrap() {
         view.msg.checkMessage();
         tell("direction? ");
         int d = Id.isDirection(rogue.rgetchar());
@@ -1599,8 +1631,8 @@ public class Man extends Persona implements Serializable {
         }
     }
 
-    void throwMissile() {
-        int dir = view.msg.kbd_direction();
+    private void throwMissile() {
+        int dir = view.msg.keyboardDirection();
         if (dir < 0) {
             return;
         }
@@ -1625,14 +1657,23 @@ public class Man extends Persona implements Serializable {
         regMove();
     }
 
-    boolean rogueIsAround(int r, int c) {
-        r -= row;
-        c -= col;
+    /**
+     * @param checkRow
+     * @param checkCol
+     * @return true if the Rogue is within 1 of the provide location
+     */
+    public boolean rogueIsAround(int checkRow, int checkCol) {
+        checkRow -= row;
+        checkCol -= col;
 
-        return r >= -1 && r <= 1 && c >= -1 && c <= 1;
+        return checkRow >= -1 && checkRow <= 1 && checkCol >= -1 && checkCol <= 1;
     }
 
-    void rogueHit(Monster monster, boolean forceHit) {
+    /**
+     * @param monster
+     * @param forceHit
+     */
+    public void rogueHit(Monster monster, boolean forceHit) {
         if (monster.check_imitator()) {
             if (blind == 0) {
                 view.msg.checkMessage();
@@ -1670,7 +1711,7 @@ public class Man extends Persona implements Serializable {
         monster.wakeUp();
     }
 
-    boolean damage(Persona monster, int d, int other) {
+    protected boolean damage(Persona monster, int d, int other) {
         if (d >= hpCurrent) {
             hpCurrent = 0;
             printStat();
@@ -1690,50 +1731,10 @@ public class Man extends Persona implements Serializable {
         return false;
     }
 
-    void fight(boolean toTheDeath) {
-        int ch;
-        if (-2 == Id.isDirection(ch = rogue.rgetchar())) {
-            tell("direction? ");
-            ch = rogue.rgetchar();
-        }
-        view.msg.checkMessage();
-        if (ch == '\033') {
-            return;
-        }
-        int d = Id.isDirection(ch);
-        Rowcol pt = level.getDirRowCol(d, row, col, false);
-
-        int c = view.charat(pt.row, pt.col);
-        if (c < 'A' || c > 'Z' || !level.canMove(row, col, pt.row, pt.col)) {
-            tell("I see no monster there");
-            
-            return;
-        }
-        ihate = level.levelMonsters.itemAt(pt.row, pt.col);
-        if (null == ihate) {
-            return;
-        }
-
-        int possibleDamage; // Fight should really be more symmetrical
-        if (0 == (ihate.mFlags & Monster.STATIONARY)) {
-            possibleDamage = Id.getDamage(ihate.mt.mDamage, null) * 2 / 3;
-        } else {
-            possibleDamage = ((Monster) ihate).stationaryDamage - 1;
-        }
-
-        while (null != ihate) {
-            oneMoveRogue(ch, false);
-            if ((!toTheDeath && hpCurrent <= possibleDamage) || level.rogue.interrupted || 0 == (level.map[pt.row][pt.col] & MONSTER)) {
-                ihate = null;
-            } else {
-                Monster monster = (Monster) level.levelMonsters.itemAt(pt.row, pt.col);
-                if (monster != ihate)
-                    ihate = null;
-            }
-        }
-    }
-
-    void rust(Monster monster) {
+    /**
+     * @param monster
+     */
+    public void rust(Monster monster) {
         if (null == armor || armor.getArmorClass() <= 1 || armor.kind == Id.LEATHER) {
             return;
         }
@@ -1749,7 +1750,10 @@ public class Man extends Persona implements Serializable {
         }
     }
 
-    void freeze(Monster monster) {
+    /**
+     * @param monster
+     */
+    public void freeze(Monster monster) {
         int freezePercent = 99;
         int i, n;
 
@@ -1783,7 +1787,10 @@ public class Man extends Persona implements Serializable {
         }
     }
 
-    void sting(Monster monster) {
+    /**
+     * @param monster
+     */
+    public void sting(Monster monster) {
         int stingChance = 35 + 36;
         if (strCurrent <= 3 || sustainStrength) {
             return;
@@ -1802,7 +1809,10 @@ public class Man extends Persona implements Serializable {
         }
     }
 
-    void dropLevel() {
+    /**
+     * 
+     */
+    public void dropLevel() {
         if (rogue.rand.percent(80) || exp <= 5) {
             return;
         }
@@ -1820,7 +1830,10 @@ public class Man extends Persona implements Serializable {
         add_exp(1, false);
     }
 
-    void drainLife() {
+    /**
+     * 
+     */
+    public void drainLife() {
         if (rogue.rand.percent(60) || hpMax <= 30 || hpCurrent < 10) {
             return;
         }
@@ -1832,7 +1845,6 @@ public class Man extends Persona implements Serializable {
         if (n != 2) {
             hpMax--;
             hpCurrent--;
-            lessHp++;
         }
         if (n != 1) {
             if (strCurrent > 3 && !sustainStrength) {
@@ -1845,7 +1857,7 @@ public class Man extends Persona implements Serializable {
         printStat();
     }
 
-    void win() {
+    private void win() {
         Date d = new Date();
         rogue.starttime = d.getTime() - rogue.starttime;
         tell("YOU WON!");
@@ -1868,7 +1880,7 @@ public class Man extends Persona implements Serializable {
         rogue.waitForAck();
     }
 
-    String obituaryString(Persona monster, int other) {
+    private String obituaryString(Persona monster, int other) {
         String obit = "";
         if (other != 0) {
             switch (other) {
@@ -1901,7 +1913,7 @@ public class Man extends Persona implements Serializable {
         return obit;
     }
 
-    void killedBy(Persona monster, int other) {
+    private void killedBy(Persona monster, int other) {
         Date d = new Date();
         rogue.starttime = d.getTime() - rogue.starttime;
         if (other != Monster.QUIT) {
@@ -1943,7 +1955,10 @@ public class Man extends Persona implements Serializable {
         rogue.waitForAck();
     }
 
-    void initSeen() {
+    /**
+     * 
+     */
+    public void initSeen() {
         // terrible, terrible hack
         // I couldn't figure out another way to prevent the level
         // for being initialized as "unseen" when it's loaded from
@@ -1959,7 +1974,11 @@ public class Man extends Persona implements Serializable {
         moveSeen();
     }
 
-    int wallcode(char ch) {
+    /**
+     * @param ch
+     * @return The code for the wall character provided
+     */
+    public int wallcode(char ch) {
         if (ch == '|') {
             return 0x10;
         }
@@ -1982,7 +2001,7 @@ public class Man extends Persona implements Serializable {
         return 0;
     }
 
-    void moveSeen() {
+    private void moveSeen() {
         for (int r = 0; r < level.numRow; r++) {
             for (int c = 0; c < level.numCol; c++) {
                 int w = seen[r][c];
@@ -2009,7 +2028,7 @@ public class Man extends Persona implements Serializable {
         }
     }
 
-    void vizset() {
+    private void vizset() {
         if (0 != (level.map[row][col] & TUNNEL)) {
             for (int k = 0; k < 8; k++) {
                 int r = row + Id.X_TABLE[k];
@@ -2035,7 +2054,7 @@ public class Man extends Persona implements Serializable {
         seen[row][col] |= 4;
     }
 
-    boolean canSee(int r, int c) {
+    public boolean canSee(int r, int c) {
         if (blind > 0) {
             return false;
         }
@@ -2043,11 +2062,11 @@ public class Man extends Persona implements Serializable {
         return 0 != (seen[r][c] & 8);
     }
 
-    String name() {
+    public String name() {
         return option.nickName;
     }
 
-    void saveGame() {
+    private void saveGame() {
         System.out.println("Saving game.");
         rogue.pullIds();
         rogue.parentFrame.removeKeyListener(rogue);

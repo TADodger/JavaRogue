@@ -74,7 +74,7 @@ class Persona extends Item implements Serializable {
         return mt.mName;
     }
 
-    boolean regMove() {
+    protected boolean regMove() {
         if (hasteSelf > 0 && 0 == (--hasteSelf)) {
             tell(who("feel") + " yourself slowing down");
         }
@@ -175,11 +175,11 @@ class Persona extends Item implements Serializable {
         }
     }
 
-    void takeANap() {
+    protected void takeANap() {
         mFlags |= Monster.ASLEEP;
     }
 
-    Trap trapPlayer() {
+    protected Trap trapPlayer() {
         /* Traps a monster (man traps overrides this) */
         Trap trap = level.levelTraps.itemAt(row, col);
         if (trap != null) {
@@ -270,11 +270,11 @@ class Persona extends Item implements Serializable {
         weapon = null;
     }
 
-    void printStat() {
+    protected void printStat() {
         /* override for real man */
     }
 
-    void ringStats(boolean huh) {
+    protected void ringStats(boolean huh) {
         /* monsters immune to rings */
     }
 
@@ -338,11 +338,11 @@ class Persona extends Item implements Serializable {
         return "blue ";
     }
 
-    void tele() {
+    protected void tele() {
         /* overridden for men and monsters */
     }
 
-    boolean damage(Persona hurter, int dmg, int other) {
+    protected boolean damage(Persona hurter, int dmg, int other) {
         /* Force an error (must be overridden) */
         throw new RuntimeException("This method must be overridden. Cannot be called from Persona.");
     }

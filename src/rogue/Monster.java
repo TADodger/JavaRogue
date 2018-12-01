@@ -690,7 +690,7 @@ public class Monster extends Persona implements Serializable {
         }
     }
 
-    boolean damage(Persona man, int dmg, int other) {
+    protected boolean damage(Persona man, int dmg, int other) {
         if (dmg > 0 && man != this && man != null)
             ihate = man;
         hpCurrent -= dmg;
@@ -896,7 +896,7 @@ public class Monster extends Persona implements Serializable {
         return name() + super.toString() + "to " + (new Rowcol(trow, tcol)).toString() + s;
     }
 
-    void tele() {
+    protected void tele() {
         Rowcol pt = level.getRandomRowCol(FLOOR | TUNNEL | STAIRS | TOY, this);
         if (pt != null) {
             putMonsterAt(pt.row, pt.col);
