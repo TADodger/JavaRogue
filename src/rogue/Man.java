@@ -89,12 +89,12 @@ public class Man extends Persona implements Serializable {
      */
     public Man(Rogue self, View view) {
         super(self);
-        mt = Monster.MONSTER_TABLE[Monster.MONSTERS - 1];
-        itemCharacter = (char) (mt.ichar | U_ROGUE);
+        montype = Monster.MONSTER_TABLE[Monster.MONSTERS - 1];
+        itemCharacter = (char) (montype.ichar | U_ROGUE);
         this.rogue = self;
         this.option = new Option();
         this.view = view;
-        hpMax = hpCurrent = mt.hpCurrent;
+        hpMax = hpCurrent = montype.hpCurrent;
         strMax = strCurrent = 16;
         exp = 1;
     }
@@ -1536,7 +1536,7 @@ public class Man extends Persona implements Serializable {
                     } else if (monster != null) {
                         monster.wakeUp();
                         monster.sConMon(this);
-                        monster.zap_monster(this, wand.kind);
+                        monster.zapMonster(this, wand.kind);
                         view.markall(); // relight
                     }
                 }
@@ -1674,7 +1674,7 @@ public class Man extends Persona implements Serializable {
      * @param forceHit
      */
     public void rogueHit(Monster monster, boolean forceHit) {
-        if (monster.check_imitator()) {
+        if (monster.checkImitator()) {
             if (blind == 0) {
                 view.msg.checkMessage();
                 tell("wait, that's a " + monster.name() + '!');
@@ -2054,12 +2054,17 @@ public class Man extends Persona implements Serializable {
         seen[row][col] |= 4;
     }
 
-    public boolean canSee(int r, int c) {
+    /**
+     * @param row
+     * @param col
+     * @return true if the given location can be seen
+     */
+    public boolean canSee(int row, int col) {
         if (blind > 0) {
             return false;
         }
 
-        return 0 != (seen[r][c] & 8);
+        return 0 != (seen[row][col] & 8);
     }
 
     public String name() {

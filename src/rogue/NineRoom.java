@@ -4,19 +4,27 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-class NineRoom extends Level implements Serializable {
+/**
+ *
+ */
+public class NineRoom extends Level implements Serializable {
     private static final long serialVersionUID = 3336671744682766539L;
 
-    List<Room> room = null;
-    Room partyRoom = null;
+    private List<Room> room = null;
+    private Room partyRoom = null;
 
-    final Room PASSAGE = new Room();
+    private final Room PASSAGE = new Room();
 
-    static final int GOLD_PERCENT = 46;
-    static final int MAXROOMS = 9;
-    static final int BIG_ROOM = 10;
+    private static final int GOLD_PERCENT = 46;
+    private static final int MAXROOMS = 9;
+    private static final int BIG_ROOM = 10;
 
-    NineRoom(int nrow, int ncol, Rogue self) {
+    /**
+     * @param nrow
+     * @param ncol
+     * @param self
+     */
+    public NineRoom(int nrow, int ncol, Rogue self) {
         super(nrow, ncol, self);
         PASSAGE.roomSize = -1;
         int i;
@@ -186,7 +194,7 @@ class NineRoom extends Level implements Serializable {
         }
     }
 
-    boolean isAllConnected() {
+    private boolean isAllConnected() {
         int i = room.size();
         while (--i >= 0) {
             Room r = room.get(i);
@@ -212,7 +220,7 @@ class NineRoom extends Level implements Serializable {
         return true;
     }
 
-    void fillOutLevel() {
+    private void fillOutLevel() {
         int i = room.size();
         int perm[] = rogue.rand.permute(i);
 
@@ -227,7 +235,7 @@ class NineRoom extends Level implements Serializable {
             rogue.endroom.fillIt(false);
     }
 
-    Room gr_room() {
+    private Room grRoom() {
         int perm[] = rogue.rand.permute(room.size());
         for (int i = 0; i < room.size(); i++) {
             Room rm = room.get(perm[i]);
@@ -239,8 +247,8 @@ class NineRoom extends Level implements Serializable {
         return null;
     }
 
-    void make_party() {
-        partyRoom = gr_room();
+    private void makeParty() {
+        partyRoom = grRoom();
         if (partyRoom != null) {
             int n = rogue.rand.percent(99) ? partyRoom.partyToys() : 11;
             if (rogue.rand.percent(99)) {
@@ -254,13 +262,13 @@ class NineRoom extends Level implements Serializable {
             return;
         }
         if (partyRoom != null) {
-            make_party();
+            makeParty();
         } else {
             super.putToys();
         }
     }
 
-    void addTraps() {
+    private void addTraps() {
         int i, n = 0, tries = 0;
         int row = 0, col = 0;
 
@@ -298,7 +306,7 @@ class NineRoom extends Level implements Serializable {
         }
     }
 
-    boolean connect(Room rfr, int n) {
+    private boolean connect(Room rfr, int n) {
         Rowcol p1 = null, p2 = null;
         int dir = 0;
 

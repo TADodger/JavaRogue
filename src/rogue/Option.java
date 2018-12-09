@@ -8,20 +8,24 @@ import java.io.Serializable;
 public class Option implements Serializable {
     private static final long serialVersionUID = -5790756134061027698L;
 
-    boolean flush = true;
-    boolean jump = false;
-    boolean passgo = false;
-    boolean noSkull = false;
-    boolean askQuit = true;
-    String nickName = "Rogue";
-    String fruit = "slime_mold";
+    /** */
+    public boolean noSkull = false;
+    /** */
+    public boolean askQuit = true;
+    /** */
+    public String nickName = "Rogue";
+    /** */
+    public String fruit = "slime_mold";
 
-    Message msg;
+    private Message msg;
 
-    static String prompt[] = { "Flush typeahead during battle (\"flush\"): ", "Show position only at end of run (\"jump\"): ", "Follow turnings in passageways (\"passgo\"): ",
+    private static String prompt[] = { "Flush typeahead during battle (\"flush\"): ", "Show position only at end of run (\"jump\"): ", "Follow turnings in passageways (\"passgo\"): ",
             "Don't print skull when killed (\"noskull\" or \"notombstone\"): ", "Ask player before saying 'Okay, bye-bye!' (\"askquit\"): ", "Name (\"name\"): ", "Fruit (\"fruit\"): " };
 
-    Option() {}
+    /**
+     * 
+     */
+    public Option() {}
 
 //    private boolean bool_opt(String prompt, boolean b) {
 //        char c;
@@ -59,7 +63,10 @@ public class Option implements Serializable {
         return s;
     }
 
-    void editOpts(Man man) {
+    /**
+     * @param man
+     */
+    public void editOpts(Man man) {
         msg = man.view.msg;
         // flush= bool_opt(prompt[0], flush);
         // jump= bool_opt(prompt[1], jump);

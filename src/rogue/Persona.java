@@ -2,76 +2,130 @@ package rogue;
 
 import java.io.Serializable;
 
-class Persona extends Item implements Serializable {
+/**
+ *
+ */
+public abstract class Persona extends Item implements Serializable {
     private static final long serialVersionUID = -968406821890590933L;
 
-    Rogue self;
-    Montype mt;
+    /** */
+    public Rogue self;
+    /** */
+    public Montype montype;
 
     // These all count moves until the condition stops
-    int ringExp = 0;
-    boolean wizard = false;
+    /** */
+    public int ringExp = 0;
+    /** */
+    public boolean wizard = false;
 
-    Toy armor;
-    Toy weapon;
-    Toy leftRing;
-    Toy rightRing;
+    /** */
+    public Toy armor;
+    /** */
+    public Toy weapon;
+    /** */
+    public Toy leftRing;
+    /** */
+    public Toy rightRing;
 
-    int blind = 0;
-    int confused = 0;
-    int halluc = 0;
-    int levitate = 0;
-    int bearTrap = 0;
-    int hasteSelf = 0;
-    int hpCurrent;
-    int hpMax;
-    int extra_hp = 0;
-    String hitMessage = "";
+    /** */
+    public int blind = 0;
+    /** */
+    public int confused = 0;
+    /** */
+    public int halluc = 0;
+    /** */
+    public int levitate = 0;
+    /** */
+    public int bearTrap = 0;
+    /** */
+    public int hasteSelf = 0;
+    /** */
+    public int hpCurrent;
+    /** */
+    public int hpMax;
+    /** */
+    public int extra_hp = 0;
+    /** */
+    public String hitMessage = "";
 
-    Persona ihate;
-    int stealthy = 0;
-    boolean conMon = false; // confuse monsters
-    int rRings = 0;
-    int eRings = 0;
-    int strCurrent; // Current strength
-    int strMax; // Max strength
-    int addStrength = 0;
-    int gold = 0;
-    int exp; // Experience level
-    boolean beingHeld = false;
+    /** */
+    public Persona ihate;
+    /** */
+    public int stealthy = 0;
+    /** */
+    public boolean conMon = false; // confuse monsters
+    /** */
+    public int rRings = 0;
+    /** */
+    public int eRings = 0;
+    /** */
+    public int strCurrent; // Current strength
+    /** */
+    public int strMax; // Max strength
+    /** */
+    public int addStrength = 0;
+    /** */
+    public int gold = 0;
+    /** */
+    public int exp; // Experience level
+    /** */
+    public boolean beingHeld = false;
 
-    int mFlags; /* monster flags */
+    /** */
+    public int mFlags; /* monster flags */
 
-    Persona(Rogue self) {
+    /**
+     * @param self
+     */
+    public Persona(Rogue self) {
         super();
         this.self = self;
     }
 
-    Persona(Level level) {
+    /**
+     * @param level
+     */
+    public Persona(Level level) {
         super(level, 0, 0);
         if (level != null) {
             this.self = level.rogue;
         }
     }
 
-    void tell(String s, boolean b) {
+    /**
+     * @param s
+     * @param b
+     */
+    public void tell(String s, boolean b) {
         /* Describe my internal state (only if this is me) */
         // if(this instanceof Man)
         // ((Man)this).view.msg.message(s, b);
         self.tell(this, s, b);
     }
 
-    void tell(String s) {
+    /**
+     * @param s
+     */
+    public void tell(String s) {
         tell(s, false);
     }
 
-    boolean describe(String s, boolean b) {
+    /**
+     * @param s
+     * @param b
+     * @return ???
+     */
+    public boolean describe(String s, boolean b) {
         /* Describe a visible event about this guy */
         return self.describe(this, s, b);
     }
 
-    String name() {
-        return mt.mName;
+    /**
+     * @return the type name
+     */
+    public String name() {
+        return montype.mName;
     }
 
     protected boolean regMove() {
@@ -101,7 +155,10 @@ class Persona extends Item implements Serializable {
         return false; /* not fainted */
     }
 
-    void healPotional(boolean extra) {
+    /**
+     * @param extra
+     */
+    public void healPotional(boolean extra) {
         if (confused > 0 && extra) {
             unconfuse();
         } else if (confused > 0) {
@@ -119,7 +176,10 @@ class Persona extends Item implements Serializable {
         }
     }
 
-    void goBlind() {
+    /**
+     *  
+     */
+    public void goBlind() {
         if (blind == 0) {
             tell("a cloak of darkness falls around " + who());
         }
@@ -129,7 +189,10 @@ class Persona extends Item implements Serializable {
         }
     }
 
-    void unblind() {
+    /** 
+     * 
+     */
+    public void unblind() {
         blind = 0;
         tell("the veil of darkness lifts", true);
         if (this instanceof Man) {
@@ -137,29 +200,47 @@ class Persona extends Item implements Serializable {
         }
     }
 
-    int movConfused() {
+    /**
+     * @return random direction character
+     */
+    public int movConfused() {
         String s = "jklhyubn";
         
         return s.charAt(self.rand.get(7));
     }
 
-    void cnfs(int amt) {
+    /**
+     * @param amt
+     */
+    public void cnfs(int amt) {
         confused += amt;
     }
 
-    String who() {
+    /**
+     * @return the name
+     */
+    public String who() {
         return "@<" + name() + ">";
     }
 
-    String who(String verb, String itverb) {
+    /**
+     * @param verb
+     * @param itverb
+     * @return the name
+     */
+    public String who(String verb, String itverb) {
         return "@>" + name() + "+" + verb + "+" + itverb + "< ";
     }
 
-    String who(String verb) {
+    /**
+     * @param verb
+     * @return the name
+     */
+    public String who(String verb) {
         return who(verb, verb + 's');
     }
 
-    void unconfuse() {
+    private void unconfuse() {
         if (confused > 0) {
             tell(who("feel") + " less " + (halluc > 0 ? "trippy" : "confused") + " now");
         }
@@ -167,7 +248,10 @@ class Persona extends Item implements Serializable {
         mFlags &= ~Monster.CONFUSED;
     }
 
-    void unhallucinate() {
+    /** 
+     * 
+     */
+    public void unhallucinate() {
         halluc = 0;
         if (this instanceof Man) {
             ((Man) this).view.markall();
@@ -224,7 +308,11 @@ class Persona extends Item implements Serializable {
         return trap;
     }
 
-    boolean mConfuse(Persona monster) {
+    /**
+     * @param monster
+     * @return true if the monster is confused
+     */
+    public boolean mConfuse(Persona monster) {
         if (!canSee(monster.row, monster.col)) {
             return false;
         }
@@ -245,40 +333,52 @@ class Persona extends Item implements Serializable {
         return false;
     }
 
-    void doWear(Toy obj) {
+    /**
+     * @param obj
+     */
+    public void doWear(Toy obj) {
         armor = obj;
         obj.inUseFlags |= Id.BEING_WORN;
         obj.identified = true;
     }
 
-    void unwear() {
+    /** 
+     * 
+     */
+    public void unwear() {
         if (armor != null) {
             armor.inUseFlags &= ~Id.BEING_WORN;
         }
         armor = null;
     }
 
-    void doWield(Toy obj) {
+    /**
+     * @param obj
+     */
+    public void doWield(Toy obj) {
         weapon = obj;
         obj.inUseFlags |= Id.BEING_WIELDED;
     }
 
-    void unwield() {
+    /** 
+     * 
+     */
+    public void unwield() {
         if (weapon != null) {
             weapon.inUseFlags &= ~Id.BEING_WIELDED;
         }
         weapon = null;
     }
 
-    protected void printStat() {
-        /* override for real man */
-    }
+    protected abstract void printStat();
 
-    protected void ringStats(boolean huh) {
-        /* monsters immune to rings */
-    }
+    protected abstract void ringStats(boolean huh);
 
-    int getHitChance(Toy t) {
+    /**
+     * @param t
+     * @return chance to hit
+     */
+    public int getHitChance(Toy t) {
         int hitChance = 40;
         hitChance += 3 * (t == null ? 1 : t.toHit());
         hitChance += 2 * (exp + ringExp) - rRings;
@@ -286,8 +386,12 @@ class Persona extends Item implements Serializable {
         return hitChance;
     }
 
-    int getWeaponDamage(Toy t) {
-        int damage = t == null ? -1 : t.getWeaponWDamage();
+    /**
+     * @param toy
+     * @return the damage from the given weapon
+     */
+    public int getWeaponDamage(Toy toy) {
+        int damage = toy == null ? -1 : toy.getWeaponWDamage();
 
         damage += damageForStrength();
         damage += (exp + ringExp - rRings + 1) / 2;
@@ -295,7 +399,7 @@ class Persona extends Item implements Serializable {
         return damage;
     }
 
-    int damageForStrength() {
+    private int damageForStrength() {
         int strength = strCurrent + addStrength;
 
         if (strength <= 6) {
@@ -323,11 +427,14 @@ class Persona extends Item implements Serializable {
         return 8;
     }
 
-    boolean canSee(int r, int c) {
+    private boolean canSee(int r, int c) {
         return true;
     }
 
-    String getEnchColor() {
+    /**
+     * @return ???
+     */
+    public String getEnchColor() {
         if (halluc > 0) {
             return Id.idPotions[self.rand.get(Id.idPotions.length - 1)].title;
         }
@@ -338,16 +445,14 @@ class Persona extends Item implements Serializable {
         return "blue ";
     }
 
-    protected void tele() {
-        /* overridden for men and monsters */
-    }
+    protected abstract void tele();
 
-    protected boolean damage(Persona hurter, int dmg, int other) {
-        /* Force an error (must be overridden) */
-        throw new RuntimeException("This method must be overridden. Cannot be called from Persona.");
-    }
+    protected abstract boolean damage(Persona hurter, int dmg, int other);
 
-    void die() {
+    /** 
+     * 
+     */
+    public void die() {
         if (ihate != null) {
             if (0 != (mFlags & Monster.HOLDS)) {
                 ihate.beingHeld = false;
@@ -361,7 +466,10 @@ class Persona extends Item implements Serializable {
         self.mark(row, col);
     }
 
-    void gloat(Persona victim) {
+    /**
+     * @param victim
+     */
+    public void gloat(Persona victim) {
         String s = "Oof!";
         switch (self.rand.get(4)) {
             case 0:

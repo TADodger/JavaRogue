@@ -10,65 +10,151 @@ import java.util.List;
 public class Monster extends Persona implements Serializable {
     private static final long serialVersionUID = -2717942972899399217L;
 
-    int expPoints;
-    int mHitChance;
-    int stationaryDamage;
-    int dropPercent;
-    boolean slowedToggle;
-    int napLength;
-    int disguise;
-    int trow;
-    int tcol; /* Target */
-    int oRow;
-    int oCol;
-    int stuck; /* stuck is how many times stuck at o_row, o_col */
-    int dstrow;
-    int dstcol; /* Default target (where the rogue is) */
+    private int expPoints;
+    private int mHitChance;
+    private int stationaryDamage;
+    private int dropPercent;
+    /** */
+    public boolean slowedToggle;
+    private int napLength;
+    /** */
+    public int disguise;
+    /** */
+    public int trow;
+    /** */
+    public int tcol; /* Target */
+    private int oRow;
+    private int oCol;
+    private int stuck; /* stuck is how many times stuck at o_row, o_col */
+    /** */
+    public int dstrow;
+    /** */
+    public int dstcol; /* Default target (where the rogue is) */
 
     /* m_flags values */
-    static final int HASTED = 01;
-    static final int SLOWED = 02;
-    static final int INVISIBLE = 04;
-    static final int ASLEEP = 010;
-    static final int WAKENS = 020;
-    static final int WANDERS = 040;
-    static final int FLIES = 0100;
-    static final int FLITS = 0200;
-    static final int CAN_FLIT = 0400; /* can, but usually doesn't, flit */
-    static final int CONFUSED = 01000;
-    static final int RUSTS = 02000;
-    static final int HOLDS = 04000;
-    static final int FREEZES = 010000;
-    static final int STEALS_GOLD = 020000;
-    static final int STEALS_ITEM = 040000;
-    static final int STINGS = 0100000;
-    static final int DRAINS_LIFE = 0200000;
-    static final int DROPS_LEVEL = 0400000;
-    static final int SEEKS_GOLD = 01000000;
-    static final int FREEZING_ROGUE = 02000000;
-    static final int RUST_VANISHED = 04000000;
-    static final int CONFUSES = 010000000;
-    static final int IMITATES = 020000000;
-    static final int FLAMES = 040000000;
-    static final int STATIONARY = 0100000000; /* damage will be 1,2,3,... */
-    static final int NAPPING = 0200000000; /* can't wake up for a while */
-    static final int ALREADY_MOVED = 0400000000;
-    static final int SPECIAL_HIT = (RUSTS | HOLDS | FREEZES | STEALS_GOLD | STEALS_ITEM | STINGS | DRAINS_LIFE | DROPS_LEVEL);
+    
+    /** */
+    public static final int HASTED = 01;
+    
+    /** */
+    public static final int SLOWED = 02;
+    
+    /** */
+    public static final int INVISIBLE = 04;
+    
+    /** */
+    public static final int ASLEEP = 010;
+    
+    /** */
+    public static final int WAKENS = 020;
+    
+    /** */
+    public static final int WANDERS = 040;
+    
+    /** */
+    public static final int FLIES = 0100;
+    
+    /** */
+    public static final int FLITS = 0200;
+    
+    /** */
+    public static final int CAN_FLIT = 0400; /* can, but usually doesn't, flit */
+    
+    /** */
+    public static final int CONFUSED = 01000;
+    
+    /** */
+    public static final int RUSTS = 02000;
+    
+    /** */
+    public static final int HOLDS = 04000;
+    
+    /** */
+    public static final int FREEZES = 010000;
+    
+    /** */
+    public static final int STEALS_GOLD = 020000;
+    
+    /** */
+    public static final int STEALS_ITEM = 040000;
+    
+    /** */
+    public static final int STINGS = 0100000;
+    
+    /** */
+    public static final int DRAINS_LIFE = 0200000;
+    
+    /** */
+    public static final int DROPS_LEVEL = 0400000;
+    
+    /** */
+    public static final int SEEKS_GOLD = 01000000;
+    
+    /** */
+    public static final int FREEZING_ROGUE = 02000000;
+    
+    /** */
+    public static final int RUST_VANISHED = 04000000;
+    
+    /** */
+    public static final int CONFUSES = 010000000;
+    
+    /** */
+    public static final int IMITATES = 020000000;
+    
+    /** */
+    public static final int FLAMES = 040000000;
+    
+    /** */
+    public static final int STATIONARY = 0100000000; /* damage will be 1,2,3,... */
+    
+    /** */
+    public static final int NAPPING = 0200000000; /* can't wake up for a while */
+    
+    /** */
+    public static final int ALREADY_MOVED = 0400000000;
+    
+    /** */
+    public static final int SPECIAL_HIT = (RUSTS | HOLDS | FREEZES | STEALS_GOLD | STEALS_ITEM | STINGS | DRAINS_LIFE | DROPS_LEVEL);
 
-    static final int WAKE_PERCENT = 45;
-    static final int FLIT_PERCENT = 40;
-    static final int PARTY_WAKE_PERCENT = 75;
-    static final int STEALTH_FACTOR = 3;
+    
+    /** */
+    public static final int WAKE_PERCENT = 45;
+    
+    /** */
+    public static final int FLIT_PERCENT = 40;
+    
+    /** */
+    public static final int PARTY_WAKE_PERCENT = 75;
+    
+    /** */
+    public static final int STEALTH_FACTOR = 3;
 
-    static final int HYPOTHERMIA = 1;
-    static final int STARVATION = 2;
-    static final int POISON_DART = 3;
-    static final int QUIT = 4;
-    static final int WIN = 5;
-    static final int KFIRE = 6;
-    static final int MONSTERS = 26 + 1;
+    
+    /** */
+    public static final int HYPOTHERMIA = 1;
+    
+    /** */
+    public static final int STARVATION = 2;
+    
+    /** */
+    public static final int POISON_DART = 3;
+    
+    /** */
+    public static final int QUIT = 4;
+    
+    /** */
+    public static final int WIN = 5;
+    
+    /** */
+    public static final int KFIRE = 6;
+    
+    /** */
+    public static final int MONSTERS = 26 + 1;
 
-    static final Montype[] MONSTER_TABLE = new Montype[MONSTERS];
+    
+    /** */
+    public static final Montype[] MONSTER_TABLE = new Montype[MONSTERS];
     static {
         MONSTER_TABLE[0] = new Montype("aquator", (ASLEEP | WAKENS | WANDERS | RUSTS), "0d0", 25, 'A', 20, 9, 18, 100, 0, 0);
         MONSTER_TABLE[1] = new Montype("bat", (ASLEEP | WANDERS | FLITS | FLIES), "1d3", 10, 'B', 2, 1, 8, 60, 0, 0);
@@ -99,24 +185,35 @@ public class Monster extends Persona implements Serializable {
         MONSTER_TABLE[26] = new Montype("rogue", 0, "1d7", 12, '@', 1, -1, -1, 90, 0, 0);
     }
 
-    Monster() { // Undefined monster
+    /**
+     * 
+     */
+    public Monster() { // Undefined monster
         super((Level) null);
     }
 
-    Monster(Level level, int k) { // The kth monster
+    /**
+     * @param level
+     * @param k
+     */
+    public Monster(Level level, int k) { // The kth monster
         super(level);
-        mt = MONSTER_TABLE[k];
-        mFlags = mt.mFlags;
-        hpMax = hpCurrent = mt.hpCurrent;
-        itemCharacter = mt.ichar;
-        expPoints = mt.expPoints;
-        mHitChance = mt.mHitChance;
-        stationaryDamage = mt.stationaryDamage;
-        dropPercent = mt.dropPercent;
+        montype = MONSTER_TABLE[k];
+        mFlags = montype.mFlags;
+        hpMax = hpCurrent = montype.hpCurrent;
+        itemCharacter = montype.ichar;
+        expPoints = montype.expPoints;
+        mHitChance = montype.mHitChance;
+        stationaryDamage = montype.stationaryDamage;
+        dropPercent = montype.dropPercent;
         setHated();
     }
 
-    void zap_monster(Man man, int kind) {
+    /**
+     * @param man
+     * @param kind
+     */
+    public void zapMonster(Man man, int kind) {
         switch (kind) {
             case Id.SLOW_MONSTER:
                 if (0 != (mFlags & HASTED)) {
@@ -173,7 +270,11 @@ public class Monster extends Persona implements Serializable {
         }
     }
 
-    boolean zapt(Toy obj) {
+    /**
+     * @param obj
+     * @return ???
+     */
+    public boolean zapt(Toy obj) {
         String s = obj.kind == Id.FIRE ? "fire" : "ice";
         boolean doend = true;
         int dmg = 0;
@@ -219,7 +320,12 @@ public class Monster extends Persona implements Serializable {
         return doend;
     }
 
-    boolean throw_at_monster(Toy missile, Persona man) {
+    /**
+     * @param missile
+     * @param man
+     * @return true if the Toy hits
+     */
+    public boolean throwAtMonster(Toy missile, Persona man) {
         int hitChance = man.getHitChance(missile);
         int dmg = man.getWeaponDamage(missile);
         if (missile.kind == Id.ARROW && man.weapon != null && man.weapon.kind == Id.BOW) {
@@ -246,12 +352,16 @@ public class Monster extends Persona implements Serializable {
         return true;
     }
 
-    void putMonsterAt(int r, int c) {
+    /**
+     * @param r
+     * @param c
+     */
+    public void putMonsterAt(int r, int c) {
         placeAt(r, c, MONSTER);
         aimMonster();
     }
 
-    boolean mtry(int row, int col) {
+    private boolean mtry(int row, int col) {
         if (!monCanGo(row, col)) {
             return false;
         }
@@ -260,7 +370,7 @@ public class Monster extends Persona implements Serializable {
         return true;
     }
 
-    void aimMonster() {
+    private void aimMonster() {
         List<Door> doorList = new ArrayList<>(4);
         for (Door door : level.levelDoors) {
             if (door.passageto != null && monSees(door.row, door.col)) {
@@ -274,7 +384,10 @@ public class Monster extends Persona implements Serializable {
         }
     }
 
-    boolean moveConfused() {
+    /**
+     * @return ???
+     */
+    public boolean moveConfused() {
         if (0 == (mFlags & ASLEEP)) {
             if (--confused <= 0) {
                 mFlags &= ~CONFUSED;
@@ -301,7 +414,7 @@ public class Monster extends Persona implements Serializable {
         return false;
     }
 
-    boolean flit() {
+    private boolean flit() {
         if (!self.rand.percent(FLIT_PERCENT + (0 != (mFlags & FLIES) ? 20 : 0))) {
             return false;
         }
@@ -323,7 +436,11 @@ public class Monster extends Persona implements Serializable {
         return true;
     }
 
-    int gmc(Man man) {
+    /**
+     * @param man
+     * @return ???
+     */
+    public int gmc(Man man) {
         if ((!(man.detectMonster || man.seeInvisible || man.rSeeInvisible) && 0 != (mFlags & INVISIBLE)) || man.blind > 0) {
             return level.getChar(row, col);
         }
@@ -337,7 +454,7 @@ public class Monster extends Persona implements Serializable {
         return itemCharacter | color();
     }
 
-    boolean rogueIsAround() {
+    private boolean rogueIsAround() {
         for (int r = -1; r <= 1; r++) {
             for (int c = -1; c <= 1; c++) {
                 if (0 != (level.map[row + r][col + c] & MAN)) {
@@ -354,7 +471,10 @@ public class Monster extends Persona implements Serializable {
         return false;
     }
 
-    void moveMonster() {
+    /**
+     * 
+     */
+    public void moveMonster() {
         int rwas = row;
         int cwas = col;
 
@@ -375,7 +495,11 @@ public class Monster extends Persona implements Serializable {
         }
     }
 
-    void moveTo(int targetRow, int targetCol) {
+    /**
+     * @param targetRow
+     * @param targetCol
+     */
+    public void moveTo(int targetRow, int targetCol) {
         int i;
         if (0 != (mFlags & ASLEEP)) {
             if (0 != (mFlags & NAPPING)) {
@@ -497,7 +621,7 @@ public class Monster extends Persona implements Serializable {
         }
     }
 
-    void setHated() {
+    private void setHated() {
         Persona hated = ihate;
         int dmin = 10000;
         int j = level.levelMen.size();
@@ -521,7 +645,11 @@ public class Monster extends Persona implements Serializable {
         }
     }
 
-    void moveMonTo(int r, int c) {
+    /**
+     * @param r
+     * @param c
+     */
+    public void moveMonTo(int r, int c) {
         boolean inroom = 0 != (level.map[row][col] & HOLDER);
         placeAt(r, c, MONSTER);
         if (0 != (level.map[r][c] & DOOR)) {
@@ -533,7 +661,12 @@ public class Monster extends Persona implements Serializable {
         }
     }
 
-    boolean monCanGo(int targetRow, int targetCol) {
+    /**
+     * @param targetRow
+     * @param targetCol
+     * @return true if the Rogue can go to the target location
+     */
+    public boolean monCanGo(int targetRow, int targetCol) {
         int dr = row - targetRow; /* check if move distance > 1 */
         if (dr >= 2 || dr <= -2) {
             return false;
@@ -575,13 +708,16 @@ public class Monster extends Persona implements Serializable {
         return true;
     }
 
-    void wakeUp() {
+    /**
+     * 
+     */
+    public void wakeUp() {
         if (0 == (mFlags & NAPPING)) {
             mFlags &= ~(ASLEEP | IMITATES | WAKENS);
         }
     }
 
-    boolean monSees(int r, int c) {
+    private boolean monSees(int r, int c) {
         if (level.sees(row, col, r, c)) {
             return true;
         }
@@ -591,7 +727,7 @@ public class Monster extends Persona implements Serializable {
         return rdif >= -1 && rdif <= 1 && cdif >= -1 && cdif <= 1;
     }
 
-    void drCourse(boolean entering) {
+    private void drCourse(boolean entering) {
         Door myDoor = level.levelDoors.itemAt(row, col);
         if (entering) {
             Rowcol foyer = level.foyer(row, col);
@@ -622,7 +758,10 @@ public class Monster extends Persona implements Serializable {
         }
     }
 
-    void sConMon(Persona man) {
+    /**
+     * @param man
+     */
+    public void sConMon(Persona man) {
         if (man.conMon) {
             mFlags |= CONFUSED;
             cnfs(self.rand.get(12, 22));
@@ -631,7 +770,10 @@ public class Monster extends Persona implements Serializable {
         }
     }
 
-    void monHit(Persona man) {
+    /**
+     * @param man
+     */
+    public void monHit(Persona man) {
         double minus = 0;
 
         if (man.ihate != null && this != man.ihate) {
@@ -666,7 +808,7 @@ public class Monster extends Persona implements Serializable {
         }
         int dmg;
         if (0 == (mFlags & STATIONARY)) {
-            dmg = Id.getDamage(mt.mDamage, self.rand);
+            dmg = Id.getDamage(montype.mDamage, self.rand);
             if (level.currentLevel >= AMULET_LEVEL * 2) {
                 minus = (double) ((AMULET_LEVEL * 2) - level.currentLevel);
             } else {
@@ -686,7 +828,7 @@ public class Monster extends Persona implements Serializable {
             man.damage((Persona) this, dmg, 0);
         }
         if (0 != (mFlags & SPECIAL_HIT)) {
-            special_hit(man);
+            specialHit(man);
         }
     }
 
@@ -706,7 +848,7 @@ public class Monster extends Persona implements Serializable {
         return false;
     }
 
-    void die(Persona man) {
+    private void die(Persona man) {
         if (man != null) {
             if (this == man.ihate) {
                 man.ihate = null;
@@ -724,7 +866,7 @@ public class Monster extends Persona implements Serializable {
         super.die();
     }
 
-    void stealGold(Persona man) {
+    private void stealGold(Persona man) {
         int amount;
         if ((man.gold <= 0) || self.rand.percent(10)) {
             return;
@@ -741,7 +883,7 @@ public class Monster extends Persona implements Serializable {
         tele();
     }
 
-    void stealItem(Persona man) {
+    private void stealItem(Persona man) {
         int t = 1;
         int nn = 0;
         Toy obj = null;
@@ -772,7 +914,7 @@ public class Monster extends Persona implements Serializable {
         die(); /* Kill the monster to disappear it */
     }
 
-    void coughUp() {
+    private void coughUp() {
         Toy obj;
         if (level.currentLevel < level.maxLevel) {
             return;
@@ -805,11 +947,17 @@ public class Monster extends Persona implements Serializable {
         }
     }
 
-    void checkGoldSeeker() {
+    /**
+     * 
+     */
+    public void checkGoldSeeker() {
         mFlags &= ~SEEKS_GOLD;
     }
 
-    boolean check_imitator() {
+    /**
+     * @return ???
+     */
+    public boolean checkImitator() {
         if (0 != (mFlags & IMITATES)) {
             wakeUp();
             level.mark(row, col);
@@ -820,7 +968,7 @@ public class Monster extends Persona implements Serializable {
         return false;
     }
 
-    boolean flame_broil(Persona man) {
+    private boolean flame_broil(Persona man) {
         if (!monSees(man.row, man.col) || self.rand.coin()) {
             return false;
         }
@@ -846,7 +994,7 @@ public class Monster extends Persona implements Serializable {
         return true;
     }
 
-    void special_hit(Persona p) {
+    private void specialHit(Persona p) {
         if (!(p instanceof Man)) {
             return;
         }
@@ -880,11 +1028,12 @@ public class Monster extends Persona implements Serializable {
         }
     }
 
-    static String mflagname[] = { 
+    private static String mflagname[] = { 
             "HASTED", "SLOWED", "INVISIBLE", "ASLEEP", "WAKENS", "WANDERS", "FLIES", "FLITS", "CAN_FLIT", "CONFUSED", "RUSTS", "HOLDS", "FREEZES", "STEALS_GOLD", "STEALS_ITEM",
             "STINGS", "DRAINS_LIFE", "DROPS_LEVEL", "SEEKS_GOLD", "FREEZING_ROGUE", "RUST_VANISHED", "CONFUSES", "IMITATES", "FLAMES", "STATIONARY", "NAPPING" 
     };
 
+    @Override
     public String toString() {
         String s = "";
         for (int k = 0; k < mflagname.length; k++) {
@@ -908,11 +1057,21 @@ public class Monster extends Persona implements Serializable {
         bearTrap = 0;
     }
 
-    int color() {
+    private int color() {
         // if(0 != (m_flags & (ASLEEP | NAPPING)))
         // return uGreen;
         // if(2*hp_current <= hp_max)
         // return uWeak;
         return U_NORMAL;
+    }
+
+    @Override
+    protected void printStat() {
+        //not needed for monster
+    }
+
+    @Override
+    protected void ringStats(boolean huh) {
+        //not needed for monster
     }
 }

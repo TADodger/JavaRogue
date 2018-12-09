@@ -8,26 +8,47 @@ import java.io.Serializable;
 public class Trap extends Item implements Serializable {
     private static final long serialVersionUID = -5822054677475787076L;
 
-    int kind;
-    static final int TRAP_DOOR = 0;
-    static final int BEAR_TRAP = 1;
-    static final int TELE_TRAP = 2;
-    static final int DART_TRAP = 3;
-    static final int SLEEPING_GAS_TRAP = 4;
-    static final int RUST_TRAP = 5;
-    static final int TRAPS = 6;
+    /** */
+    public int kind;
+    /** */
+    public static final int TRAP_DOOR = 0;
+    /** */
+    public static final int BEAR_TRAP = 1;
+    /** */
+    public static final int TELE_TRAP = 2;
+    /** */
+    public static final int DART_TRAP = 3;
+    /** */
+    public static final int SLEEPING_GAS_TRAP = 4;
+    /** */
+    public static final int RUST_TRAP = 5;
+    /** */
+    public static final int TRAPS = 6;
 
-    static String msg[] = { "$ fell down a trap", "$are caught in a bear trap", "teleport", "a small dart just hit $ in the shoulder", "a strange white mist envelops $ and $fall asleep",
+    private static String msg[] = { "$ fell down a trap", "$are caught in a bear trap", "teleport", "a small dart just hit $ in the shoulder", "a strange white mist envelops $ and $fall asleep",
             "a gush of water hits $ on the head" };
-    static String name[] = { "trap door", "bear trap", "teleport trap", "poison dart trap", "sleeping gas trap", "rust trap", };
+    /**
+     * 
+     */
+    public static String name[] = { "trap door", "bear trap", "teleport trap", "poison dart trap", "sleeping gas trap", "rust trap", };
 
-    Trap(Level level, int r, int c, int kind) {
+    /**
+     * @param level
+     * @param r
+     * @param c
+     * @param kind
+     */
+    public Trap(Level level, int r, int c, int kind) {
         super(level, r, c);
         this.kind = kind;
         placeAt(r, c, TRAP);
     }
 
-    String trapMessage(Persona p) {
+    /**
+     * @param p
+     * @return The message for this trap
+     */
+    public String trapMessage(Persona p) {
         String src = msg[kind];
         String dst = "";
         int i = 0;

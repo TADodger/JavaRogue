@@ -2,14 +2,23 @@ package rogue;
 
 import java.io.Serializable;
 
-class Scroll extends Toy implements Serializable {
+/**
+ *
+ */
+public class Scroll extends Toy implements Serializable {
     private static final long serialVersionUID = 3154221148022434821L;
 
-    Scroll(Level level) {
+    /**
+     * @param level
+     */
+    public Scroll(Level level) {
         super(level, Id.SCROLL);
     }
 
-    void readby() {
+    /**
+     * 
+     */
+    public void readby() {
         switch (kind) {
             case Id.SCARE_MONSTER:
                 owner.tell("you hear a maniacal laughter in the distance");
@@ -102,7 +111,7 @@ class Scroll extends Toy implements Serializable {
         vanish();
     }
 
-    boolean createMonster(Persona man) {
+    private boolean createMonster(Persona man) {
         int perm[] = level.rogue.rand.permute(9);
         for (int i = 0; i < 9; i++) {
             int c = Id.X_TABLE[perm[i]] + man.col;
@@ -124,7 +133,7 @@ class Scroll extends Toy implements Serializable {
         return false;
     }
 
-    void aggravate(Persona man) {
+    private void aggravate(Persona man) {
         for (Monster monster : level.levelMonsters) {
             monster.wakeUp();
             monster.mFlags &= ~Monster.IMITATES;
@@ -132,7 +141,7 @@ class Scroll extends Toy implements Serializable {
         }
     }
 
-    void holdMonster() {
+    private void holdMonster() {
         int mcount = 0;
         for (int i = -2; i <= 2; i++) {
             for (int j = -2; j <= 2; j++) {

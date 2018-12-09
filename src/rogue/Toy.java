@@ -3,28 +3,48 @@ package rogue;
 import java.io.Serializable;
 import java.util.List;
 
-class Toy extends Item implements Serializable {
+/**
+ *
+ */
+public class Toy extends Item implements Serializable {
     private static final long serialVersionUID = -7095180483769968267L;
 
     // The stuff you can pick up
-    String damage = "1d1";
-    int quantity = 1;
-    int killExp;
-    boolean isProtected;
-    boolean isCursed = false;
-    int klass;
-    boolean identified = false;
-    int dEnchant;
-    int quiver;
-    int hitEnchant;
-    int kind;
-    boolean pickedUp = false; /* sleep from wand of sleep */
-    int inUseFlags = 0;
-    Persona owner; /* Who is carrying this item */
+    /** */
+    public String damage = "1d1";
+    /** */
+    public int quantity = 1;
+    private int killExp;
+    /** */
+    public boolean isProtected;
+    /** */
+    public boolean isCursed = false;
+    /** */
+    public int klass;
+    /** */
+    public boolean identified = false;
+    /** */
+    public int dEnchant;
+    private int quiver;
+    /** */
+    public int hitEnchant;
+    /** */
+    public int kind;
+    /** */
+    public boolean pickedUp = false; /* sleep from wand of sleep */
+    /** */
+    public int inUseFlags = 0;
+    /** */
+    public Persona owner; /* Who is carrying this item */
 
-    static String curseMessage = "you can't, it appears to be cursed";
+    /** */
+    public static String curseMessage = "you can't, it appears to be cursed";
 
-    Toy(Level level, int kind) {
+    /**
+     * @param level
+     * @param kind
+     */
+    public Toy(Level level, int kind) {
         super(level, 0, 0);
 
         int percent;
@@ -142,7 +162,10 @@ class Toy extends Item implements Serializable {
         }
     }
 
-    Toy(Toy t) { // New copy
+    /**
+     * @param t
+     */
+    public Toy(Toy t) { // New copy
         super(t.level, t.row, t.col);
         damage = new String(t.damage);
         killExp = t.killExp;
@@ -159,7 +182,7 @@ class Toy extends Item implements Serializable {
         this.itemCharacter = Id.getMaskCharacter(kind);
     }
 
-    Toy checkDuplicate(List<Item> pack) {
+    private Toy checkDuplicate(List<Item> pack) {
         if (0 == (kind & (Id.WEAPON | Id.FOOD | Id.SCROLL | Id.POTION))) {
             return null;
         }
@@ -181,8 +204,11 @@ class Toy extends Item implements Serializable {
         return null;
     }
 
-    Toy addToPack(Man man) {
-        // Return the pack and the added toy
+    /**
+     * @param man
+     * @return the pack and the added toy
+     */
+    public Toy addToPack(Man man) {
         Toy pdup = checkDuplicate(man.pack);
         if (null != pdup) {
             return pdup;
@@ -200,65 +226,77 @@ class Toy extends Item implements Serializable {
         return this;
     }
 
-    int getArmorClass() {
+    /**
+     * @return the armor class
+     */
+    public int getArmorClass() {
         return klass + dEnchant;
     }
 
-    String getDesc() {
+    /**
+     * @return the description of the item
+     */
+    public String getDesc() {
         return Id.getDescription(this);
     }
 
-    String name() {
-        String retstring = "unknown ";
+    /**
+     * @return the name of the item
+     */
+    public String name() {
+        String result = "unknown ";
         switch (kind & Id.ALL_TOYS) {
             case Id.SCROLL:
-                retstring = quantity > 1 ? "scrolls " : "scroll ";
+                result = quantity > 1 ? "scrolls " : "scroll ";
                 break;
             case Id.POTION:
-                retstring = quantity > 1 ? "potions " : "potion ";
+                result = quantity > 1 ? "potions " : "potion ";
                 break;
             case Id.FOOD:
                 if (kind == Id.RATION || owner == null || !(owner instanceof Man)) {
-                    retstring = "food ";
+                    result = "food ";
                 } else {
-                    retstring = ((Man) owner).option.fruit;
+                    result = ((Man) owner).option.fruit;
                 }
                 break;
             case Id.WAND:
-                retstring = Id.IS_WOOD[kind & 255] ? "staff " : "wand ";
+                result = Id.IS_WOOD[kind & 255] ? "staff " : "wand ";
                 break;
             case Id.WEAPON:
                 switch (kind) {
                     case Id.DART:
-                        retstring = quantity > 1 ? "darts " : "dart ";
+                        result = quantity > 1 ? "darts " : "dart ";
                         break;
                     case Id.ARROW:
-                        retstring = quantity > 1 ? "arrows " : "arrow ";
+                        result = quantity > 1 ? "arrows " : "arrow ";
                         break;
                     case Id.DAGGER:
-                        retstring = quantity > 1 ? "daggers " : "dagger ";
+                        result = quantity > 1 ? "daggers " : "dagger ";
                         break;
                     case Id.SHURIKEN:
-                        retstring = quantity > 1 ? "shurikens " : "shuriken ";
+                        result = quantity > 1 ? "shurikens " : "shuriken ";
                         break;
                     default:
-                        retstring = Id.idWeapons[kind & 255].title;
+                        result = Id.idWeapons[kind & 255].title;
                 }
                 break;
             case Id.ARMOR:
-                retstring = "armor ";
+                result = "armor ";
                 break;
             case Id.RING:
-                retstring = "ring ";
+                result = "ring ";
                 break;
             case Id.AMULET:
-                retstring = "amulet ";
+                result = "amulet ";
                 break;
         }
-        return retstring;
+        return result;
     }
 
-    void drop() {
+    /**
+     * 
+     */
+    public void drop() {
         if (0 != (inUseFlags & Id.BEING_WIELDED)) {
             if (isCursed) {
                 owner.tell(curseMessage);
@@ -298,11 +336,10 @@ class Toy extends Item implements Serializable {
         obj.owner = null;
     }
 
-    void identify() {
-        Id.identify(kind);
-    }
-
-    void unPutOn() {
+    /**
+     * 
+     */
+    public void unPutOn() {
         if (this == owner.leftRing) {
             inUseFlags &= ~Id.ON_LEFT_HAND;
             owner.leftRing = null;
@@ -315,7 +352,10 @@ class Toy extends Item implements Serializable {
         owner.ringStats(true);
     }
 
-    void vanish() {
+    /**
+     * 
+     */
+    public void vanish() {
         placeAt(-1, -1, TOY);
         if (quantity > 1) {
             --quantity;
@@ -334,7 +374,10 @@ class Toy extends Item implements Serializable {
         }
     }
 
-    void eatenby() {
+    /**
+     * 
+     */
+    public void eatenby() {
         if (!(owner instanceof Man)) {
             return;
         }
@@ -359,7 +402,10 @@ class Toy extends Item implements Serializable {
         vanish();
     }
 
-    void thrownby(int dir) {
+    /**
+     * @param dir
+     */
+    public void thrownby(int dir) {
         if (0 != (inUseFlags & Id.BEING_WIELDED) && quantity <= 1) {
             owner.unwield();
         } else if (0 != (inUseFlags & Id.BEING_WORN)) {
@@ -383,7 +429,7 @@ class Toy extends Item implements Serializable {
             monster.wakeUp();
             monster.checkGoldSeeker();
 
-            if (!monster.throw_at_monster(this, owner)) {
+            if (!monster.throwAtMonster(this, owner)) {
                 flopWeapon();
             }
         } else {
@@ -392,7 +438,7 @@ class Toy extends Item implements Serializable {
         vanish();
     }
 
-    void getThrownAtMonster(int dir) {
+    private void getThrownAtMonster(int dir) {
         int orow = row, ocol = col;
         int ch = Id.getMaskCharacter(kind);
 
@@ -427,7 +473,7 @@ class Toy extends Item implements Serializable {
         placeAt(orow, ocol, TOY);
     }
 
-    void flopWeapon() {
+    private void flopWeapon() {
         int r = row, c = col;
         Rowcol pt = new Rowcol(r, c);
         int i;
@@ -452,7 +498,10 @@ class Toy extends Item implements Serializable {
         quantity = t;
     }
 
-    int getWeaponWDamage() { // Check for null (-1)
+    /**
+     * @return the damage
+     */
+    public int getWeaponWDamage() { // Check for null (-1)
         if (0 == (kind & Id.WEAPON)) {
             return -1;
         }
@@ -464,10 +513,14 @@ class Toy extends Item implements Serializable {
         return Id.getDamage(dnew, level.rogue.rand);
     }
 
-    int toHit() {// Check for null (1)
+    /**
+     * @return number of rolls
+     */
+    public int toHit() {// Check for null (1)
         return Id.parseDamage(damage)[0] + hitEnchant;
     }
 
+    @Override
     public String toString() {
         return super.toString() + Integer.toString(kind, 16);
     }

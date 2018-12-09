@@ -86,6 +86,7 @@ public class Item extends Rowcol implements Header, Serializable {
         }
     }
 
+    @Override
     public String toString() {
         return super.toString() + Integer.toString(itemCharacter >> 8) + ((char) (itemCharacter & 255)) + " ";
     }

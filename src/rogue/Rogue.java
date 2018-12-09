@@ -34,70 +34,62 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
     private static final int[] MAP_CODES = {1002, 1003, 1001, 1000, 1006, 1004, 1007, 1005};
 
     private boolean running;
-    int pointsize = 24;
+    /** */
+    public int pointsize = 24;
     
-    JFrame parentFrame;
-    transient Thread gamer;
-    Level level;
-    Room endroom;
-    int currentLevel;
-    int maxLevel;
-    List<View> viewList = new ArrayList<>();
-    List<int[]> flashers = new ArrayList<>();
-    Randomx rand;
-    String keybuf = "";
-    long starttime;
+    /** */
+    public JFrame parentFrame;
+    /** */
+    public transient Thread gamer;
+    private Level level;
+    /** */
+    public Room endroom;
+    /** */
+    public int currentLevel;
+    /** */
+    public int maxLevel;
+    /** */
+    public List<View> viewList = new ArrayList<>();
+    private List<int[]> flashers = new ArrayList<>();
+    /** */
+    public Randomx rand;
+    private String keybuf = "";
+    /** */
+    public long starttime;
 
-    Id[] idPotions = null;
-    Id[] idScrolls = null;
-    Id[] idWeapons = null;
-    Id[] idArmors = null;
-    Id[] idWands = null;
-    Id[] idRings = null;
+    private Id[] idPotions = null;
+    private Id[] idScrolls = null;
+    private Id[] idWeapons = null;
+    private Id[] idArmors = null;
+    private Id[] idWands = null;
+    private Id[] idRings = null;
 
-    String scorepagename;
-    boolean interrupted;
+    /** */
+    public boolean interrupted;
 
     /**
      * @param args
      */
     public static void main(String[] args) {
         // Rogue r = new Rogue ();
-        Rogue r = loadGame();
-        if (r.parentFrame == null) {
-            r.parentFrame = new JFrame("Java Rogue");
+        Rogue rogue = loadGame();
+        if (rogue.parentFrame == null) {
+            rogue.parentFrame = new JFrame("Java Rogue");
             // r.f.setSize(800,520);
-            r.setSize(new Dimension(1200, 750));
+            rogue.setSize(new Dimension(1200, 750));
 
-            r.parentFrame.setLayout(new BorderLayout());
+            rogue.parentFrame.setLayout(new BorderLayout());
 
-            r.parentFrame.add(r, BorderLayout.CENTER);
+            rogue.parentFrame.add(rogue, BorderLayout.CENTER);
         }
-        r.parentFrame.addKeyListener(r);
-        r.parentFrame.addWindowListener(new WindowAdapter() {
+        rogue.parentFrame.addKeyListener(rogue);
+        rogue.parentFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
-                r.exit();
+                rogue.exit();
             }
         });
-//        ApplicationPreferences.loadPrefs(r);
-//        r.parentFrame.invalidate();
-//        r.parentFrame.validate();
-//        r.parentFrame.repaint();
-//        r.parentFrame.pack();
-//        r.parentFrame.setVisible(true);
-//        r.parentFrame.validate();
-
     }
 
-    /*
-     * public void windowClosing(WindowEvent e) { dispose(); System.exit(0); }
-     * public void windowOpened(WindowEvent e) { } public void
-     * windowIconified(WindowEvent e) { } public void windowClosed(WindowEvent
-     * e) { dispose(); System.exit(0); } public void
-     * windowDeiconified(WindowEvent e) { } public void
-     * windowActivated(WindowEvent e) { } public void
-     * windowDeactivated(WindowEvent e) { }
-     */
     /**
      * 
      */
@@ -105,15 +97,8 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
         setLayout(new BorderLayout());
         setOpaque(false);
         rand = new Randomx((int) System.currentTimeMillis());
-        try {
-            // int i= Integer.parseInt(getParameter("srand"));
-            // rand= new Randomx(i);
-            rand = new Randomx();
-        } catch (NumberFormatException e) {
-        }
-        // scorepagename= getParameter("score");
         setBackground(Color.black);
-        new Monster(); // Force static definitions
+//        new Monster(); // Force static definitions
         start();
     }
 
@@ -135,14 +120,14 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
         gamer = null;
     }
 
-    boolean newlevel = true;
+    private boolean newlevel = true;
 
-    void exit() {
+    private void exit() {
         ApplicationPreferences.savePrefs(this);
         System.exit(0);
     }
     
-    void outputScores() {
+    private void outputScores() {
         View view = (View) viewList.get(0);
         view.empty();
         view.addch(4, 32, "__--HIGH SCORES---__");
@@ -211,14 +196,14 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
         waitForAck();
     }
 
-    void endGame() {
+    private void endGame() {
         if (!Man.savedGame) {
             outputScores();
         }
         exit();
     }
 
-    void beginGame() {
+    private void beginGame() {
         System.out.println("Beginning new game");
         View view = null;
         // Id.list_items();
@@ -324,22 +309,6 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
         return true;
     }
 
-    synchronized public boolean keyDown(Event evt, int key) {
-        if (key == '\033') {
-            interrupted = true;
-        }
-        if (!gamer.isAlive()) {
-            if (key == ' ') {
-                start();
-            }
-        } else {
-            keybuf = keybuf + ((char) key);
-        }
-        notify();
-        
-        return true;
-    }
-
     @Override
     public synchronized void keyPressed(KeyEvent e) {
         int key = e.getKeyChar();
@@ -382,18 +351,27 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
     @Override
     public void keyTyped(KeyEvent e) {}
     
-    synchronized void mdSleep(int mseconds) {
+    /**
+     * @param mseconds
+     */
+    public synchronized void mdSleep(int mseconds) {
         if (mseconds > 0) {
             try { Thread.sleep(mseconds); } catch (InterruptedException e) {}
         }
         keybuf = "";
     }
 
-    synchronized void mdSlurp() {
+    /**
+     * 
+     */
+    public synchronized void mdSlurp() {
         keybuf = "";
     }
 
-    synchronized int mdGetchar() {
+    /**
+     * @return the next key in the buffer.
+     */
+    public synchronized int mdGetchar() {
         while (keybuf == null || keybuf.length() == 0) {
             try {
                 wait();
@@ -409,18 +387,29 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
         return key;
     }
 
-    int rgetchar() {
+    /**
+     * @return the next key in the buffer.
+     */
+    public int rgetchar() {
         return mdGetchar();
     }
 
-    void waitForAck() {
-        int c;
+    /**
+     * 
+     */
+    public void waitForAck() {
+        int ch;
         do {
-            c = rgetchar();
-        } while (c != ' ' && c != '\033');
+            ch = rgetchar();
+        } while (ch != ' ' && ch != '\033');
     }
 
-    void flashadd(int row, int col, int color) {
+    /**
+     * @param row
+     * @param col
+     * @param color
+     */
+    public void flashadd(int row, int col, int color) {
         int ia[] = new int[3];
         ia[0] = row;
         ia[1] = col;
@@ -428,7 +417,10 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
         flashers.add(ia);
     }
 
-    void xflash() {
+    /**
+     * 
+     */
+    public void xflash() {
         if (flashers.size() > 0) {
             boolean bseen = false;
             List<Character> chsave = new ArrayList<>(flashers.size());
@@ -468,7 +460,12 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
         }
     }
 
-    void vflash(int r, int c, char ch) {
+    /**
+     * @param r
+     * @param c
+     * @param ch
+     */
+    public void vflash(int r, int c, char ch) {
         boolean bseen = false;
 
         for (View v : viewList) {
@@ -487,7 +484,12 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
         }
     }
 
-    void tell(Persona p, String s, boolean bintr) {
+    /**
+     * @param p
+     * @param s
+     * @param bintr
+     */
+    public void tell(Persona p, String s, boolean bintr) {
         for (View v : viewList) {
             if (v.man == p) {
                 String ss = whoify(p, s);
@@ -497,51 +499,76 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
         xflash();
     }
 
-    boolean describe(Rowcol rc, String s, boolean bintr) {
+    /**
+     * @param rc
+     * @param s
+     * @param bintr
+     * @return ???
+     */
+    public boolean describe(Rowcol rc, String s, boolean bintr) {
         for (View v : viewList) {
             if (v.inSight(rc.row, rc.col)) {
                 String ss = whoify(v.man, s);
                 v.msg.message(ss, bintr);
+
                 return true;
             }
         }
         xflash();
+
         return false;
     }
 
-    void checkMessage(Persona p) {
+    /**
+     * @param p
+     */
+    public void checkMessage(Persona p) {
         for (View v : viewList) {
             if (v.man == p)
                 v.msg.checkMessage();
         }
     }
 
-    void refresh() {
+    /**
+     * 
+     */
+    public void refresh() {
         for (View v : viewList) {
             v.refresh();
         }
     }
 
-    void vset(int r, int c) {
+    /**
+     * @param r
+     * @param c
+     */
+    public void vset(int r, int c) {
         for (View v : viewList) {
             char ch = v.charat(r, c);
             v.addch(r, c, ch);
         }
     }
 
-    void mark(int r, int c) {
+    /**
+     * @param r
+     * @param c
+     */
+    public void mark(int r, int c) {
         for (View v : viewList) {
             v.mark(r, c);
         }
     }
 
-    void markall() {
+    /**
+     * 
+     */
+    public void markall() {
         for (View v : viewList) {
             v.markall();
         }
     }
 
-    String whoify(Persona p, String src) {
+    private String whoify(Persona p, String src) {
         String dst = "";
         int i = 0;
         int j;
@@ -584,7 +611,10 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
         return dst;
     }
 
-    void pullIds() {
+    /**
+     * 
+     */
+    public void pullIds() {
         idPotions = Id.idPotions;
         idScrolls = Id.idScrolls;
         idWeapons = Id.idWeapons;
@@ -593,7 +623,7 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
         idRings = Id.idRings;
     }
 
-    void pushIds() {
+    private void pushIds() {
         Id.idPotions = idPotions;
         Id.idScrolls = idScrolls;
         Id.idWeapons = idWeapons;
@@ -602,8 +632,8 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
         Id.idRings = idRings;
     }
 
-    static Rogue loadGame() {
-        Rogue r = null;
+    private static Rogue loadGame() {
+        Rogue rogue = null;
         try {
 
             // Reading the object from a file
@@ -613,16 +643,16 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
 
             // Method for deserialization of object
             try {
-                r = (Rogue) in.readObject();
+                rogue = (Rogue) in.readObject();
                 // Id.mix_colors(new Randomx(r.potionSeed));
                 // Id.make_scroll_titles(new Randomx(r.scrollSeed));
-                r.pushIds();
+                rogue.pushIds();
 //                r.viewList.get(0).addKeyListener(r);
             } catch (InvalidClassException e) {
                 // This is thrown when the code is updated and invalidates
                 // saved games from previous versions.
                 System.err.println("Saved game is from a previous versions.  Starting new game.");
-                r = new Rogue();
+                rogue = new Rogue();
             }
             in.close();
             fileStream.close();
@@ -630,12 +660,12 @@ public class Rogue extends JPanel implements Runnable, Header, Serializable, Key
 
             System.out.println("Object has been deserialized ");
             Man.justLoaded = 2;
-            r.start();
+            rogue.start();
         } catch (Exception e) {
             System.err.println("Couldn't load saved game.  Starting new game.");
-            r = new Rogue();
+            rogue = new Rogue();
         }
 
-        return r;
+        return rogue;
     }
 }

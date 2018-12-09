@@ -24,6 +24,7 @@ public class Rowcol implements Serializable {
         this(0, 0);
     }
 
+    @Override
     public String toString() {
         return "[" + Integer.toString(row) + ' ' + Integer.toString(col) + "]";
     }

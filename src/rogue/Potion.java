@@ -2,16 +2,25 @@ package rogue;
 
 import java.io.Serializable;
 
-class Potion extends Toy implements Serializable {
+/**
+ *
+ */
+public class Potion extends Toy implements Serializable {
     private static final long serialVersionUID = 2698734724537852689L;
 
-    static final String strange_feeling = "strange feeling";
+    private static final String STRANGE_FEELING = "strange feeling";
 
-    Potion(Level level) {
+    /**
+     * @param level
+     */
+    public Potion(Level level) {
         super(level, Id.POTION);
     }
 
-    void quaffby() {
+    /**
+     * 
+     */
+    public void quaffby() {
         switch (kind) {
             case Id.INCREASE_STRENGTH:
                 owner.tell("you feel stronger now, what bulging muscles!");
@@ -61,7 +70,7 @@ class Potion extends Toy implements Serializable {
                 break;
             case Id.DETECT_MONSTER:
                 if ((owner instanceof Man) && !level.showMonsters((Man) owner)) {
-                    owner.tell(strange_feeling);
+                    owner.tell(STRANGE_FEELING);
                 }
                 break;
             case Id.DETECT_TOYS:
@@ -69,7 +78,7 @@ class Potion extends Toy implements Serializable {
                     if (owner.blind != 0)
                         level.showToys((Man) owner);
                 } else
-                    owner.tell(strange_feeling);
+                    owner.tell(STRANGE_FEELING);
                 break;
             case Id.CONFUSION:
                 owner.tell(owner.halluc > 0 ? "what a trippy feeling" : "you feel confused");
@@ -102,7 +111,7 @@ class Potion extends Toy implements Serializable {
         vanish();
     }
 
-    void potionHeal(boolean extra) {
+    private void potionHeal(boolean extra) {
         double ratio;
         int add;
 
